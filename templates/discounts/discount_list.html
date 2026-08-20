@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}لیست تخفیف‌ها{% endblock %}
+
+{% block content %}
+<h1>تخفیف‌ها</h1>
+<a href="{% url 'discounts:discount_create' %}">ایجاد تخفیف جدید</a>
+<table>
+    <thead>
+        <tr>
+            <th>کد</th>
+            <th>نوع</th>
+            <th>مقدار</th>
+            <th>وضعیت</th>
+            <th>اعتبار</th>
+            <th>عملیات</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for discount in discounts %}
+            <tr>
+                <td>{{ discount.code }}</td>
+                <td>{{ discount.get_discount_type_display }}</td>
+                <td>{{ discount.value }}</td>
+                <td>{{ discount.is_active|yesno:"فعال,غیرفعال" }}</td>
+                <td>{{ discount.valid_from|date:"Y/m/d" }} تا {{ discount.valid_until|date:"Y/m/d" }}</td>
+                <td>
+                    <a href="{% url 'discounts:discount_update' discount.pk %}">ویرایش</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

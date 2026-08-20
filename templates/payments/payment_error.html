@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}پرداخت{% endblock %}
+
+{% block content %}
+<h1>خطا در پرداخت</h1>
+<p>{{ error }}</p>
+<a href="{% url 'cart:cart_detail' %}">بازگشت به سبد خرید</a>
+{% endblock %}

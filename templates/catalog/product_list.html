@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}لیست محصولات{% endblock %}
+
+{% block content %}
+<h1>محصولات</h1>
+{% for product in products %}
+    <div class="product">
+        <h2>{{ product.name }}</h2>
+        <p>{{ product.description|truncatewords:20 }}</p>
+        <p>قیمت: {{ product.price }} تومان</p>
+        {% if product.length or product.width or product.height %}
+            <p>ابعاد کلی: {{ product.length|default:"-" }}×{{ product.width|default:"-" }}×{{ product.height|default:"-" }} سانتی‌متر</p>
+        {% endif %}
+        <a href="{% url 'catalog:product_detail' product.slug %}">مشاهده</a>
+    </div>
+{% empty %}
+    <p>محصولی یافت نشد.</p>
+{% endfor %}
+{% endblock %}

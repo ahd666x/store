@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}جزئیات سفارش {{ order.id }}{% endblock %}
+
+{% block content %}
+<h1>سفارش #{{ order.id }}</h1>
+<p>وضعیت: {{ order.get_status_display }}</p>
+<p>مبلغ کل: {{ order.total_amount }} تومان</p>
+<p>تخفیف: {{ order.discount_amount }} تومان</p>
+<p>مبلغ نهایی: {{ order.final_amount }} تومان</p>
+<table>
+    <thead>
+        <tr>
+            <th>محصول</th>
+            <th>تعداد</th>
+            <th>قیمت واحد</th>
+            <th>مجموع</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+            <tr>
+                <td>
+                    {{ item.product.name }}
+                    {% if item.product.colors.all %}
+                        <br><small>رنگ‌ها: {{ item.product.colors.all|join:", " }}</small>
+                    {% endif %}
+                </td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit_price }} تومان</td>
+                <td>{{ item.total_price }} تومان</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

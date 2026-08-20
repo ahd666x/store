@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}لیست سفارشات{% endblock %}
+
+{% block content %}
+<h1>سفارشات من</h1>
+{% for order in orders %}
+    <div class="order">
+        <h2>سفارش #{{ order.id }}</h2>
+        <p>تاریخ: {{ order.created_at|date:"Y/m/d" }}</p>
+        <p>وضعیت: {{ order.get_status_display }}</p>
+        <p>مبلغ نهایی: {{ order.final_amount }} تومان</p>
+        <a href="{% url 'orders:order_detail' order.id %}">مشاهده جزئیات</a>
+    </div>
+{% empty %}
+    <p>هنوز سفارشی ثبت نکرده‌اید.</p>
+{% endfor %}
+{% endblock %}

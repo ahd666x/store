@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}تکمیل سفارش{% endblock %}
+
+{% block content %}
+<h1>تکمیل سفارش</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">ثبت سفارش</button>
+</form>
+{% endblock %}

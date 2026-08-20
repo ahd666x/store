@@ -1,0 +1,76 @@
+📂 store/
+├── 📂 store/
+│   ├── 📄 .env
+│   ├── 📄 manage.py
+│   ├── 📂 apps/
+│   │   ├── 📂 accounts/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 admin.py
+│   │   │   ├── 📄 apps.py
+│   │   │   ├── 📄 models.py
+│   │   │   ├── 📄 services.py
+│   │   │   ├── 📄 urls.py
+│   │   │   ├── 📄 views.py
+│   │   ├── 📂 cart/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 apps.py
+│   │   │   ├── 📄 context_processors.py
+│   │   │   ├── 📄 models.py
+│   │   │   ├── 📄 urls.py
+│   │   │   ├── 📄 views.py
+│   │   ├── 📂 catalog/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 apps.py
+│   │   │   ├── 📄 models.py
+│   │   │   ├── 📄 services.py
+│   │   │   ├── 📄 urls.py
+│   │   │   ├── 📄 views.py
+│   │   ├── 📂 common/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 apps.py
+│   │   │   ├── 📄 managers.py
+│   │   │   ├── 📄 models.py
+│   │   ├── 📂 communications/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 apps.py
+│   │   │   ├── 📄 tasks.py
+│   │   ├── 📂 discounts/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 apps.py
+│   │   ├── 📂 orders/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 apps.py
+│   │   │   ├── 📄 models.py
+│   │   │   ├── 📄 workflows.py
+│   │   ├── 📂 payments/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 apps.py
+│   │   │   ├── 📄 models.py
+│   │   │   ├── 📂 gateways/
+│   │   │   │   ├── 📄 __init__.py
+│   │   │   │   ├── 📄 base.py
+│   ├── 📂 config/
+│   │   ├── 📄 __init__.py
+│   │   ├── 📄 asgi.py
+│   │   ├── 📄 urls.py
+│   │   ├── 📄 wsgi.py
+│   │   ├── 📂 settings/
+│   │   │   ├── 📄 __init__.py
+│   │   │   ├── 📄 base.py
+│   │   │   ├── 📄 dev.py
+│   │   │   ├── 📄 production.py
+│   ├── 📂 logs/
+│   │   ├── 📄 .gitkeep
+│   ├── 📂 media/
+│   │   ├── 📄 .gitkeep
+│   ├── 📂 requirements/
+│   │   ├── 📄 base.txt
+│   │   ├── 📄 dev.txt
+│   │   ├── 📄 production.txt
+│   ├── 📂 static/
+│   │   ├── 📄 .gitkeep
+│   ├── 📂 templates/
+│   │   ├── 📄 base.html
+│   │   ├── 📂 includes/
+│   │   │   ├── 📄 footer.html
+│   │   │   ├── 📄 header.html

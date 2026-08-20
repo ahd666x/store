@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}خانه{% endblock %}
+
+{% block content %}
+<h1>خوش‌آمدید به فروشگاه ما</h1>
+<p>محصولات متنوع با بهترین قیمت‌ها</p>
+{% if featured_products %}
+    <h2>محصولات ویژه</h2>
+    <div class="products-grid">
+        {% for product in featured_products %}
+            <div class="product-card">
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.price }} تومان</p>
+                <a href="{% url 'catalog:product_detail' product.slug %}">مشاهده</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

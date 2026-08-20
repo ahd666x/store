@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}اعلان‌ها{% endblock %}
+
+{% block content %}
+<h1>اعلان‌های من</h1>
+<table>
+    <thead>
+        <tr>
+            <th>نوع</th>
+            <th>موضوع</th>
+            <th>تاریخ</th>
+            <th>وضعیت</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for notification in notifications %}
+            <tr>
+                <td>{{ notification.get_notification_type_display }}</td>
+                <td>{{ notification.subject }}</td>
+                <td>{{ notification.created_at|date:"Y/m/d" }}</td>
+                <td>{{ notification.is_read|yesno:"خوانده شده,خوانده نشده" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

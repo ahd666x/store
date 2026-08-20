@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+    <h1>{{ product.name }}</h1>
+    <p>دسته‌بندی: {{ product.category.name }}</p>
+    <p>قیمت: {{ product.price }} تومان</p>
+    <p>موجودی: {{ product.stock }}</p>
+    {% if product.length or product.width or product.height %}
+        <p>
+            ابعاد کلی:
+            {% if product.length %}{{ product.length }}×{% endif %}
+            {% if product.width %}{{ product.width }}×{% endif %}
+            {% if product.height %}{{ product.height }} سانتی‌متر{% endif %}
+        </p>
+    {% endif %}
+    <p>{{ product.description }}</p>
+
+    {% if product.sections.all %}
+        <h2>اجزای محصول</h2>
+        {% for section in product.sections.all %}
+            <div class="part">
+                <h3>{{ section.name }} <small>(رنگ: {{ section.color.name }})</small></h3>
+                {% if section.pieces.all %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>طول (سانتی‌متر)</th>
+                                <th>عرض (سانتی‌متر)</th>
+                                <th>توضیحات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for piece in section.pieces.all %}
+                                <tr>
+                                    <td>{{ piece.length }}</td>
+                                    <td>{{ piece.width }}</td>
+                                    <td>{{ piece.description|default:"-" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form action="{% url 'cart:cart_add' product.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">افزودن به سبد خرید</button>
+    </form>
+</div>
+{% endblock %}
