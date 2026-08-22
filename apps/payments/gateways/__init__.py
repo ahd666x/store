@@ -1,0 +1,19 @@
+from django.conf import settings
+from .zarinpal import ZarinpalGateway
+
+
+class PaymentGatewayFactory:
+    _gateways = {
+        'zarinpal': ZarinpalGateway,
+    }
+
+    @classmethod
+    def register(cls, name, gateway_class):
+        cls._gateways[name] = gateway_class
+
+    @classmethod
+    def get(cls, gateway_name):
+        gateway_class = cls._gateways.get(gateway_name)
+        if not gateway_class:
+            raise ValueError(f"Gateway '{gateway_name}' is not supported.")
+        return gateway_class()
