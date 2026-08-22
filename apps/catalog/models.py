@@ -96,6 +96,8 @@ class Product(BaseModel):
 
     @property
     def average_rating(self):
+        if hasattr(self, 'avg_rating') and self.avg_rating is not None:
+            return round(self.avg_rating, 1)
         reviews = self.reviews.filter(is_active=True)
         if not reviews.exists():
             return 0
@@ -103,6 +105,8 @@ class Product(BaseModel):
 
     @property
     def review_count(self):
+        if hasattr(self, 'rev_count') and self.rev_count is not None:
+            return self.rev_count
         return self.reviews.filter(is_active=True).count()
 
 

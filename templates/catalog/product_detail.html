@@ -94,6 +94,8 @@
         </form>
     {% elif user.is_authenticated %}
         <p>شما قبلاً برای این محصول نظر داده‌اید.</p>
+    {% else %}
+        <p>برای ثبت نظر باید <a href="{% url 'accounts:login' %}">وارد شوید</a>.</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, 
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Avg, Count
 from django.views.generic import CreateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.catalog.models import Product
@@ -12,7 +12,10 @@ from .forms import UserRegistrationForm
 
 
 def home(request):
-    featured_products = Product.objects.filter(is_active=True, stock__gt=0).order_by('-created_at')[:8]
+    featured_products = Product.objects.filter(is_active=True, stock__gt=0).annotate(
+        avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
+        rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
+    ).order_by('-created_at')[:8]
     return render(request, 'home.html', {'featured_products': featured_products})
 
 
