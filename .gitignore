@@ -18,11 +18,8 @@ db.sqlite3
 
 # فایل‌های آپلودی و استاتیک جمع‌آوری شده
 media/
-static/
 mediafiles/
 staticfiles/
-
-# لاگ‌ها
 logs/
 *.log
 
@@ -34,3 +31,10 @@ logs/
 # فایل‌های موقت
 *.tmp
 *.swp
+
+# وابستگی‌های Node.js
+node_modules/
+package-lock.json
+
+# فایل CSS کامپایل شده
+static/css/style.css

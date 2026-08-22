@@ -3,26 +3,164 @@
 {% block title %}لیست محصولات{% endblock %}
 
 {% block content %}
-<h1>محصولات</h1>
-{% for product in products %}
-    <div class="product">
-        <h2>{{ product.name }}</h2>
-        {% if product.images.all %}
-            <div class="product-thumb">
-                <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" loading="lazy">
-            </div>
-        {% endif %}
-        <p>{{ product.description|truncatewords:20 }}</p>
-        <p>قیمت: {{ product.price }} تومان</p>
-        {% if product.average_rating %}
-            <p>امتیاز: {{ product.average_rating }} / 5 ({{ product.review_count }} نظر)</p>
-        {% endif %}
-        {% if product.length or product.width or product.height %}
-            <p>ابعاد کلی: {{ product.length|default:"-" }}×{{ product.width|default:"-" }}×{{ product.height|default:"-" }} سانتی‌متر</p>
-        {% endif %}
-        <a href="{% url 'catalog:product_detail' product.slug %}">مشاهده</a>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">محصولات ما</h1>
+        <p class="text-lg text-gray-600">کابینت‌های مدرن و کلاسیک با بهترین مواد اولیه</p>
     </div>
-{% empty %}
-    <p>محصولی یافت نشد.</p>
-{% endfor %}
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="form-label">جستجو</label>
+                <input type="text" placeholder="نام محصول..." class="form-input" id="searchInput">
+            </div>
+            <div>
+                <label class="form-label">دسته‌بندی</label>
+                <select class="form-input" id="categoryFilter">
+                    <option value="">همه دسته‌ها</option>
+                    {% for category in categories %}
+                        <option value="{{ category.slug }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="form-label">مرتب‌سازی</label>
+                <select class="form-input" id="sortFilter">
+                    <option value="newest">جدیدترین</option>
+                    <option value="price-asc">قیمت: کم به زیاد</option>
+                    <option value="price-desc">قیمت: زیاد به کم</option>
+                    <option value="popular">محبوب‌ترین</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button onclick="applyFilters()" class="btn-primary w-full">
+                    اعمال فیلترها
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    {% if products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="productsGrid">
+            {% for product in products %}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-300 product-card">
+                    {% if product.images.all %}
+                        <div class="relative">
+                            <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover" loading="lazy">
+                            {% if product.stock == 0 %}
+                                <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                                    ناموجود
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="p-4">
+                        <div class="mb-2">
+                            <span class="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
+                                {{ product.category.name }}
+                            </span>
+                        </div>
+                        
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-1">{{ product.name }}</h3>
+                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ product.description|truncatewords:10 }}</p>
+                        
+                        {% if product.average_rating %}
+                            <div class="flex items-center mb-3">
+                                <div class="flex text-yellow-400 text-sm">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.average_rating %}
+                                            ★
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="mr-2 text-sm text-gray-600">({{ product.review_count }})</span>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <span class="text-2xl font-bold text-indigo-600">{{ product.price }} تومان</span>
+                                {% if product.base_price != product.price %}
+                                    <span class="text-sm text-gray-500 line-through mr-2">{{ product.base_price }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <a href="{% url 'catalog:product_detail' product.slug %}" class="flex-1 text-center bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+                                مشاهده
+                            </a>
+                            {% if product.stock > 0 %}
+                                <button onclick="addToCart({{ product.id }})" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition text-sm font-medium">
+                                    افزودن به سبد
+                                </button>
+                            {% else %}
+                                <button disabled class="flex-1 bg-gray-300 text-gray-500 py-2 px-4 rounded-lg cursor-not-allowed text-sm font-medium">
+                                    ناموجود
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-16">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-gray-500 text-lg">محصولی با این معیارها یافت نشد.</p>
+            <button onclick="resetFilters()" class="mt-4 text-indigo-600 hover:text-indigo-800 font-medium">
+                پاک کردن فیلترها
+            </button>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function addToCart(productId) {
+    htmx.ajax('POST', '{% url "cart:cart_add" 0 %}'.replace('0', productId), {
+        target: '#cart-count',
+        swap: 'outerHTML'
+    }).then(() => {
+        // Show success message
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 left-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+        toast.textContent = 'محصول به سبد خرید اضافه شد';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    });
+}
+
+function applyFilters() {
+    const search = document.getElementById('searchInput').value;
+    const category = document.getElementById('categoryFilter').value;
+    const sort = document.getElementById('sortFilter').value;
+    
+    // In a real implementation, this would make an AJAX request or redirect with query params
+    const url = new URL(window.location);
+    if (search) url.searchParams.set('search', search);
+    if (category) url.searchParams.set('category', category);
+    if (sort) url.searchParams.set('sort', sort);
+    
+    window.location = url.toString();
+}
+
+function resetFilters() {
+    window.location = '{% url "catalog:product_list" %}';
+}
+</script>
 {% endblock %}
