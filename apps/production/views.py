@@ -46,7 +46,7 @@ class ProductionReportView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
         tasks = ProductionTask.objects.filter(
             status='done',
             completed_at__date=report_date,
-        ).select_related('scanned_by', 'station_name')
+        ).select_related('scanned_by')
 
         report = {}
         for task in tasks:

@@ -4,6 +4,31 @@ from apps.common.fields import PersianDateField, PersianDateTimeField
 from apps.accounts.models import User
 from apps.catalog.models import Product
 import jdatetime
+import qrcode
+import os
+from django.conf import settings
+
+
+def generate_qr_code(data, folder_name, filename_prefix):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    media_root = settings.MEDIA_ROOT
+    folder = os.path.join(media_root, folder_name)
+    os.makedirs(folder, exist_ok=True)
+    
+    filename = f"{filename_prefix}.png"
+    filepath = os.path.join(folder, filename)
+    img.save(filepath)
+    
+    return os.path.join(folder_name, filename)
 
 
 class Customer(BaseModel):
@@ -191,6 +216,13 @@ class OrderItem(BaseModel):
                     self.unit_price = int(self.product.base_price)
                 else:
                     self.unit_price = 0
+        
+        if not self.qr_code and self.product:
+            qr_data = f"Order:{self.order_id}|Product:{self.product.name}|Qty:{self.quantity}|Size:{self.size or '-'}"
+            filename_prefix = f"order_{self.order_id}_item_{self.id or 'new'}"
+            relative_path = generate_qr_code(qr_data, 'qr', filename_prefix)
+            self.qr_code = relative_path
+        
         super().save(*args, **kwargs)
 
 
@@ -239,6 +271,14 @@ class PackagingUnit(BaseModel):
 
     def __str__(self):
         return f"واحد {self.unit_number} - {self.order_item}"
+
+    def save(self, *args, **kwargs):
+        if not self.qr_code and self.order_item_id:
+            qr_data = f"Unit:{self.unit_number}|OrderItem:{self.order_item_id}|Order:{self.order_item.order_id}|Product:{self.order_item.product.name}"
+            filename_prefix = f"unit_{self.order_item_id}_{self.unit_number}"
+            relative_path = generate_qr_code(qr_data, 'packaging_qr', filename_prefix)
+            self.qr_code = relative_path
+        super().save(*args, **kwargs)
 
 
 class ProductionTask(BaseModel):

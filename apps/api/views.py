@@ -8,6 +8,7 @@ from apps.catalog.models import Product, ProductCategory
 from apps.orders.models import Order, ProductionTask
 from apps.cart.models import Cart, CartItem
 from apps.discounts.models import Discount
+from .permissions import IsAdminOrReadOnly
 from .serializers import (
     ProductListSerializer,
     ProductSerializer,
@@ -45,13 +46,6 @@ class CurrentUserView(viewsets.ViewSet):
     def list(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
-
-
-class IsAdminOrReadOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return request.user and request.user.is_staff
 
 
 class ProductCategoryViewSet(viewsets.ModelViewSet):
