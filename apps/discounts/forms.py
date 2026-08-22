@@ -10,3 +10,7 @@ class DiscountForm(forms.ModelForm):
             'valid_from': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'valid_until': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
+
+
+class ApplyDiscountForm(forms.Form):
+    code = forms.CharField(max_length=50, label="کد تخفیف")

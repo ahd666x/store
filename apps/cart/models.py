@@ -6,6 +6,7 @@ from apps.catalog.models import Product
 
 class Cart(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart', verbose_name="کاربر")
+    discount = models.ForeignKey('discounts.Discount', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="تخفیف")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
 
     class Meta:
@@ -22,6 +23,19 @@ class Cart(BaseModel):
     @property
     def total_price(self):
         return sum(item.total_price for item in self.items.all())
+
+    @property
+    def discount_amount(self):
+        if not self.discount or not self.discount.is_valid:
+            return 0
+        total = self.total_price
+        if self.discount.discount_type == 'percent':
+            return int(total * self.discount.value / 100)
+        return min(self.discount.value, total)
+
+    @property
+    def final_price(self):
+        return max(self.total_price - self.discount_amount, 0)
 
 
 class CartItem(BaseModel):

@@ -64,4 +64,12 @@ class OrderService:
                 unit_price=cart_item.product.price,
             )
 
+        order.discount = cart.discount
+        order.discount_amount = cart.discount_amount
+        order.total_amount = cart.total_price
+        order.final_amount = cart.final_price
+        order.save(update_fields=['discount', 'discount_amount', 'total_amount', 'final_amount'])
+
         cart.items.all().delete()
+        cart.discount = None
+        cart.save(update_fields=['discount'])

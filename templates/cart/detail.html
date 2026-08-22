@@ -30,6 +30,23 @@
         </tbody>
     </table>
     <p>جمع کل: {{ cart.total_price }} تومان</p>
+    {% if cart.discount_amount > 0 %}
+        <p>تخفیف: {{ cart.discount_amount }} تومان (کد: {{ cart.discount.code }})</p>
+        <form method="post" action="{% url 'discounts:remove_discount' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">حذف تخفیف</button>
+        </form>
+    {% endif %}
+    <p><strong>مبلغ قابل پرداخت: {{ cart.final_price }} تومان</strong></p>
+
+    {% if not cart.discount %}
+        <form method="post" action="{% url 'discounts:apply_discount' %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="text" name="code" placeholder="کد تخفیف" required>
+            <button type="submit" class="btn btn-primary">اعمال تخفیف</button>
+        </form>
+    {% endif %}
+
     <a href="{% url 'orders:order_create' %}" class="btn btn-primary">تکمیل سفارش</a>
 {% else %}
     <p>سبد خرید شما خالی است.</p>

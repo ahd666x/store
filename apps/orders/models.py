@@ -58,6 +58,7 @@ class Order(BaseModel):
     total_amount = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name="مبلغ کل")
     discount_amount = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name="تخفیف")
     final_amount = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name="مبلغ نهایی")
+    discount = models.ForeignKey('discounts.Discount', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="تخفیف")
     shipping_address = models.TextField(verbose_name="آدرس ارسال")
     tracking_code = models.CharField(max_length=100, blank=True, verbose_name="کد رهگیری")
     paid_at = PersianDateTimeField(null=True, blank=True, verbose_name="تاریخ پرداخت")

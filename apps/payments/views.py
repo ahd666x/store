@@ -66,6 +66,10 @@ def payment_verify(request):
         order.paid_at = payment.paid_at
         order.save(update_fields=['status', 'paid_at'])
 
+        if order.discount and order.discount.is_valid:
+            order.discount.used_count = F('used_count') + 1
+            order.discount.save(update_fields=['used_count'])
+
         for item in order.items.all():
             product = item.product
             if product.stock >= item.quantity:
