@@ -1,10 +1,12 @@
 from django.db import models
+from django.utils.text import slugify
 from apps.common.models import BaseModel
 from apps.common.managers import ActiveManager
 
 
 class ProductCategory(BaseModel):
     name = models.CharField(max_length=100, verbose_name="نام دسته")
+    slug = models.SlugField(max_length=120, unique=True, blank=True, allow_unicode=True, verbose_name="اسلاگ")
 
     def __str__(self):
         return self.name
@@ -12,6 +14,17 @@ class ProductCategory(BaseModel):
     class Meta:
         verbose_name = "دسته‌بندی"
         verbose_name_plural = "دسته‌بندی‌ها"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name, allow_unicode=True)
+            slug = base_slug
+            counter = 1
+            while ProductCategory.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                counter += 1
+                slug = f"{base_slug}-{counter}"
+            self.slug = slug
+        super().save(*args, **kwargs)
 
 
 class Color(BaseModel):
@@ -43,6 +56,7 @@ class Material(BaseModel):
 class Product(BaseModel):
     category = models.ForeignKey(ProductCategory, on_delete=models.PROTECT, related_name='products', verbose_name="دسته")
     name = models.CharField(max_length=200, verbose_name="نام محصول")
+    slug = models.SlugField(max_length=220, unique=True, blank=True, allow_unicode=True, verbose_name="اسلاگ")
     color = models.CharField(max_length=100, blank=True, verbose_name="رنگ")
     description = models.TextField(blank=True, verbose_name="توضیحات")
     default_size = models.CharField(max_length=100, blank=True, verbose_name="سایز پیش‌فرض")
@@ -61,6 +75,7 @@ class Product(BaseModel):
     class Meta:
         verbose_name = "محصول"
         verbose_name_plural = "محصولات"
+        ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.category} - {self.name}"
@@ -68,6 +83,14 @@ class Product(BaseModel):
     def save(self, *args, **kwargs):
         if not self.price and self.base_price:
             self.price = self.base_price
+        if not self.slug:
+            base_slug = slugify(self.name, allow_unicode=True)
+            slug = base_slug
+            counter = 1
+            while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                counter += 1
+                slug = f"{base_slug}-{counter}"
+            self.slug = slug
         super().save(*args, **kwargs)
 
 

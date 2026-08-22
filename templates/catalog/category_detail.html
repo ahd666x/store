@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ category.name }}</h1>
+{% for product in products %}
+    <div class="product">
+        <h2>{{ product.name }}</h2>
+        <p>{{ product.description|truncatewords:20 }}</p>
+        <p>قیمت: {{ product.price }} تومان</p>
+        <a href="{% url 'catalog:product_detail' product.slug %}">مشاهده</a>
+    </div>
+{% empty %}
+    <p>محصولی در این دسته یافت نشد.</p>
+{% endfor %}
+{% endblock %}

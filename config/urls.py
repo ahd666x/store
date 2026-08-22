@@ -13,6 +13,7 @@ urlpatterns = [
     path('payments/', include('apps.payments.urls')),
     path('discounts/', include('apps.discounts.urls')),
     path('communications/', include('apps.communications.urls')),
+    path('production/', include('apps.production.urls')),
     path('', accounts_views.home, name='home'),
 ]
 

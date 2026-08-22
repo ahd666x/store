@@ -7,7 +7,7 @@ DATABASES = {
     'default': dj_database_url.config(default=env('DATABASE_URL'))
 }
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['yourdomain.com', 'www.yourdomain.com'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['staging.yourdomain.com'])
 
 # Security
 SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
@@ -48,7 +48,7 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
+            'filename': BASE_DIR / 'logs' / 'django_staging.log',
             'formatter': 'verbose',
         },
     },

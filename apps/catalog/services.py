@@ -1,5 +1,5 @@
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField, Q
-from .models import Product, Category
+from .models import Product, ProductCategory
 
 
 class CatalogService:

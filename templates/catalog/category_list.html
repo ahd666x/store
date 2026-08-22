@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}دسته‌بندی‌ها{% endblock %}
+
+{% block content %}
+<h1>دسته‌بندی محصولات</h1>
+<div class="categories-grid">
+    {% for category in categories %}
+        <div class="category-card">
+            <h2><a href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a></h2>
+        </div>
+    {% empty %}
+        <p>دسته‌بندی‌ای یافت نشد.</p>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}وظایف تولید{% endblock %}
+
+{% block content %}
+<h1>وظایف تولید</h1>
+<table>
+    <thead>
+        <tr>
+            <th>سفارش</th>
+            <th>ایستگاه</th>
+            <th>قطعه / آیتم</th>
+            <th>تعداد</th>
+            <th>وضعیت</th>
+            <th>کارگر تخصیص‌یافته</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>#{{ task.order_id }}</td>
+                <td>{{ task.get_station_name_display }}</td>
+                <td>{{ task.part|default:task.order_item|default:"-" }}</td>
+                <td>{{ task.quantity }}</td>
+                <td>{{ task.get_status_display }}</td>
+                <td>{{ task.assigned_worker|default:"—" }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">وظیفه‌ای یافت نشد.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
