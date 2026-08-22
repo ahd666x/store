@@ -1,87 +1,62 @@
 {% load static %}
+{% load jformat %}
 <!DOCTYPE html>
 <html dir="rtl" lang="fa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}فروشگاه کابینت{% endblock %}</title>
+    
+    {# SEO Meta Tags #}
+    <title>{% block title %}کابینت‌شاپ | فروشگاه آنلاین کابینت{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}کابینت‌شاپ، فروشگاه آنلاین کابینت‌های مدرن و کلاسیک با بهترین کیفیت و قیمت. ضمانت ۱۰ ساله، تحویل سریع در سراسر کشور.{% endblock %}">
+    <meta name="keywords" content="کابینت, کابینت آشپزخانه, کابینت مدرن, کابینت کلاسیک, خرید کابینت, قیمت کابینت">
+    <meta name="author" content="کابینت‌شاپ">
+    
+    {# Open Graph #}
+    <meta property="og:title" content="{% block og_title %}{% block title %}کابینت‌شاپ{% endblock %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{% block meta_description %}فروشگاه آنلاین کابینت{% endblock %}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'images/og-default.png' %}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:locale" content="fa_IR">
+    
+    {# Twitter Card #}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{% block title %}کابینت‌شاپ{% endblock %}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description %}فروشگاه آنلاین کابینت{% endblock %}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% block og_image %}{% static 'images/og-default.png' %}{% endblock %}{% endblock %}">
+    
+    {# Favicon #}
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    
+    {# Stylesheets #}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="{% url 'home' %}" class="flex-shrink-0 flex items-center">
-                        <span class="text-2xl font-bold text-indigo-600">🛋️ کابینت‌شاپ</span>
-                    </a>
-                    <div class="hidden md:mr-6 md:flex md:space-x-reverse md:space-x-8">
-                        <a href="{% url 'catalog:product_list' %}" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            محصولات
-                        </a>
-                        <a href="{% url 'cart:cart_detail' %}" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            سبد خرید
-                            {% if cart_count > 0 %}
-                                <span id="cart-count" class="mr-1 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                                    {{ cart_count }}
-                                </span>
-                            {% else %}
-                                <span id="cart-count" class="mr-1 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full hidden">0</span>
-                            {% endif %}
-                        </a>
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'accounts:profile' %}" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                                پروفایل
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    {% if user.is_authenticated %}
-                        <span class="text-sm text-gray-700 ml-4">خوش آمدید، {{ user.username }}</span>
-                        <a href="{% url 'accounts:logout' %}" class="text-sm text-gray-500 hover:text-gray-700 ml-4">
-                            خروج
-                        </a>
-                    {% else %}
-                        <a href="{% url 'accounts:login' %}" class="text-sm text-gray-500 hover:text-gray-700 ml-4">
-                            ورود
-                        </a>
-                        <a href="{% url 'accounts:register' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">
-                            ثبت‌نام
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Messages -->
-    {% if messages %}
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
-            {% for message in messages %}
-                <div class="mb-4 p-4 rounded-md {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- Main Content -->
+<body class="bg-stone-50 text-stone-900 min-h-screen flex flex-col">
+    
+    {# Header #}
+    {% include 'includes/header.html' %}
+    
+    {# Breadcrumb #}
+    {% block breadcrumb %}{% endblock %}
+    
+    {# Messages / Toast Container #}
+    {% include 'includes/toast.html' %}
+    
+    {# Main Content #}
     <main class="flex-grow">
         {% block content %}{% endblock %}
     </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-sm text-gray-500">
-                © {% now "Y" %} کابینت‌شاپ. تمامی حقوق محفوظ است.
-            </p>
-        </div>
-    </footer>
-
+    
+    {# Footer #}
+    {% include 'includes/footer.html' %}
+    
+    {# Alpine.js #}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
