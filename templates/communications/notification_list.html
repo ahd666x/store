@@ -3,25 +3,35 @@
 {% block title %}اعلان‌ها{% endblock %}
 
 {% block content %}
-<h1>اعلان‌های من</h1>
-<table>
-    <thead>
-        <tr>
-            <th>نوع</th>
-            <th>موضوع</th>
-            <th>تاریخ</th>
-            <th>وضعیت</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for notification in notifications %}
-            <tr>
-                <td>{{ notification.get_notification_type_display }}</td>
-                <td>{{ notification.subject }}</td>
-                <td>{{ notification.created_at|date:"Y/m/d" }}</td>
-                <td>{{ notification.is_read|yesno:"خوانده شده,خوانده نشده" }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">اعلان‌های من</h1>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نوع</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">موضوع</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاریخ</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for notification in notifications %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ notification.get_notification_type_display }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ notification.subject }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ notification.created_at|date:"Y/m/d" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if notification.is_read %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ notification.is_read|yesno:"خوانده شده,خوانده نشده" }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

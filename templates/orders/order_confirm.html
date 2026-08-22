@@ -3,37 +3,78 @@
 {% block title %}تایید سفارش{% endblock %}
 
 {% block content %}
-<div class="order-confirm">
-    <h1>تایید سفارش #{{ order.id }}</h1>
-    <p><strong>مشتری:</strong> {{ order.customer.name }}</p>
-    <p><strong>آدرس ارسال:</strong> {{ order.shipping_address }}</p>
-    <p><strong>مبلغ کل:</strong> {{ order.final_amount }} تومان</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">تایید سفارش #{{ order.id }}</h1>
+        <p class="text-gray-600">لطفا اطلاعات سفارش را بررسی کنید</p>
+    </div>
 
-    <h2>آیتم‌های سفارش</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>محصول</th>
-                <th>تعداد</th>
-                <th>قیمت واحد</th>
-                <th>مجموع</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-                <tr>
-                    <td>{{ item.product.name }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.unit_price }} تومان</td>
-                    <td>{{ item.line_total }} تومان</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">آیتم‌های سفارش</h2>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    {% for item in items %}
+                        <div class="p-6 flex items-center gap-6">
+                            {% if item.product.images.all %}
+                                <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="w-20 h-20 object-cover rounded-lg">
+                            {% else %}
+                                <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">{{ item.product.name }}</h3>
+                                <p class="text-gray-600 text-sm mt-1">تعداد: {{ item.quantity }}</p>
+                                <p class="text-gray-600 text-sm">قیمت واحد: {{ item.unit_price }} تومان</p>
+                            </div>
+                            
+                            <div class="text-left">
+                                <p class="text-xl font-bold text-gray-900">{{ item.line_total }} تومان</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
-    <div class="actions">
-        <a href="{% url 'payments:payment_create' order.id %}" class="btn btn-primary">پرداخت و ادامه</a>
-        <a href="{% url 'cart:cart_detail' %}" class="btn btn-danger">بازگشت به سبد خرید</a>
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">خلاصه سفارش</h2>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between text-gray-600">
+                        <span>مشتری:</span>
+                        <span>{{ order.customer.name }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>آدرس ارسال:</span>
+                        <span class="text-left max-w-xs">{{ order.shipping_address }}</span>
+                    </div>
+                    <div class="border-t border-gray-200 pt-3">
+                        <div class="flex justify-between text-lg font-bold text-gray-900">
+                            <span>مبلغ قابل پرداخت:</span>
+                            <span>{{ order.final_amount }} تومان</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <a href="{% url 'payments:payment_create' order.id %}" class="btn-primary w-full block text-center py-3">
+                        پرداخت و ادامه
+                    </a>
+                    <a href="{% url 'cart:cart_detail' %}" class="btn-danger w-full block text-center py-3">
+                        بازگشت به سبد خرید
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

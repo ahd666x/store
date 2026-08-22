@@ -30,9 +30,9 @@
                 <label class="form-label">مرتب‌سازی</label>
                 <select class="form-input" id="sortFilter">
                     <option value="newest">جدیدترین</option>
-                    <option value="price-asc">قیمت: کم به زیاد</option>
-                    <option value="price-desc">قیمت: زیاد به کم</option>
-                    <option value="popular">محبوب‌ترین</option>
+                    <option value="price_asc">قیمت: کم به زیاد</option>
+                    <option value="price_desc">قیمت: زیاد به کم</option>
+                    <option value="-average_rating">محبوب‌ترین</option>
                 </select>
             </div>
             <div class="flex items-end">
@@ -136,7 +136,6 @@ function addToCart(productId) {
         target: '#cart-count',
         swap: 'outerHTML'
     }).then(() => {
-        // Show success message
         const toast = document.createElement('div');
         toast.className = 'fixed bottom-4 left-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
         toast.textContent = 'محصول به سبد خرید اضافه شد';
@@ -150,9 +149,8 @@ function applyFilters() {
     const category = document.getElementById('categoryFilter').value;
     const sort = document.getElementById('sortFilter').value;
     
-    // In a real implementation, this would make an AJAX request or redirect with query params
     const url = new URL(window.location);
-    if (search) url.searchParams.set('search', search);
+    if (search) url.searchParams.set('q', search);
     if (category) url.searchParams.set('category', category);
     if (sort) url.searchParams.set('sort', sort);
     

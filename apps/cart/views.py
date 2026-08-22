@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import HttpResponse
 from .models import Cart, CartItem
 from apps.catalog.models import Product
 
@@ -28,6 +29,11 @@ def cart_add(request, product_id):
             cart_item.quantity = product.stock
             cart_item.save()
     messages.success(request, 'محصول به سبد خرید اضافه شد.')
+
+    if request.headers.get('HX-Request'):
+        cart_count = cart.items.count()
+        return HttpResponse(f'<span id="cart-count" class="mr-1 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{cart_count}</span>')
+
     return redirect('catalog:product_list')
 
 
