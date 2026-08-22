@@ -7,6 +7,7 @@ from django.db.models import Q, Avg, Count
 from django.views.generic import CreateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.catalog.models import Product
+from apps.orders.models import Order
 from .models import User, OTPCode
 from .forms import UserRegistrationForm
 
@@ -51,12 +52,11 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 
 class ProfileView(LoginRequiredMixin, ListView):
-    model = Product
+    model = Order
     template_name = 'accounts/profile.html'
     context_object_name = 'orders'
 
     def get_queryset(self):
-        from apps.orders.models import Order
         return Order.objects.filter(user=self.request.user).order_by('-created_at')
 
 

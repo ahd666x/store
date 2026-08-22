@@ -3,27 +3,17 @@ from django.conf import settings
 from django.urls import reverse
 
 
-class BaseGateway:
-    def pay(self, request, payment):
-        raise NotImplementedError
-
-    def verify(self, request, payment):
-        raise NotImplementedError
-
-
-class ZarinpalGateway(BaseGateway):
+class ZarinpalGateway:
     def __init__(self):
         self.merchant_id = getattr(settings, 'ZARINPAL_MERCHANT_ID', '')
         self.sandbox = getattr(settings, 'ZARINPAL_SANDBOX', True)
         if self.sandbox:
             self.request_url = 'https://sandbox.zarinpal.com/pg/rest/WebGate/PaymentRequest.json'
             self.verify_url = 'https://sandbox.zarinpal.com/pg/rest/WebGate/PaymentVerification.json'
-            self.callback_url = 'http://localhost:8000/payments/verify/'
             self.start_pay_url = 'https://sandbox.zarinpal.com/pg/StartPay/'
         else:
             self.request_url = 'https://api.zarinpal.com/pg/v4/payment/request.json'
             self.verify_url = 'https://api.zarinpal.com/pg/v4/payment/verify.json'
-            self.callback_url = 'https://yourdomain.com/payments/verify/'
             self.start_pay_url = 'https://www.zarinpal.com/pg/StartPay/'
 
         self.session = requests.Session()
@@ -44,11 +34,12 @@ class ZarinpalGateway(BaseGateway):
             return {'error': 'request', 'message': f'خطا در ارتباط: {str(e)}'}
 
     def pay(self, request, payment):
+        callback_url = request.build_absolute_uri(reverse('payments:payment_verify'))
         data = {
             'MerchantID': self.merchant_id,
             'Amount': int(payment.amount),
             'Description': f'پرداخت سفارش #{payment.order.id}',
-            'CallbackURL': self.callback_url,
+            'CallbackURL': callback_url,
         }
         result = self._post_json(self.request_url, data)
         if result.get('data', {}).get('code') == 100:
