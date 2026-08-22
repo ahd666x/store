@@ -216,14 +216,16 @@ class OrderItem(BaseModel):
                     self.unit_price = int(self.product.base_price)
                 else:
                     self.unit_price = 0
-        
-        if not self.qr_code and self.product:
+
+        is_new = not self.pk
+        super().save(*args, **kwargs)
+
+        if is_new and not self.qr_code and self.product:
             qr_data = f"Order:{self.order_id}|Product:{self.product.name}|Qty:{self.quantity}|Size:{self.size or '-'}"
-            filename_prefix = f"order_{self.order_id}_item_{self.id or 'new'}"
+            filename_prefix = f"order_{self.order_id}_item_{self.id}"
             relative_path = generate_qr_code(qr_data, 'qr', filename_prefix)
             self.qr_code = relative_path
-        
-        super().save(*args, **kwargs)
+            super().save(update_fields=['qr_code'])
 
 
 class OrderColor(models.Model):

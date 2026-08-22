@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, View
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils import timezone
@@ -29,9 +29,8 @@ class DiscountUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('discounts:discount_list')
 
 
-class ApplyDiscountView(LoginRequiredMixin, CreateView):
-    form_class = ApplyDiscountForm
-    template_name = 'cart/detail.html'
+class ApplyDiscountView(LoginRequiredMixin, View):
+    http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
         cart, created = Cart.objects.get_or_create(user=request.user)
@@ -54,7 +53,9 @@ class ApplyDiscountView(LoginRequiredMixin, CreateView):
         return redirect('cart:cart_detail')
 
 
-class RemoveDiscountView(LoginRequiredMixin, CreateView):
+class RemoveDiscountView(LoginRequiredMixin, View):
+    http_method_names = ['post']
+
     def post(self, request, *args, **kwargs):
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart.discount = None

@@ -70,6 +70,14 @@ class OTPRequestView(CreateView):
             messages.error(request, 'شماره موبایل الزامی است.')
             return redirect('accounts:login')
 
+        one_hour_ago = timezone.now() - timezone.timedelta(hours=1)
+        recent_otps = OTPCode.objects.filter(phone=phone, created_at__gte=one_hour_ago)
+        if recent_otps.count() >= 5:
+            messages.error(request, 'تعداد درخواست‌های شما بیش از حد مجاز است. لطفاً بعداً تلاش کنید.')
+            return redirect('accounts:login')
+
+        OTPCode.objects.filter(phone=phone, is_used=False, expires_at__gte=timezone.now()).update(is_used=True)
+
         user, created = User.objects.get_or_create(
             phone=phone,
             defaults={'username': phone, 'is_active': True}
@@ -82,7 +90,7 @@ class OTPRequestView(CreateView):
             expires_at=timezone.now() + timezone.timedelta(minutes=5),
         )
 
-        messages.success(request, f'کد تایید: {code.code} (در سیستم واقعی این کد به شماره {phone} ارسال می‌شود)')
+        messages.success(request, 'کد تایید به شماره موبایل شما ارسال شد.')
 
         request.session['otp_phone'] = phone
         return redirect('accounts:otp_verify')
