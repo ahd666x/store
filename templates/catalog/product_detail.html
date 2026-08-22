@@ -18,6 +18,15 @@
     {% endif %}
     <p>{{ product.description }}</p>
 
+    {% if product.images.all %}
+        <h2>گالری تصاویر</h2>
+        <div class="product-gallery">
+            {% for image in product.images.all %}
+                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" loading="lazy">
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% if product.sections.all %}
         <h2>اجزای محصول</h2>
         {% for section in product.sections.all %}
@@ -51,5 +60,40 @@
         {% csrf_token %}
         <button type="submit">افزودن به سبد خرید</button>
     </form>
+
+    <hr>
+
+    <h2>نظرات کاربران ({{ product.review_count }})</h2>
+    {% if reviews %}
+        {% for review in reviews %}
+            <div class="review">
+                <strong>{{ review.user.username }}</strong>
+                <span class="rating">{% for i in "12345" %}{% if i|add:"0" <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                <p>{{ review.comment|default:"بدون نظر" }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>هنوز نظری ثبت نشده است.</p>
+    {% endif %}
+
+    {% if can_review %}
+        <h3>ثبت نظر</h3>
+        <form method="post" action="{% url 'catalog:product_detail' product.slug %}">
+            {% csrf_token %}
+            <label>امتیاز (1-5):</label>
+            <select name="rating" required>
+                <option value="5">5 - عالی</option>
+                <option value="4">4 - خوب</option>
+                <option value="3">3 - متوسط</option>
+                <option value="2">2 - ضعیف</option>
+                <option value="1">1 - بسیار ضعیف</option>
+            </select>
+            <label>نظر:</label>
+            <textarea name="comment" rows="3"></textarea>
+            <button type="submit">ثبت نظر</button>
+        </form>
+    {% elif user.is_authenticated %}
+        <p>شما قبلاً برای این محصول نظر داده‌اید.</p>
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,6 +1,8 @@
-from django.shortcuts import render
-from apps.catalog.models import Product, ProductCategory
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
+from django.db.models import Q, Min, Max
+from .models import Product, ProductCategory, ProductReview
 
 
 class ProductListView(ListView):
@@ -10,13 +12,93 @@ class ProductListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Product.objects.filter(is_active=True)
+        queryset = Product.objects.filter(is_active=True).prefetch_related('images', 'reviews', 'sections__pieces')
+
+        # Search
+        query = self.request.GET.get('q', '').strip()
+        if query:
+            queryset = queryset.filter(
+                Q(name__icontains=query) |
+                Q(description__icontains=query) |
+                Q(category__name__icontains=query)
+            )
+
+        # Filter by price range
+        min_price = self.request.GET.get('min_price', '').strip()
+        max_price = self.request.GET.get('max_price', '').strip()
+        try:
+            if min_price:
+                queryset = queryset.filter(price__gte=int(min_price))
+            if max_price:
+                queryset = queryset.filter(price__lte=int(max_price))
+        except (ValueError, TypeError):
+            pass
+
+        # Filter by category
+        category_slug = self.request.GET.get('category', '').strip()
+        if category_slug:
+            queryset = queryset.filter(category__slug=category_slug)
+
+        # Sorting
+        sort = self.request.GET.get('sort', '').strip()
+        if sort == 'price_asc':
+            queryset = queryset.order_by('price')
+        elif sort == 'price_desc':
+            queryset = queryset.order_by('-price')
+        elif sort == 'newest':
+            queryset = queryset.order_by('-created_at')
+        elif sort == 'oldest':
+            queryset = queryset.order_by('created_at')
+        elif sort == 'rating':
+            queryset = queryset.order_by('-average_rating')
+        else:
+            queryset = queryset.order_by('-created_at')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        context['min_price'] = self.request.GET.get('min_price', '')
+        context['max_price'] = self.request.GET.get('max_price', '')
+        context['selected_category'] = self.request.GET.get('category', '')
+        context['selected_sort'] = self.request.GET.get('sort', '')
+        context['categories'] = ProductCategory.objects.all()
+        return context
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
     context_object_name = 'product'
+
+    def get_queryset(self):
+        return Product.objects.filter(is_active=True).prefetch_related(
+            'images',
+            'reviews__user',
+            'sections__color',
+            'sections__pieces',
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.object
+        context['reviews'] = product.reviews.filter(is_active=True).select_related('user')
+        context['can_review'] = not ProductReview.objects.filter(product=product, user=self.request.user).exists()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        product = self.get_object()
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment', '').strip()
+        if rating and comment:
+            ProductReview.objects.create(
+                product=product,
+                user=request.user,
+                rating=int(rating),
+                comment=comment,
+            )
+        return redirect('catalog:product_detail', slug=product.slug)
 
 
 class CategoryListView(ListView):
@@ -32,9 +114,12 @@ class CategoryDetailView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Product.objects.filter(category__slug=self.kwargs['slug'], is_active=True)
+        return Product.objects.filter(
+            category__slug=self.kwargs['slug'],
+            is_active=True
+        ).prefetch_related('images', 'reviews', 'sections__pieces')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category'] = ProductCategory.objects.get(slug=self.kwargs['slug'])
+        context['category'] = get_object_or_404(ProductCategory, slug=self.kwargs['slug'])
         return context

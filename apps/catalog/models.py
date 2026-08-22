@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from apps.common.models import BaseModel
 from apps.common.managers import ActiveManager
+from apps.accounts.models import User
 
 
 class ProductCategory(BaseModel):
@@ -92,6 +93,48 @@ class Product(BaseModel):
                 slug = f"{base_slug}-{counter}"
             self.slug = slug
         super().save(*args, **kwargs)
+
+    @property
+    def average_rating(self):
+        reviews = self.reviews.filter(is_active=True)
+        if not reviews.exists():
+            return 0
+        return round(sum(r.rating for r in reviews) / reviews.count(), 1)
+
+    @property
+    def review_count(self):
+        return self.reviews.filter(is_active=True).count()
+
+
+class ProductImage(BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', verbose_name="محصول")
+    image = models.ImageField(upload_to='products/', verbose_name="تصویر")
+    alt_text = models.CharField(max_length=200, blank=True, verbose_name="متن جایگزین")
+
+    class Meta:
+        verbose_name = "تصویر محصول"
+        verbose_name_plural = "تصاویر محصول"
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.product.name} - {self.id}"
+
+
+class ProductReview(BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews', verbose_name="محصول")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="کاربر")
+    rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)], verbose_name="امتیاز")
+    comment = models.TextField(blank=True, verbose_name="نظر")
+    is_active = models.BooleanField(default=True, verbose_name="فعال")
+
+    class Meta:
+        verbose_name = "نظر محصول"
+        verbose_name_plural = "نظرات محصول"
+        unique_together = ['product', 'user']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name} ({self.rating})"
 
 
 class ProductSection(BaseModel):

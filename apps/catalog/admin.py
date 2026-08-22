@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ProductCategory, Color, Material, Product, ProductSection, Piece, Part, ProductBOM
+from .models import ProductCategory, Color, Material, Product, ProductImage, ProductReview, ProductSection, Piece, Part, ProductBOM
 
 
 @admin.register(Color)
@@ -16,8 +16,9 @@ class MaterialAdmin(admin.ModelAdmin):
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['name', 'slug']
     search_fields = ['name']
+    prepopulated_fields = {'slug': ('name',)}
 
 
 class ProductSectionInline(admin.TabularInline):
@@ -32,12 +33,33 @@ class PieceInline(admin.TabularInline):
     fields = ['length', 'width', 'description']
 
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 3
+    fields = ['image', 'alt_text']
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'stock', 'length', 'width', 'height', 'default_size', 'base_price', 'is_active']
+    list_display = ['name', 'slug', 'category', 'price', 'stock', 'length', 'width', 'height', 'default_size', 'base_price', 'is_active']
     list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['name', 'description']
-    inlines = [ProductSectionInline]
+    prepopulated_fields = {'slug': ('name',)}
+    inlines = [ProductSectionInline, ProductImageInline]
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ['product', 'image', 'alt_text']
+    list_filter = ['product__category']
+    search_fields = ['product__name', 'alt_text']
+
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ['product', 'user', 'rating', 'is_active', 'created_at']
+    list_filter = ['rating', 'is_active', 'created_at']
+    search_fields = ['product__name', 'user__username', 'comment']
 
 
 @admin.register(ProductSection)

@@ -11,7 +11,15 @@
         {% for product in featured_products %}
             <div class="product-card">
                 <h3>{{ product.name }}</h3>
+                {% if product.images.all %}
+                    <div class="product-thumb">
+                        <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    </div>
+                {% endif %}
                 <p>{{ product.price }} تومان</p>
+                {% if product.average_rating %}
+                    <p>امتیاز: {{ product.average_rating }} / 5</p>
+                {% endif %}
                 <a href="{% url 'catalog:product_detail' product.slug %}">مشاهده</a>
             </div>
         {% endfor %}
