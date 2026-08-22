@@ -2,9 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView
 from django.contrib import messages
+from django.db.models import Sum, F
 from .models import Order, OrderItem
 from .forms import OrderForm
-from .services import validate_cart_stock, InsufficientStockError
+from .services import validate_cart_stock, InsufficientStockError, OrderService
 
 
 class OrderListView(LoginRequiredMixin, ListView):
@@ -32,6 +33,13 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         response = super().form_valid(form)
+        cart = get_object_or_404(Cart, user=self.request.user)
+        OrderService.add_cart_items_to_order(self.object, cart)
+        self.object.total_amount = self.object.items.aggregate(
+            total=Sum(F('quantity') * F('unit_price'))
+        )['total'] or 0
+        self.object.final_amount = self.object.total_amount
+        self.object.save(update_fields=['total_amount', 'final_amount'])
         return redirect('orders:order_confirm', order_id=self.object.id)
 
 

@@ -49,3 +49,19 @@ class OrderService:
 
         cart.items.all().delete()
         return order
+
+    @staticmethod
+    @transaction.atomic
+    def add_cart_items_to_order(order, cart):
+        if not cart.items.exists():
+            raise ValueError("سبد خرید شما خالی است.")
+
+        for cart_item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                unit_price=cart_item.product.price,
+            )
+
+        cart.items.all().delete()
