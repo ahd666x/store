@@ -10,7 +10,6 @@ class InsufficientStockError(Exception):
     pass
 
 
-@login_required
 def validate_cart_stock(user):
     cart = get_object_or_404(Cart, user=user)
     errors = []
@@ -31,11 +30,21 @@ class OrderService:
         if not cart.items.exists():
             raise ValueError("سبد خرید شما خالی است.")
 
+        customer, _ = Customer.objects.get_or_create(
+            user=user,
+            defaults={
+                'name': user.get_full_name() or user.username,
+                'phone': getattr(user, 'phone', ''),
+            }
+        )
+
         order = Order.objects.create(
             user=user,
+            customer=customer,
             shipping_address=shipping_address,
             total_amount=cart.total_price,
-            final_amount=cart.total_price,
+            final_amount=cart.final_price if cart.discount else cart.total_price,
+            discount_amount=cart.discount_amount,
             status='draft',
         )
 
@@ -48,6 +57,8 @@ class OrderService:
             )
 
         cart.items.all().delete()
+        cart.discount = None
+        cart.save(update_fields=['discount'])
         return order
 
     @staticmethod
