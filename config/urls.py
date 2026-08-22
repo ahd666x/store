@@ -14,6 +14,7 @@ urlpatterns = [
     path('discounts/', include('apps.discounts.urls')),
     path('communications/', include('apps.communications.urls')),
     path('production/', include('apps.production.urls')),
+    path('api/v1/', include('apps.api.urls')),
     path('', accounts_views.home, name='home'),
 ]
 

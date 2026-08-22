@@ -8,3 +8,6 @@ Pillow
 qrcode
 jdatetime
 requests
+djangorestframework
+djangorestframework-simplejwt
+drf-spectacular
