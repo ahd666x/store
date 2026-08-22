@@ -3,16 +3,53 @@
 {% block title %}تایید کد OTP{% endblock %}
 
 {% block content %}
-<h1>تایید کد OTP</h1>
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-{% endif %}
-<form method="post">
-    {% csrf_token %}
-    <label>کد تایید:</label>
-    <input type="text" name="code" placeholder="123456" required>
-    <button type="submit">تایید</button>
-</form>
+<div class="section-container section-padding">
+  <div class="max-w-md mx-auto">
+    <div class="text-center mb-8">
+      <div class="mx-auto h-16 w-16 bg-primary-600 rounded-full flex items-center justify-center">
+        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+        </svg>
+      </div>
+      <h2 class="mt-6 text-2xl font-bold text-stone-900">تایید کد OTP</h2>
+      <p class="mt-2 text-stone-600">کد ۶ رقمی ارسال شده به موبایل خود را وارد کنید</p>
+    </div>
+    
+    <div class="card">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div>
+          <label for="code" class="form-label">کد تایید</label>
+          <input type="text" id="code" name="code" placeholder="123456" required maxlength="6" class="form-input text-center text-2xl tracking-widest">
+        </div>
+        
+        <div>
+          <button type="submit" class="btn-primary w-full">
+            تایید و ورود
+          </button>
+        </div>
+      </form>
+      
+      <div class="mt-6 text-center">
+        <p class="text-sm text-stone-600">
+          کد را دریافت نکرده‌اید؟
+          <button type="button" class="font-medium text-primary-600 hover:text-primary-800" x-data="{ countdown: 120, disabled: false }" x-init="setInterval(() => { if (countdown > 0) countdown-- else clearInterval() }, 1000)" :disabled="countdown < 120" @click="countdown = 120; $refs.resendMsg.textContent = 'درخواست شما ثبت شد.'">
+            ارسال مجدد
+            <span x-text="`(${Math.floor(countdown / 60)}:${(countdown % 60).toString().padStart(2, '0')})`" x-show="countdown > 0" class="text-stone-400"></span>
+          </button>
+        </p>
+        <p x-ref="resendMsg" class="text-xs text-success-600 mt-1 hidden"></p>
+      </div>
+      
+      <div class="mt-6 text-center">
+        <p class="text-sm text-stone-600">
+          <a href="{% url 'accounts:login' %}" class="font-medium text-primary-600 hover:text-primary-800">
+            بازگشت به ورود
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

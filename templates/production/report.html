@@ -3,36 +3,73 @@
 {% block title %}گزارش تولید{% endblock %}
 
 {% block content %}
-<h1>گزارش تولید — {{ report_date }}</h1>
+<div class="section-container section-padding">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-stone-900">گزارش تولید</h1>
+    <p class="text-stone-500 mt-1">گزارش عملکرد کارگران در تاریخ {{ report_date }}</p>
+  </div>
 
-<form method="get" style="margin-bottom: 20px;">
-    <label>تاریخ:
-        <input type="date" name="date" value="{{ report_date }}" onchange="this.form.submit()">
-    </label>
-</form>
+  <!-- Date Filter -->
+  <form method="get" class="card p-4 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+      <div class="sm:w-64">
+        <label for="date" class="form-label">تاریخ گزارش</label>
+        <input type="date" id="date" name="date" value="{{ report_date }}" onchange="this.form.submit()" class="form-input">
+      </div>
+      <button type="submit" class="btn-primary">نمایش گزارش</button>
+    </div>
+  </form>
 
-<table>
-    <thead>
-        <tr>
+  <!-- Summary Stats -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+    <div class="card p-4">
+      <div class="text-sm text-stone-500">تاریخ گزارش</div>
+      <div class="text-2xl font-bold text-stone-900 mt-1">{{ report_date }}</div>
+    </div>
+    <div class="card p-4">
+      <div class="text-sm text-stone-500">تعداد کارگران فعال</div>
+      <div class="text-2xl font-bold text-stone-900 mt-1">{{ report|length }}</div>
+    </div>
+  </div>
+
+  <!-- Report Table -->
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead>
+          <tr>
             <th>کارگر</th>
             <th>تعداد کل وظایف</th>
             <th>جزئیات ایستگاه‌ها</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in report %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in report %}
             <tr>
-                <td>{{ row.worker.get_full_name|default:row.worker.username }}</td>
-                <td>{{ row.total_tasks }}</td>
-                <td>
-                    {% for station, count in row.stations.items %}
-                        {{ station }}: {{ count }}<br>
-                    {% endfor %}
-                </td>
+              <td class="font-medium">{{ row.worker.get_full_name|default:row.worker.username }}</td>
+              <td>
+                <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                  {{ row.total_tasks }}
+                </span>
+              </td>
+              <td>
+                <div class="flex flex-wrap gap-1">
+                  {% for station, count in row.stations.items %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-stone-100 text-stone-700">
+                      {{ station }}: {{ count }}
+                    </span>
+                  {% endfor %}
+                </div>
+              </td>
             </tr>
-        {% empty %}
-            <tr><td colspan="3">گزارشی برای این تاریخ وجود ندارد.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="text-center py-8 text-stone-500">گزارشی برای این تاریخ وجود ندارد.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 {% endblock %}

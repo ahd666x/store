@@ -13,8 +13,8 @@
     <meta name="author" content="کابینت‌شاپ">
     
     {# Open Graph #}
-    <meta property="og:title" content="{% block og_title %}{% block title %}کابینت‌شاپ{% endblock %}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{% block meta_description %}فروشگاه آنلاین کابینت{% endblock %}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}فروشگاه آنلاین کابینت{% endblock %}">
     <meta property="og:image" content="{% block og_image %}{% static 'images/og-default.png' %}{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
@@ -22,9 +22,9 @@
     
     {# Twitter Card #}
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{% block twitter_title %}{% block title %}کابینت‌شاپ{% endblock %}{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description %}فروشگاه آنلاین کابینت{% endblock %}{% endblock %}">
-    <meta name="twitter:image" content="{% block twitter_image %}{% block og_image %}{% static 'images/og-default.png' %}{% endblock %}{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}فروشگاه آنلاین کابینت{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% static 'images/og-default.png' %}{% endblock %}">
     
     {# Favicon #}
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">

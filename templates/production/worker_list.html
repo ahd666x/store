@@ -3,25 +3,52 @@
 {% block title %}لیست کارگران{% endblock %}
 
 {% block content %}
-<h1>لیست کارگران</h1>
-<table>
-    <thead>
-        <tr>
+<div class="section-container section-padding">
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-stone-900">لیست کارگران</h1>
+      <p class="text-stone-500 mt-1">مدیریت کارگران و تخصیص مراحل کاری</p>
+    </div>
+    {# TODO: Add worker CRUD views #}
+    <a href="#" class="btn-primary" onclick="return false;">
+      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      افزودن کارگر
+    </a>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead>
+          <tr>
             <th>کاربر</th>
             <th>مرحله کاری</th>
-            <th>فعال</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for worker in workers %}
+            <th>وضعیت</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for worker in workers %}
             <tr>
-                <td>{{ worker.user.username }}</td>
-                <td>{{ worker.get_stage_display }}</td>
-                <td>{{ worker.is_available|yesno:"فعال,غیرفعال" }}</td>
+              <td class="font-medium">{{ worker.user.username }}</td>
+              <td>{{ worker.get_stage_display }}</td>
+              <td>
+                {% if worker.is_available %}
+                  <span class="badge badge-success">فعال</span>
+                {% else %}
+                  <span class="badge badge-danger">غیرفعال</span>
+                {% endif %}
+              </td>
             </tr>
-        {% empty %}
-            <tr><td colspan="3">هنوز کارگری تعریف نشده است.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="text-center py-8 text-stone-500">هنوز کارگری تعریف نشده است.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 {% endblock %}

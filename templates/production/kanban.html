@@ -3,60 +3,163 @@
 {% block title %}تخته کانبان تولید{% endblock %}
 
 {% block content %}
-<h1>تخته کانبان تولید</h1>
-<form method="get" style="margin-bottom: 20px;">
-    <label>ایستگاه کاری:
-        <select name="station" onchange="this.form.submit()">
-            <option value="">همه</option>
-            {% for value, label in stations %}
-                <option value="{{ value }}" {% if selected_station == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-    </label>
-</form>
+<div class="section-container section-padding">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-stone-900">تخته کانبان تولید</h1>
+    <p class="text-stone-500 mt-1">نمایانی از وظایف تولید بر اساس ایستگاه و وضعیت</p>
+  </div>
 
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-    <div style="background: #fff3cd; padding: 15px; border-radius: 8px;">
-        <h2>در انتظار</h2>
+  <!-- Station Filter Chips -->
+  <form method="get" class="mb-6">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="text-sm font-medium text-stone-600 ml-2">ایستگاه:</span>
+      <button type="submit" name="station" value="" class="chip {% if not selected_station %}chip-active{% else %}chip-inactive{% endif %}">
+        همه
+      </button>
+      {% for value, label in stations %}
+        <button type="submit" name="station" value="{{ value }}" class="chip {% if selected_station == value %}chip-active{% else %}chip-inactive{% endif %}">
+          {{ label }}
+        </button>
+      {% endfor %}
+    </div>
+  </form>
+
+  <!-- Kanban Board -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Waiting -->
+    <div class="flex flex-col">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+          <h2 class="text-lg font-semibold text-stone-900">در انتظار</h2>
+        </div>
+        <span class="badge badge-warning">{{ tasks_waiting|length }}</span>
+      </div>
+      <div class="flex-1 bg-stone-50 rounded-xl border border-stone-200 p-4 space-y-3 min-h-[200px]">
         {% for task in tasks_waiting %}
-            <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-                <strong>#{{ task.order_id }}</strong> - {{ task.get_station_name_display }}<br>
-                {{ task.part|default:task.order_item|default:"-" }}<br>
-                تعداد: {{ task.quantity }}<br>
-                کارگر: {{ task.assigned_worker|default:"—" }}
+          <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4 flex gap-3 hover:shadow-elevation-2 transition-shadow duration-200">
+            <div class="flex-shrink-0 cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+              </svg>
             </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-primary-700">#{{ task.order_id }}</span>
+                <span class="badge badge-warning text-xs">در انتظار</span>
+              </div>
+              <p class="text-sm text-stone-600 truncate">{{ task.get_station_name_display }}</p>
+              <p class="text-xs text-stone-500 mt-1">{{ task.part|default:task.order_item|default:"—" }}</p>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
+                <span class="text-xs text-stone-500">تعداد: {{ task.quantity }}</span>
+                <div class="flex items-center gap-1">
+                  {% if task.assigned_worker %}
+                    <div class="w-5 h-5 rounded-full bg-stone-200 flex items-center justify-center text-xs text-stone-600" title="{{ task.assigned_worker.username }}">
+                      {{ task.assigned_worker.username|first|upper }}
+                    </div>
+                  {% else %}
+                    <span class="text-xs text-stone-400">—</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
         {% empty %}
-            <p>تسکی وجود ندارد.</p>
+          <div class="text-center py-8 text-stone-400 text-sm">تسکی وجود ندارد.</div>
         {% endfor %}
+      </div>
     </div>
 
-    <div style="background: #d1e7dd; padding: 15px; border-radius: 8px;">
-        <h2>آماده انجام</h2>
+    <!-- Pending -->
+    <div class="flex flex-col">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-info-500"></span>
+          <h2 class="text-lg font-semibold text-stone-900">آماده انجام</h2>
+        </div>
+        <span class="badge badge-info">{{ tasks_pending|length }}</span>
+      </div>
+      <div class="flex-1 bg-stone-50 rounded-xl border border-stone-200 p-4 space-y-3 min-h-[200px]">
         {% for task in tasks_pending %}
-            <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-                <strong>#{{ task.order_id }}</strong> - {{ task.get_station_name_display }}<br>
-                {{ task.part|default:task.order_item|default:"-" }}<br>
-                تعداد: {{ task.quantity }}<br>
-                کارگر: {{ task.assigned_worker|default:"—" }}
+          <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4 flex gap-3 hover:shadow-elevation-2 transition-shadow duration-200">
+            <div class="flex-shrink-0 cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+              </svg>
             </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-primary-700">#{{ task.order_id }}</span>
+                <span class="badge badge-info text-xs">آماده انجام</span>
+              </div>
+              <p class="text-sm text-stone-600 truncate">{{ task.get_station_name_display }}</p>
+              <p class="text-xs text-stone-500 mt-1">{{ task.part|default:task.order_item|default:"—" }}</p>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
+                <span class="text-xs text-stone-500">تعداد: {{ task.quantity }}</span>
+                <div class="flex items-center gap-1">
+                  {% if task.assigned_worker %}
+                    <div class="w-5 h-5 rounded-full bg-stone-200 flex items-center justify-center text-xs text-stone-600" title="{{ task.assigned_worker.username }}">
+                      {{ task.assigned_worker.username|first|upper }}
+                    </div>
+                  {% else %}
+                    <span class="text-xs text-stone-400">—</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
         {% empty %}
-            <p>تسکی وجود ندارد.</p>
+          <div class="text-center py-8 text-stone-400 text-sm">تسکی وجود ندارد.</div>
         {% endfor %}
+      </div>
     </div>
 
-    <div style="background: #d1c4e9; padding: 15px; border-radius: 8px;">
-        <h2>تکمیل شده</h2>
+    <!-- Done -->
+    <div class="flex flex-col">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-success-500"></span>
+          <h2 class="text-lg font-semibold text-stone-900">تکمیل شده</h2>
+        </div>
+        <span class="badge badge-success">{{ tasks_done|length }}</span>
+      </div>
+      <div class="flex-1 bg-stone-50 rounded-xl border border-stone-200 p-4 space-y-3 min-h-[200px]">
         {% for task in tasks_done %}
-            <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
-                <strong>#{{ task.order_id }}</strong> - {{ task.get_station_name_display }}<br>
-                {{ task.part|default:task.order_item|default:"-" }}<br>
-                تعداد: {{ task.quantity }}<br>
-                تکمیل‌شده توسط: {{ task.scanned_by|default:"—" }}<br>
-                زمان: {{ task.completed_at|default:"—" }}
+          <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4 flex gap-3 hover:shadow-elevation-2 transition-shadow duration-200">
+            <div class="flex-shrink-0 cursor-grab active:cursor-grabbing text-stone-400 hover:text-stone-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+              </svg>
             </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-primary-700">#{{ task.order_id }}</span>
+                <span class="badge badge-success text-xs">تکمیل شده</span>
+              </div>
+              <p class="text-sm text-stone-600 truncate">{{ task.get_station_name_display }}</p>
+              <p class="text-xs text-stone-500 mt-1">{{ task.part|default:task.order_item|default:"—" }}</p>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
+                <span class="text-xs text-stone-500">تعداد: {{ task.quantity }}</span>
+                <div class="flex items-center gap-1">
+                  {% if task.scanned_by %}
+                    <div class="w-5 h-5 rounded-full bg-stone-200 flex items-center justify-center text-xs text-stone-600" title="{{ task.scanned_by.username }}">
+                      {{ task.scanned_by.username|first|upper }}
+                    </div>
+                  {% else %}
+                    <span class="text-xs text-stone-400">—</span>
+                  {% endif %}
+                </div>
+              </div>
+              {% if task.completed_at %}
+                <p class="text-xs text-stone-400 mt-1">{{ task.completed_at|date:"Y/m/d H:i" }}</p>
+              {% endif %}
+            </div>
+          </div>
         {% empty %}
-            <p>تسکی وجود ندارد.</p>
+          <div class="text-center py-8 text-stone-400 text-sm">تسکی وجود ندارد.</div>
         {% endfor %}
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

@@ -3,31 +3,119 @@
 {% block title %}وظایف تولید{% endblock %}
 
 {% block content %}
-<h1>وظایف تولید</h1>
-<table>
-    <thead>
-        <tr>
+<div class="section-container section-padding">
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-stone-900">وظایف تولید</h1>
+      <p class="text-stone-500 mt-1">لیست کامل وظایف تولید</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <form method="get" class="card p-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div>
+        <label for="station" class="form-label">ایستگاه کاری</label>
+        <select id="station" name="station" class="form-select">
+          <option value="">همه</option>
+          {% for value, label in stations %}
+            <option value="{{ value }}" {% if request.GET.station == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="status" class="form-label">وضعیت</label>
+        <select id="status" name="status" class="form-select">
+          <option value="">همه</option>
+          {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="sm:col-span-2 flex items-end">
+        <button type="submit" class="btn-primary">
+          اعمال فیلتر
+        </button>
+        {% if request.GET.station or request.GET.status %}
+          <a href="{% url 'production:task_list' %}" class="btn-ghost mr-2">
+            پاک کردن
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+
+  <!-- Table -->
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead>
+          <tr>
             <th>سفارش</th>
             <th>ایستگاه</th>
             <th>قطعه / آیتم</th>
             <th>تعداد</th>
             <th>وضعیت</th>
             <th>کارگر تخصیص‌یافته</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for task in tasks %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
             <tr>
-                <td>#{{ task.order_id }}</td>
-                <td>{{ task.get_station_name_display }}</td>
-                <td>{{ task.part|default:task.order_item|default:"-" }}</td>
-                <td>{{ task.quantity }}</td>
-                <td>{{ task.get_status_display }}</td>
-                <td>{{ task.assigned_worker|default:"—" }}</td>
+              <td class="font-medium text-primary-700">#{{ task.order_id }}</td>
+              <td>{{ task.get_station_name_display }}</td>
+              <td>{{ task.part|default:task.order_item|default:"—" }}</td>
+              <td>{{ task.quantity }}</td>
+              <td>
+                {% if task.status == 'waiting' %}
+                  <span class="badge badge-warning">در انتظار</span>
+                {% elif task.status == 'pending' %}
+                  <span class="badge badge-info">آماده انجام</span>
+                {% elif task.status == 'done' %}
+                  <span class="badge badge-success">تکمیل شده</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if task.assigned_worker %}
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-stone-200 flex items-center justify-center text-xs text-stone-600">
+                      {{ task.assigned_worker.username|first|upper }}
+                    </div>
+                    <span class="text-sm">{{ task.assigned_worker.username }}</span>
+                  </div>
+                {% else %}
+                  <span class="text-stone-400">—</span>
+                {% endif %}
+              </td>
             </tr>
-        {% empty %}
-            <tr><td colspan="6">وظیفه‌ای یافت نشد.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-8 text-stone-500">وظیفه‌ای یافت نشد.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+      <div class="px-4 py-3 border-t border-stone-200 flex items-center justify-between">
+        <div class="text-sm text-stone-500">
+          نمایش {{ page_obj.start_index }} تا {{ page_obj.end_index }} از {{ paginator.count }} نتیجه
+        </div>
+        <div class="flex items-center gap-2">
+          {% if page_obj.has_previous %}
+            <a href="?page=1{% if request.GET.station %}&station={{ request.GET.station }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="btn-sm btn-secondary">اول</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.station %}&station={{ request.GET.station }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="btn-sm btn-secondary">قبلی</a>
+          {% endif %}
+          <span class="text-sm text-stone-600">صفحه {{ page_obj.number }} از {{ paginator.num_pages }}</span>
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.station %}&station={{ request.GET.station }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="btn-sm btn-secondary">بعدی</a>
+            <a href="?page={{ paginator.num_pages }}{% if request.GET.station %}&station={{ request.GET.station }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="btn-sm btn-secondary">آخر</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

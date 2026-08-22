@@ -3,121 +3,155 @@
 {% block title %}سبد خرید{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">سبد خرید شما</h1>
-    
-    {% if cart.items.all %}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Cart Items -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">آیتم‌های سبد خرید</h2>
-                    </div>
+<div class="section-container section-padding">
+  <h1 class="text-3xl font-bold text-stone-900 mb-6">سبد خرید شما</h1>
+
+  {% if cart.items.all %}
+    <!-- Progress Indicator -->
+    <nav class="mb-8" aria-label="Progress">
+      <div class="flex items-center">
+        <div class="flex flex-col items-center">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white text-sm font-bold">۱</span>
+          <span class="text-xs font-medium text-stone-900 mt-1 hidden sm:inline">سبد خرید</span>
+        </div>
+        <div class="flex-1 border-t-2 border-stone-300 mx-2 sm:mx-4"></div>
+        <div class="flex flex-col items-center">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-stone-200 text-stone-600 text-sm font-bold">۲</span>
+          <span class="text-xs font-medium text-stone-500 mt-1 hidden sm:inline">اطلاعات ارسال</span>
+        </div>
+        <div class="flex-1 border-t-2 border-stone-300 mx-2 sm:mx-4"></div>
+        <div class="flex flex-col items-center">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-stone-200 text-stone-600 text-sm font-bold">۳</span>
+          <span class="text-xs font-medium text-stone-500 mt-1 hidden sm:inline">پرداخت</span>
+        </div>
+      </div>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Cart Items -->
+      <div class="lg:col-span-2">
+        <div class="card overflow-hidden">
+          <div class="px-6 py-4 border-b border-stone-200">
+            <h2 class="text-lg font-semibold text-stone-900">آیتم‌های سبد خرید</h2>
+          </div>
+          
+          <div class="divide-y divide-stone-200">
+            {% for item in cart.items.all %}
+              <div class="p-4 sm:p-6 flex items-start gap-4 sm:gap-6">
+                {% if item.product.images.all %}
+                  <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0">
+                {% else %}
+                  <div class="w-16 h-16 sm:w-20 sm:h-20 bg-stone-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 sm:w-8 sm:h-8 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                  </div>
+                {% endif %}
+                
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-base sm:text-lg font-semibold text-stone-900 truncate">{{ item.product.name }}</h3>
+                  <p class="text-sm text-stone-500 mt-1">{{ item.product.category.name }}</p>
+                  <div class="flex items-center gap-4 mt-2">
+                    <span class="text-base sm:text-lg font-bold text-primary-600">{{ item.product.price }} تومان</span>
+                    <span class="text-stone-400">×</span>
                     
-                    <div class="divide-y divide-gray-200">
-                        {% for item in cart.items.all %}
-                            <div class="p-6 flex items-center gap-6">
-                                {% if item.product.images.all %}
-                                    <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="w-20 h-20 object-cover rounded-lg">
-                                {% else %}
-                                    <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
-                                    </div>
-                                {% endif %}
-                                
-                                <div class="flex-1">
-                                    <h3 class="text-lg font-semibold text-gray-900">{{ item.product.name }}</h3>
-                                    <p class="text-gray-600 text-sm mt-1">{{ item.product.category.name }}</p>
-                                    <div class="flex items-center gap-4 mt-2">
-                                        <span class="text-lg font-bold text-indigo-600">{{ item.product.price }} تومان</span>
-                                        <span class="text-gray-500">×</span>
-                                        <span class="text-gray-700">تعداد: {{ item.quantity }}</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="text-left">
-                                    <p class="text-xl font-bold text-gray-900">{{ item.total_price }} تومان</p>
-                                    <form method="post" action="{% url 'cart:cart_remove' item.product.id %}" class="mt-2" onsubmit="return confirm('حذف شود؟')">
-                                        {% csrf_token %}
-                                        <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium">
-                                            حذف
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        {% endfor %}
+                    <!-- TODO: Quantity Stepper Placeholder -->
+                    <!-- بعد از اضافه شدن ویو cart:cart_update، این بخش را با فرم جایگزین کنید -->
+                    <div class="flex items-center gap-2" title="به‌زودی امکان تغییر تعداد">
+                      <button type="button" disabled class="w-8 h-8 rounded-lg border border-stone-300 flex items-center justify-center text-stone-400 cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                      </button>
+                      <span class="text-sm font-medium text-stone-900 w-8 text-center">{{ item.quantity }}</span>
+                      <button type="button" disabled class="w-8 h-8 rounded-lg border border-stone-300 flex items-center justify-center text-stone-400 cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                      </button>
                     </div>
+                  </div>
                 </div>
+                
+                <div class="text-left flex-shrink-0">
+                  <p class="text-lg font-bold text-stone-900">{{ item.total_price }} تومان</p>
+                  <form method="post" action="{% url 'cart:cart_remove' item.product.id %}" class="mt-2" onsubmit="return confirm('حذف شود؟')">
+                    {% csrf_token %}
+                    <button type="submit" class="text-danger-600 hover:text-danger-800 text-sm font-medium">
+                      حذف
+                    </button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Cart Summary -->
+      <div class="lg:col-span-1">
+        <div class="card p-6 sticky top-6">
+          <h2 class="text-lg font-semibold text-stone-900 mb-4">خلاصه سفارش</h2>
+          
+          <div class="space-y-3 mb-6">
+            <div class="flex justify-between text-stone-600">
+              <span>جمع کل:</span>
+              <span>{{ cart.total_price }} تومان</span>
             </div>
             
-            <!-- Cart Summary -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">خلاصه سفارش</h2>
-                    
-                    <div class="space-y-3 mb-6">
-                        <div class="flex justify-between text-gray-600">
-                            <span>جمع کل:</span>
-                            <span>{{ cart.total_price }} تومان</span>
-                        </div>
-                        
-                        {% if cart.discount_amount > 0 %}
-                            <div class="flex justify-between text-green-600">
-                                <span>تخفیف ({{ cart.discount.code }}):</span>
-                                <span>-{{ cart.discount_amount }} تومان</span>
-                            </div>
-                            <form method="post" action="{% url 'discounts:remove_discount' %}" class="text-left">
-                                {% csrf_token %}
-                                <button type="submit" class="text-sm text-red-600 hover:text-red-800">
-                                    حذف تخفیف
-                                </button>
-                            </form>
-                        {% endif %}
-                        
-                        <div class="border-t border-gray-200 pt-3">
-                            <div class="flex justify-between text-lg font-bold text-gray-900">
-                                <span>مبلغ قابل پرداخت:</span>
-                                <span>{{ cart.final_price }} تومان</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {% if not cart.discount %}
-                        <form method="post" action="{% url 'discounts:apply_discount' %}" class="mb-6">
-                            {% csrf_token %}
-                            <label class="form-label">کد تخفیف</label>
-                            <div class="flex gap-2 mt-1">
-                                <input type="text" name="code" placeholder="کد تخفیف" required class="form-input flex-1">
-                                <button type="submit" class="btn-secondary">
-                                    اعمال
-                                </button>
-                            </div>
-                        </form>
-                    {% endif %}
-                    
-                    <a href="{% url 'orders:order_create' %}" class="btn-primary w-full block text-center py-3">
-                        تکمیل سفارش
-                    </a>
-                    
-                    <a href="{% url 'catalog:product_list' %}" class="block text-center text-indigo-600 hover:text-indigo-800 mt-4 font-medium">
-                        ادامه خرید
-                    </a>
-                </div>
+            {% if cart.discount_amount > 0 %}
+              <div class="flex justify-between text-success-700">
+                <span>تخفیف ({{ cart.discount.code }}):</span>
+                <span>-{{ cart.discount_amount }} تومان</span>
+              </div>
+              <form method="post" action="{% url 'discounts:remove_discount' %}" class="text-left">
+                {% csrf_token %}
+                <button type="submit" class="text-sm text-danger-600 hover:text-danger-800 font-medium">
+                  حذف تخفیف
+                </button>
+              </form>
+            {% endif %}
+            
+            <div class="border-t border-stone-200 pt-3">
+              <div class="flex justify-between text-lg font-bold text-stone-900">
+                <span>مبلغ قابل پرداخت:</span>
+                <span>{{ cart.final_price }} تومان</span>
+              </div>
             </div>
+          </div>
+          
+          {% if not cart.discount %}
+            <form method="post" action="{% url 'discounts:apply_discount' %}" class="mb-6" x-data="{ code: '' }">
+              {% csrf_token %}
+              <label class="form-label">کد تخفیف</label>
+              <div class="input-group mt-1">
+                <input type="text" name="code" x-model="code" placeholder="کد تخفیف" required class="form-input flex-1">
+                <button type="submit" class="btn-secondary" :class="{ 'is-loading': code && code.length > 0 }">
+                  اعمال
+                </button>
+              </div>
+              <p class="form-hint mt-1">کد تخفیف خود را وارد کنید</p>
+            </form>
+          {% endif %}
+          
+          <a href="{% url 'orders:order_create' %}" class="btn-primary w-full block text-center py-3">
+            تکمیل سفارش
+          </a>
+          
+          <a href="{% url 'catalog:product_list' %}" class="block text-center text-primary-600 hover:text-primary-800 mt-4 font-medium">
+            ادامه خرید
+          </a>
         </div>
-    {% else %}
-        <div class="text-center py-16">
-            <svg class="w-24 h-24 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
-            <p class="text-gray-500 text-lg mb-4">سبد خرید شما خالی است.</p>
-            <a href="{% url 'catalog:product_list' %}" class="btn-primary">
-                مشاهده محصولات
-            </a>
-        </div>
-    {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center py-16">
+      <div class="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
+      </div>
+      <p class="text-stone-500 text-lg mb-4">سبد خرید شما خالی است.</p>
+      <a href="{% url 'catalog:product_list' %}" class="btn-primary">
+        مشاهده محصولات
+      </a>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

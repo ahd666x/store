@@ -3,25 +3,52 @@
 {% block title %}لیست روندهای نقاشی{% endblock %}
 
 {% block content %}
-<h1>لیست روندهای نقاشی</h1>
-<table>
-    <thead>
-        <tr>
+<div class="section-container section-padding">
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-stone-900">لیست روندهای نقاشی</h1>
+      <p class="text-stone-500 mt-1">مدیریت روندهای و فرآیندهای نقاشی</p>
+    </div>
+    {# TODO: Add painting process CRUD views #}
+    <a href="#" class="btn-primary" onclick="return false;">
+      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      افزودن روند
+    </a>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead>
+          <tr>
             <th>نام روند</th>
             <th>کد</th>
-            <th>فعال</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for process in processes %}
+            <th>وضعیت</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for process in processes %}
             <tr>
-                <td>{{ process.name }}</td>
-                <td>{{ process.code }}</td>
-                <td>{{ process.is_active|yesno:"فعال,غیرفعال" }}</td>
+              <td class="font-medium">{{ process.name }}</td>
+              <td class="font-mono text-sm">{{ process.code }}</td>
+              <td>
+                {% if process.is_active %}
+                  <span class="badge badge-success">فعال</span>
+                {% else %}
+                  <span class="badge badge-neutral">غیرفعال</span>
+                {% endif %}
+              </td>
             </tr>
-        {% empty %}
-            <tr><td colspan="3">هنوز روند نقاشی تعریف نشده است.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="text-center py-8 text-stone-500">هنوز روند نقاشی تعریف نشده است.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 {% endblock %}

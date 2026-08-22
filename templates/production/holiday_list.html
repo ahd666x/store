@@ -3,23 +3,44 @@
 {% block title %}لیست تعطیلات{% endblock %}
 
 {% block content %}
-<h1>لیست تعطیلات</h1>
-<table>
-    <thead>
-        <tr>
+<div class="section-container section-padding">
+  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-stone-900">لیست تعطیلات</h1>
+      <p class="text-stone-500 mt-1">مدیریت روزهای تعطیل تولید</p>
+    </div>
+    {# TODO: Add holiday CRUD views #}
+    <a href="#" class="btn-primary" onclick="return false;">
+      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      افزودن تعطیل
+    </a>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead>
+          <tr>
             <th>تاریخ</th>
             <th>مناسبت</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for holiday in holidays %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for holiday in holidays %}
             <tr>
-                <td>{{ holiday.date }}</td>
-                <td>{{ holiday.description|default:"-" }}</td>
+              <td class="font-medium">{{ holiday.date }}</td>
+              <td>{{ holiday.description|default:"—" }}</td>
             </tr>
-        {% empty %}
-            <tr><td colspan="2">هنوز تعطیلی تعریف نشده است.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+          {% empty %}
+            <tr>
+              <td colspan="2" class="text-center py-8 text-stone-500">هنوز تعطیلی تعریف نشده است.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 {% endblock %}

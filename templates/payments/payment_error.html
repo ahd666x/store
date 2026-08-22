@@ -3,27 +3,25 @@
 {% block title %}خطا در پرداخت{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 text-center">
-        <div>
-            <div class="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center">
-                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                خطا در پرداخت
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                {{ error }}
-            </p>
-        </div>
-        
-        <div class="card">
-            <a href="{% url 'cart:cart_detail' %}" class="btn-primary w-full">
-                بازگشت به سبد خرید
-            </a>
-        </div>
+<div class="section-container section-padding">
+  <div class="max-w-md mx-auto">
+    <div class="card p-8 text-center">
+      <div class="mx-auto h-16 w-16 bg-danger-100 rounded-full flex items-center justify-center mb-4">
+        <svg class="h-8 w-8 text-danger-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-stone-900 mb-2">خطا در پرداخت</h2>
+      <p class="text-stone-600 mb-6">{{ error }}</p>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <a href="{% url 'cart:cart_detail' %}" class="btn-primary flex-1">
+          بازگشت به سبد خرید
+        </a>
+        <a href="{% url 'orders:order_list' %}" class="btn-secondary flex-1">
+          بازگشت به سفارش‌های من
+        </a>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

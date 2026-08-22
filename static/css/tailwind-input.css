@@ -157,6 +157,7 @@
   input[type="number"],
   input[type="tel"],
   input[type="search"],
+  input[type="datetime-local"],
   textarea,
   select {
     @apply form-input;
@@ -206,6 +207,17 @@
   }
   .input-group .form-input:focus {
     @apply z-10;
+  }
+
+  /* ===== Chips ===== */
+  .chip {
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border transition-colors duration-200;
+  }
+  .chip-active {
+    @apply bg-stone-900 text-white border-stone-900;
+  }
+  .chip-inactive {
+    @apply bg-white text-stone-600 border-stone-300 hover:bg-stone-50 hover:border-stone-400;
   }
 
   /* ===== Skeleton Loading ===== */

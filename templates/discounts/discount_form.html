@@ -1,12 +1,98 @@
 {% extends 'base.html' %}
 
-{% block title %}ایجاد تخفیف{% endblock %}
+{% block title %}{% if object %}ویرایش{% else %}ایجاد{% endif %} تخفیف{% endblock %}
 
 {% block content %}
-<h1>{% if object %}ویرایش{% else %}ایجاد{% endif %} تخفیف</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">ذخیره</button>
-</form>
+<div class="section-container section-padding">
+  <div class="max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl font-bold text-stone-900">{% if object %}ویرایش{% else %}ایجاد{% endif %} تخفیف</h2>
+      <p class="mt-2 text-stone-600">
+        {% if object %}
+          اطلاعات تخفیف را تغییر دهید
+        {% else %}
+          یک کد تخفیف جدید ایجاد کنید
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="card">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div>
+          <label for="{{ form.code.id_for_label }}" class="form-label">کد تخفیف</label>
+          {{ form.code }}
+          {% if form.code.errors %}
+            <div class="form-error">{{ form.code.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.discount_type.id_for_label }}" class="form-label">نوع تخفیف</label>
+          {{ form.discount_type }}
+          {% if form.discount_type.errors %}
+            <div class="form-error">{{ form.discount_type.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div>
+          <label for="{{ form.value.id_for_label }}" class="form-label">مقدار تخفیف</label>
+          {{ form.value }}
+          {% if form.value.errors %}
+            <div class="form-error">{{ form.value.errors }}</div>
+          {% endif %}
+          <p class="form-hint">مثلاً ۱۵ برای ۱۵٪ تخفیف یا ۵۰۰۰۰ برای ۵۰٬۰۰۰ تومان تخفیف ثابت</p>
+        </div>
+
+        <div>
+          <label for="{{ form.max_uses.id_for_label }}" class="form-label">حداکثر تعداد استفاده</label>
+          {{ form.max_uses }}
+          {% if form.max_uses.errors %}
+            <div class="form-error">{{ form.max_uses.errors }}</div>
+          {% endif %}
+          <p class="form-hint">تعداد دفعاتی که این کد می‌تواند استفاده شود. برای نامحدود ۰ وارد کنید.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="{{ form.valid_from.id_for_label }}" class="form-label">تاریخ شروع اعتبار</label>
+            {{ form.valid_from }}
+            {% if form.valid_from.errors %}
+              <div class="form-error">{{ form.valid_from.errors }}</div>
+            {% endif %}
+          </div>
+          <div>
+            <label for="{{ form.valid_until.id_for_label }}" class="form-label">تاریخ پایان اعتبار</label>
+            {{ form.valid_until }}
+            {% if form.valid_until.errors %}
+              <div class="form-error">{{ form.valid_until.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          {{ form.is_active }}
+          <label for="{{ form.is_active.id_for_label }}" class="form-label mb-0">تخفیف فعال باشد</label>
+        </div>
+        {% if form.is_active.errors %}
+          <div class="form-error">{{ form.is_active.errors }}</div>
+        {% endif %}
+
+        <div class="flex items-center gap-3 pt-4">
+          <button type="submit" class="btn-primary">
+            {% if object %}ذخیره تغییرات{% else %}ایجاد تخفیف{% endif %}
+          </button>
+          <a href="{% url 'discounts:discount_list' %}" class="btn-ghost">انصراف</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

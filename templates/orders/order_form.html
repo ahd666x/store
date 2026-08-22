@@ -3,47 +3,60 @@
 {% block title %}تکمیل سفارش{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <div>
-            <div class="mx-auto h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center">
-                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
-            </div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                تکمیل سفارش
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                لطفا آدرس ارسال را وارد کنید
-            </p>
+<div class="section-container section-padding">
+  <div class="max-w-2xl mx-auto">
+    <!-- Progress Indicator -->
+    <nav class="mb-8" aria-label="Progress">
+      <div class="flex items-center">
+        <div class="flex flex-col items-center">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white text-sm font-bold">۱</span>
+          <span class="text-xs font-medium text-stone-900 mt-1 hidden sm:inline">سبد خرید</span>
+        </div>
+        <div class="flex-1 border-t-2 border-primary-500 mx-2 sm:mx-4"></div>
+        <div class="flex flex-col items-center">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white text-sm font-bold">۲</span>
+          <span class="text-xs font-medium text-stone-900 mt-1 hidden sm:inline">اطلاعات ارسال</span>
+        </div>
+        <div class="flex-1 border-t-2 border-stone-300 mx-2 sm:mx-4"></div>
+        <div class="flex flex-col items-center">
+          <span class="flex items-center justify-center w-8 h-8 rounded-full bg-stone-200 text-stone-600 text-sm font-bold">۳</span>
+          <span class="text-xs font-medium text-stone-500 mt-1 hidden sm:inline">پرداخت</span>
+        </div>
+      </div>
+    </nav>
+
+    <div class="card">
+      <div class="p-6 sm:p-8">
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold text-stone-900">تکمیل سفارش</h2>
+          <p class="mt-2 text-stone-600">لطفا آدرس ارسال را وارد کنید</p>
         </div>
         
-        <div class="card">
-            <form method="post" class="space-y-6">
-                {% csrf_token %}
-                
-                {% if form.non_field_errors %}
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                        {{ form.non_field_errors }}
-                    </div>
-                {% endif %}
-                
-                <div>
-                    <label for="{{ form.shipping_address.id_for_label }}">آدرس ارسال</label>
-                    {{ form.shipping_address }}
-                    {% if form.shipping_address.errors %}
-                        <div class="form-error">{{ form.shipping_address.errors }}</div>
-                    {% endif %}
-                </div>
-                
-                <div>
-                    <button type="submit" class="btn-primary w-full">
-                        ثبت سفارش
-                    </button>
-                </div>
-            </form>
-        </div>
+        <form method="post" class="space-y-6">
+          {% csrf_token %}
+          
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+          
+          <div>
+            <label for="{{ form.shipping_address.id_for_label }}">آدرس ارسال</label>
+            {{ form.shipping_address }}
+            {% if form.shipping_address.errors %}
+              <div class="form-error">{{ form.shipping_address.errors }}</div>
+            {% endif %}
+          </div>
+          
+          <div class="pt-4">
+            <button type="submit" class="btn-primary w-full">
+              ثبت سفارش
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

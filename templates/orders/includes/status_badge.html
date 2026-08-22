@@ -1,0 +1,13 @@
+{% if status == 'paid' or status == 'delivered' or status == 'completed' %}
+  <span class="badge badge-success">
+    {% if status == 'paid' %}پرداخت شده{% elif status == 'delivered' %}تحویل داده شده{% else %}تکمیل شده{% endif %}
+  </span>
+{% elif status == 'shipped' or status == 'producing' or status == 'planned' %}
+  <span class="badge badge-info">
+    {% if status == 'shipped' %}ارسال شده{% elif status == 'producing' %}در حال تولید{% else %}برنامه‌ریزی شده{% endif %}
+  </span>
+{% elif status == 'cancelled' %}
+  <span class="badge badge-danger">لغو شده</span>
+{% else %}
+  <span class="badge badge-warning">پیش‌نویس</span>
+{% endif %}

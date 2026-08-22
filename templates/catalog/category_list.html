@@ -1,16 +1,63 @@
 {% extends 'base.html' %}
+{% load jformat %}
 
 {% block title %}دسته‌بندی‌ها{% endblock %}
+{% block breadcrumb %}
+<nav class="section-container py-3" aria-label="breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-stone-500">
+        <li><a href="{% url 'home' %}" class="hover:text-primary-600">خانه</a></li>
+        <li>/</li>
+        <li class="text-stone-900 font-medium">دسته‌بندی‌ها</li>
+    </ol>
+</nav>
+{% endblock %}
 
 {% block content %}
-<h1>دسته‌بندی محصولات</h1>
-<div class="categories-grid">
-    {% for category in categories %}
-        <div class="category-card">
-            <h2><a href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a></h2>
-        </div>
-    {% empty %}
-        <p>دسته‌بندی‌ای یافت نشد.</p>
-    {% endfor %}
+<div class="section-container section-padding">
+    <div class="mb-12 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">دسته‌بندی محصولات</h1>
+        <p class="text-lg text-stone-600 max-w-2xl mx-auto">کابینت‌های باکیفیت را در دسته‌بندی‌های مختلف پیدا کنید</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for category in categories %}
+            {% with first_product=category.products.first %}
+            <a href="{% url 'catalog:category_detail' category.slug %}" class="group block bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1">
+                <div class="relative aspect-[4/3] bg-stone-100 overflow-hidden">
+                    {% if first_product and first_product.images.all %}
+                        <img src="{{ first_product.images.all.0.image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-stone-50">
+                            <svg class="w-16 h-16 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-stone-900 group-hover:text-primary-600 transition-colors">{{ category.name }}</h3>
+                            <p class="text-sm text-stone-500 mt-1">{{ category.products.count }} محصول</p>
+                        </div>
+                        <svg class="w-5 h-5 text-stone-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+            {% endwith %}
+        {% empty %}
+            <div class="col-span-full text-center py-16">
+                <div class="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                </div>
+                <p class="text-stone-500 text-lg">دسته‌بندی‌ای یافت نشد.</p>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

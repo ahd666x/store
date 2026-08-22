@@ -3,16 +3,44 @@
 {% block title %}ورود با OTP{% endblock %}
 
 {% block content %}
-<h1>ورود با کد یکبار مصرف</h1>
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-{% endif %}
-<form method="post">
-    {% csrf_token %}
-    <label>شماره موبایل:</label>
-    <input type="text" name="phone" placeholder="09123456789" required>
-    <button type="submit">درخواست کد</button>
-</form>
+<div class="section-container section-padding">
+  <div class="max-w-md mx-auto">
+    <div class="text-center mb-8">
+      <div class="mx-auto h-16 w-16 bg-primary-600 rounded-full flex items-center justify-center">
+        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+      <h2 class="mt-6 text-2xl font-bold text-stone-900">ورود با شماره موبایل</h2>
+      <p class="mt-2 text-stone-600">کد تایید به شماره موبایل شما ارسال خواهد شد</p>
+    </div>
+    
+    <div class="card">
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <div>
+          <label for="phone" class="form-label">شماره موبایل</label>
+          <input type="text" id="phone" name="phone" placeholder="09123456789" required class="form-input">
+          <p class="form-hint">شماره موبایل خود را با فرمت ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید</p>
+        </div>
+        
+        <div>
+          <button type="submit" class="btn-primary w-full">
+            درخواست کد تایید
+          </button>
+        </div>
+      </form>
+      
+      <div class="mt-6 text-center">
+        <p class="text-sm text-stone-600">
+          یا
+          <a href="{% url 'accounts:login' %}" class="font-medium text-primary-600 hover:text-primary-800">
+            ورود با نام کاربری
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -7,11 +7,8 @@ def main():
     """Run administrative tasks."""
     settings_module = os.environ.get('DJANGO_SETTINGS_MODULE')
     if not settings_module:
-        raise RuntimeError(
-            "DJANGO_SETTINGS_MODULE environment variable is not set. "
-            "Set it to 'config.settings.dev' for development or "
-            "'config.settings.production' for production."
-        )
+        settings_module = 'config.settings.dev'
+        os.environ['DJANGO_SETTINGS_MODULE'] = settings_module
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

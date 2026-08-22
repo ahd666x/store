@@ -1,101 +1,286 @@
 {% extends 'base.html' %}
+{% load jformat %}
 
 {% block title %}{{ product.name }}{% endblock %}
+{% block meta_description %}{{ product.description|truncatewords:30 }}{% endblock %}
+{% block og_title %}{{ product.name }}{% endblock %}
+{% block og_description %}{{ product.description|truncatewords:20 }}{% endblock %}
+{% if product.images.all %}
+    {% block og_image %}{{ product.images.all.0.image.url }}{% endblock %}
+{% endif %}
+
+{% block breadcrumb %}
+<nav class="section-container py-3" aria-label="breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-stone-500">
+        <li><a href="{% url 'home' %}" class="hover:text-primary-600">خانه</a></li>
+        <li>/</li>
+        <li><a href="{% url 'catalog:product_list' %}" class="hover:text-primary-600">محصولات</a></li>
+        <li>/</li>
+        <li><a href="{% url 'catalog:category_detail' product.category.slug %}" class="hover:text-primary-600">{{ product.category.name }}</a></li>
+        <li>/</li>
+        <li class="text-stone-900 font-medium">{{ product.name }}</li>
+    </ol>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="product-detail">
-    <h1>{{ product.name }}</h1>
-    <p>دسته‌بندی: {{ product.category.name }}</p>
-    <p>قیمت: {{ product.price }} تومان</p>
-    <p>موجودی: {{ product.stock }}</p>
-    {% if product.length or product.width or product.height %}
-        <p>
-            ابعاد کلی:
-            {% if product.length %}{{ product.length }}×{% endif %}
-            {% if product.width %}{{ product.width }}×{% endif %}
-            {% if product.height %}{{ product.height }} سانتی‌متر{% endif %}
-        </p>
-    {% endif %}
-    <p>{{ product.description }}</p>
+<div class="section-container section-padding">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {# Product Gallery #}
+        <div x-data="{ selectedImage: '{{ product.images.all.0.image.url|default:"" }}' }">
+            <div class="aspect-square bg-stone-100 rounded-2xl overflow-hidden mb-4">
+                {% if product.images.all %}
+                    <img :src="selectedImage" alt="{{ product.name }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <svg class="w-24 h-24 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {# Thumbnails #}
+            {% if product.images.all|length > 1 %}
+                <div class="flex gap-3 overflow-x-auto pb-2">
+                    {% for image in product.images.all %}
+                        <button @click="selectedImage = '{{ image.image.url }}'" class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors" :class="selectedImage === '{{ image.image.url }}' ? 'border-primary-600' : 'border-transparent hover:border-stone-300'">
+                            <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" class="w-full h-full object-cover">
+                        </button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
 
-    {% if product.images.all %}
-        <h2>گالری تصاویر</h2>
-        <div class="product-gallery">
-            {% for image in product.images.all %}
-                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" loading="lazy">
-            {% endfor %}
+        {# Product Info - Sticky #}
+        <div class="lg:sticky lg:top-24 lg:self-start">
+            <div class="mb-6">
+                <span class="text-sm font-medium text-primary-600 bg-primary-50 px-3 py-1 rounded-full">
+                    {{ product.category.name }}
+                </span>
+            </div>
+            
+            <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">{{ product.name }}</h1>
+            
+            <div class="flex items-center gap-4 mb-6">
+                {% if product.average_rating %}
+                    <div class="flex items-center gap-1 text-warning-400">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= product.average_rating %}
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            {% else %}
+                                <svg class="w-5 h-5 text-stone-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="text-stone-600">{{ product.average_rating }} ({{ product.review_count }} نظر)</span>
+                {% endif %}
+            </div>
+            
+            <div class="mb-8">
+                <span class="text-4xl font-bold text-primary-600">{{ product.price }} تومان</span>
+                {% if product.base_price and product.base_price != product.price %}
+                    <span class="text-lg text-stone-400 line-through me-3">{{ product.base_price }}</span>
+                {% endif %}
+            </div>
+            
+            <p class="text-stone-600 leading-relaxed mb-8">{{ product.description }}</p>
+            
+            {# Dimensions #}
+            {% if product.length or product.width or product.height %}
+                <div class="grid grid-cols-3 gap-4 mb-8">
+                    {% if product.length %}
+                        <div class="text-center p-3 bg-stone-50 rounded-lg">
+                            <p class="text-sm text-stone-500">طول</p>
+                            <p class="text-lg font-semibold text-stone-900">{{ product.length }}</p>
+                            <p class="text-xs text-stone-400">سانتی‌متر</p>
+                        </div>
+                    {% endif %}
+                    {% if product.width %}
+                        <div class="text-center p-3 bg-stone-50 rounded-lg">
+                            <p class="text-sm text-stone-500">عرض</p>
+                            <p class="text-lg font-semibold text-stone-900">{{ product.width }}</p>
+                            <p class="text-xs text-stone-400">سانتی‌متر</p>
+                        </div>
+                    {% endif %}
+                    {% if product.height %}
+                        <div class="text-center p-3 bg-stone-50 rounded-lg">
+                            <p class="text-sm text-stone-500">ارتفاع</p>
+                            <p class="text-lg font-semibold text-stone-900">{{ product.height }}</p>
+                            <p class="text-xs text-stone-400">سانتی‌متر</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            {# Add to Cart #}
+            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="mb-8">
+                {% csrf_token %}
+                <div class="flex items-center gap-4 mb-4">
+                    <label class="form-label mb-0">تعداد:</label>
+                    <div class="flex items-center border border-stone-300 rounded-lg overflow-hidden">
+                        <button type="button" onclick="this.nextElementSibling.value = Math.max(1, parseInt(this.nextElementSibling.value) - 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">-</button>
+                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-16 text-center border-0 focus:ring-0 p-2">
+                        <button type="button" onclick="this.previousElementSibling.value = Math.min({{ product.stock }}, parseInt(this.previousElementSibling.value) + 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">+</button>
+                    </div>
+                    <span class="text-sm text-stone-500">موجودی: {{ product.stock }}</span>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full py-3 text-lg" {% if product.stock == 0 %}disabled{% endif %}>
+                    {% if product.stock > 0 %}
+                        <svg class="w-5 h-5 inline-block me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                        </svg>
+                        افزودن به سبد خرید
+                    {% else %}
+                        ناموجود
+                    {% endif %}
+                </button>
+                <p class="text-xs text-stone-500 mt-2">TODO: quantity stepper UI only — backend needs cart_add update to read quantity field</p>
+            </form>
+        </div>
+    </div>
+
+    {# Product Sections (Accordion) #}
+    {% if product.sections.all %}
+        <div class="mt-16">
+            <h2 class="text-3xl font-bold text-stone-900 mb-8">اجزای محصول</h2>
+            
+            <div class="space-y-4">
+                {% for section in product.sections.all %}
+                    <div x-data="{ open: {{ forloop.first }} }" class="border border-stone-200 rounded-xl overflow-hidden">
+                        <button @click="open = !open" class="w-full flex items-center justify-between p-6 bg-white hover:bg-stone-50 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
+                                    <span class="text-primary-600 font-semibold">{{ forloop.counter }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <h3 class="font-semibold text-stone-900">{{ section.name }}</h3>
+                                    <p class="text-sm text-stone-500">رنگ: {{ section.color.name }}</p>
+                                </div>
+                            </div>
+                            <svg class="w-5 h-5 text-stone-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                            </svg>
+                        </button>
+                        
+                        <div x-show="open" x-transition class="border-t border-stone-200">
+                            {% if section.pieces.all %}
+                                <div class="p-6">
+                                    <table class="table-modern">
+                                        <thead>
+                                            <tr>
+                                                <th>طول (سانتی‌متر)</th>
+                                                <th>عرض (سانتی‌متر)</th>
+                                                <th>توضیحات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for piece in section.pieces.all %}
+                                                <tr>
+                                                    <td>{{ piece.length }}</td>
+                                                    <td>{{ piece.width }}</td>
+                                                    <td>{{ piece.description|default:"-" }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     {% endif %}
 
-    {% if product.sections.all %}
-        <h2>اجزای محصول</h2>
-        {% for section in product.sections.all %}
-            <div class="part">
-                <h3>{{ section.name }} <small>(رنگ: {{ section.color.name }})</small></h3>
-                {% if section.pieces.all %}
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>طول (سانتی‌متر)</th>
-                                <th>عرض (سانتی‌متر)</th>
-                                <th>توضیحات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for piece in section.pieces.all %}
-                                <tr>
-                                    <td>{{ piece.length }}</td>
-                                    <td>{{ piece.width }}</td>
-                                    <td>{{ piece.description|default:"-" }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
+    {# Reviews Section #}
+    <div class="mt-16">
+        <h2 class="text-3xl font-bold text-stone-900 mb-8">نظرات کاربران ({{ product.review_count }})</h2>
+        
+        {% if reviews %}
+            <div class="space-y-6 mb-12">
+                {% for review in reviews %}
+                    <div class="card-hover p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="text-primary-600 font-semibold text-lg">{{ review.user.username|first|upper }}</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-stone-900">{{ review.user.username }}</h4>
+                                    <span class="text-sm text-stone-500">{{ review.created_at|jformat:"Y/m/d" }}</span>
+                                </div>
+                                <div class="flex items-center gap-1 text-warning-400 mb-3">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        {% else %}
+                                            <svg class="w-4 h-4 text-stone-300" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <p class="text-stone-700">{{ review.comment|default:"بدون نظر" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-    {% endif %}
-
-    <form action="{% url 'cart:cart_add' product.id %}" method="post">
-        {% csrf_token %}
-        <button type="submit">افزودن به سبد خرید</button>
-    </form>
-
-    <hr>
-
-    <h2>نظرات کاربران ({{ product.review_count }})</h2>
-    {% if reviews %}
-        {% for review in reviews %}
-            <div class="review">
-                <strong>{{ review.user.username }}</strong>
-                <span class="rating">{% for i in "12345" %}{% if i|add:"0" <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
-                <p>{{ review.comment|default:"بدون نظر" }}</p>
+        {% else %}
+            <div class="text-center py-12 bg-white rounded-xl border border-stone-200">
+                <svg class="w-16 h-16 text-stone-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <p class="text-stone-500 text-lg mb-4">هنوز نظری ثبت نشده است.</p>
             </div>
-        {% endfor %}
-    {% else %}
-        <p>هنوز نظری ثبت نشده است.</p>
-    {% endif %}
+        {% endif %}
 
-    {% if can_review %}
-        <h3>ثبت نظر</h3>
-        <form method="post" action="{% url 'catalog:product_detail' product.slug %}">
-            {% csrf_token %}
-            <label>امتیاز (1-5):</label>
-            <select name="rating" required>
-                <option value="5">5 - عالی</option>
-                <option value="4">4 - خوب</option>
-                <option value="3">3 - متوسط</option>
-                <option value="2">2 - ضعیف</option>
-                <option value="1">1 - بسیار ضعیف</option>
-            </select>
-            <label>نظر:</label>
-            <textarea name="comment" rows="3"></textarea>
-            <button type="submit">ثبت نظر</button>
-        </form>
-    {% elif user.is_authenticated %}
-        <p>شما قبلاً برای این محصول نظر داده‌اید.</p>
-    {% else %}
-        <p>برای ثبت نظر باید <a href="{% url 'accounts:login' %}">وارد شوید</a>.</p>
-    {% endif %}
+        {# Review Form #}
+        {% if can_review %}
+            <div class="card mt-8">
+                <h3 class="text-xl font-semibold text-stone-900 mb-6">ثبت نظر</h3>
+                <form method="post" action="{% url 'catalog:product_detail' product.slug %}">
+                    {% csrf_token %}
+                    <div class="space-y-6">
+                        <div>
+                            <label class="form-label">امتیاز شما</label>
+                            <div class="flex items-center gap-2">
+                                <select name="rating" class="form-select w-24" required>
+                                    <option value="5">5 - عالی</option>
+                                    <option value="4">4 - خوب</option>
+                                    <option value="3">3 - متوسط</option>
+                                    <option value="2">2 - ضعیف</option>
+                                    <option value="1">1 - بسیار ضعیف</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="comment" class="form-label">نظر شما</label>
+                            <textarea name="comment" rows="4" class="form-input" placeholder="نظر خود را بنویسید..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            ثبت نظر
+                        </button>
+                    </div>
+                </form>
+            </div>
+        {% elif user.is_authenticated %}
+            <div class="alert alert-info mt-8">
+                <p>شما قبلاً برای این محصول نظر داده‌اید.</p>
+            </div>
+        {% else %}
+            <div class="alert alert-info mt-8">
+                <p>برای ثبت نظر باید <a href="{% url 'accounts:login' %}" class="text-primary-600 font-medium">وارد شوید</a>.</p>
+            </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

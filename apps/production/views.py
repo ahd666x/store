@@ -84,3 +84,9 @@ class ProductionTaskListView(LoginRequiredMixin, ListView):
         if status:
             qs = qs.filter(status=status)
         return qs.order_by('order', 'step_order')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stations'] = ProductionTask.STATION_CHOICES
+        context['status_choices'] = ProductionTask.TASK_STATUS
+        return context

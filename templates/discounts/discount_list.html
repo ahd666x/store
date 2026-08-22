@@ -4,50 +4,85 @@
 {% block title %}لیست تخفیف‌ها{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">تخفیف‌ها</h1>
-        <a href="{% url 'discounts:discount_create' %}" class="btn-primary">
-            ایجاد تخفیف جدید
-        </a>
+<div class="section-container section-padding">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-stone-900">تخفیف‌ها</h1>
+      <p class="text-stone-500 mt-1">مدیریت کدهای تخفیف و شرایط اعتبار</p>
     </div>
+    <a href="{% url 'discounts:discount_create' %}" class="btn-primary">
+      <svg class="h-5 w-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      ایجاد تخفیف جدید
+    </a>
+  </div>
 
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">کد</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نوع</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">مقدار</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">اعتبار</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عملیات</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {% for discount in discounts %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ discount.code }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ discount.get_discount_type_display }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ discount.value }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                {% if discount.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
-                                {{ discount.is_active|yesno:"فعال,غیرفعال" }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {{ discount.valid_from|jformat:"Y/m/d" }} تا {{ discount.valid_until|jformat:"Y/m/d" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{% url 'discounts:discount_update' discount.pk %}" class="text-indigo-600 hover:text-indigo-900">
-                                ویرایش
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="table-modern">
+        <thead>
+          <tr>
+            <th>کد تخفیف</th>
+            <th>نوع</th>
+            <th>مقدار</th>
+            <th>کاربرد</th>
+            <th>وضعیت</th>
+            <th>اعتبار</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for discount in discounts %}
+            <tr>
+              <td class="font-medium text-primary-700">{{ discount.code }}</td>
+              <td>{{ discount.get_discount_type_display }}</td>
+              <td class="font-medium">{{ discount.value }}</td>
+              <td>
+                {% if discount.max_uses > 0 %}
+                  {% widthratio discount.used_count discount.max_uses 100 as used_pct %}
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-2 bg-stone-200 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full transition-all duration-300 {% if used_pct >= 100 %}bg-red-500{% elif used_pct >= 80 %}bg-warning-500{% else %}bg-primary-500{% endif %}" style="width: {% if used_pct > 100 %}100{% else %}{{ used_pct }}{% endif %}%"></div>
+                    </div>
+                    <span class="text-xs text-stone-500 whitespace-nowrap">{{ discount.used_count }} / {{ discount.max_uses }}</span>
+                  </div>
+                {% else %}
+                  <span class="text-sm text-stone-500">نامحدود</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if discount.is_active %}
+                  <span class="badge badge-success">فعال</span>
+                {% else %}
+                  <span class="badge badge-danger">غیرفعال</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm">{{ discount.valid_from|jformat:"Y/m/d" }} تا {{ discount.valid_until|jformat:"Y/m/d" }}</span>
+                  {% now "U" as now_ts %}
+                  {% with valid_ts=discount.valid_until|date:"U"|add:"0" %}
+                    {% if valid_ts < now_ts|add:"0" %}
+                      <span class="badge badge-danger text-xs">منقضی شده</span>
+                    {% elif valid_ts|add:"-604800"|add:"0" < now_ts|add:"0" %}
+                      <span class="badge badge-warning text-xs">نزدیک انقضا</span>
+                    {% endif %}
+                  {% endwith %}
+                </div>
+              </td>
+              <td>
+                <a href="{% url 'discounts:discount_update' discount.pk %}" class="btn-sm btn-secondary">ویرایش</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-8 text-stone-500">تخفیفی یافت نشد.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
 {% endblock %}
