@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from apps.catalog.models import Product, ProductCategory, ProductImage, ProductReview
-from apps.orders.models import Order, OrderItem
+from apps.orders.models import Order, OrderItem, ProductionTask
 from apps.cart.models import Cart, CartItem
 from apps.discounts.models import Discount
 from apps.accounts.models import User
@@ -117,3 +117,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'phone', 'email', 'first_name', 'last_name']
+
+
+class ProductionTaskSerializer(serializers.ModelSerializer):
+    station_display = serializers.CharField(source='get_station_name_display', read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    class Meta:
+        model = ProductionTask
+        fields = [
+            'id', 'order', 'station_name', 'station_display', 'status', 'status_display',
+            'quantity', 'scanned_by', 'completed_at', 'step_order', 'assigned_worker'
+        ]

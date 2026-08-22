@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}تخته کانبان تولید{% endblock %}
+
+{% block content %}
+<h1>تخته کانبان تولید</h1>
+<form method="get" style="margin-bottom: 20px;">
+    <label>ایستگاه کاری:
+        <select name="station" onchange="this.form.submit()">
+            <option value="">همه</option>
+            {% for value, label in stations %}
+                <option value="{{ value }}" {% if selected_station == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+</form>
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+    <div style="background: #fff3cd; padding: 15px; border-radius: 8px;">
+        <h2>در انتظار</h2>
+        {% for task in tasks_waiting %}
+            <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+                <strong>#{{ task.order_id }}</strong> - {{ task.get_station_name_display }}<br>
+                {{ task.part|default:task.order_item|default:"-" }}<br>
+                تعداد: {{ task.quantity }}<br>
+                کارگر: {{ task.assigned_worker|default:"—" }}
+            </div>
+        {% empty %}
+            <p>تسکی وجود ندارد.</p>
+        {% endfor %}
+    </div>
+
+    <div style="background: #d1e7dd; padding: 15px; border-radius: 8px;">
+        <h2>آماده انجام</h2>
+        {% for task in tasks_pending %}
+            <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+                <strong>#{{ task.order_id }}</strong> - {{ task.get_station_name_display }}<br>
+                {{ task.part|default:task.order_item|default:"-" }}<br>
+                تعداد: {{ task.quantity }}<br>
+                کارگر: {{ task.assigned_worker|default:"—" }}
+            </div>
+        {% empty %}
+            <p>تسکی وجود ندارد.</p>
+        {% endfor %}
+    </div>
+
+    <div style="background: #d1c4e9; padding: 15px; border-radius: 8px;">
+        <h2>تکمیل شده</h2>
+        {% for task in tasks_done %}
+            <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+                <strong>#{{ task.order_id }}</strong> - {{ task.get_station_name_display }}<br>
+                {{ task.part|default:task.order_item|default:"-" }}<br>
+                تعداد: {{ task.quantity }}<br>
+                تکمیل‌شده توسط: {{ task.scanned_by|default:"—" }}<br>
+                زمان: {{ task.completed_at|default:"—" }}
+            </div>
+        {% empty %}
+            <p>تسکی وجود ندارد.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

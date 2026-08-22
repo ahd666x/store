@@ -26,4 +26,8 @@ urlpatterns = [
     path('orders/checkout/', views.OrderViewSet.as_view({'post': 'checkout'}), name='order-checkout'),
     path('discounts/', views.DiscountViewSet.as_view({'get': 'list'}), name='discount-list'),
     path('discounts/<int:pk>/', views.DiscountViewSet.as_view({'get': 'retrieve'}), name='discount-detail'),
+    path('production/tasks/', views.ProductionTaskViewSet.as_view({'get': 'list'}), name='production-task-list'),
+    path('production/tasks/<int:pk>/', views.ProductionTaskViewSet.as_view({'get': 'retrieve'}), name='production-task-detail'),
+    path('production/tasks/<int:pk>/complete/', views.ProductionTaskViewSet.as_view({'post': 'complete'}), name='production-task-complete'),
 ]
+

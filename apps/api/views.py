@@ -3,8 +3,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from apps.catalog.models import Product, ProductCategory
-from apps.orders.models import Order
+from apps.orders.models import Order, ProductionTask
 from apps.cart.models import Cart, CartItem
 from apps.discounts.models import Discount
 from .serializers import (
@@ -16,6 +17,7 @@ from .serializers import (
     OrderSerializer,
     DiscountSerializer,
     UserSerializer,
+    ProductionTaskSerializer,
 )
 from apps.orders.services import OrderService
 from apps.cart.services import CartService
@@ -31,6 +33,7 @@ def api_root(request, format=None):
         'cart': '/api/v1/cart/',
         'orders': '/api/v1/orders/',
         'discounts': '/api/v1/discounts/',
+        'production_tasks': '/api/v1/production/tasks/',
         'token': '/api/v1/auth/token/',
         'docs': '/api/v1/docs/swagger/',
     })
@@ -163,3 +166,30 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class ProductionTaskViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ProductionTask.objects.select_related('order', 'part', 'order_item', 'assigned_worker', 'scanned_by')
+    serializer_class = ProductionTaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        station = self.request.query_params.get('station')
+        if station:
+            qs = qs.filter(station_name=station)
+        status = self.request.query_params.get('status')
+        if status:
+            qs = qs.filter(status=status)
+        return qs.order_by('order', 'step_order')
+
+    @action(detail=True, methods=['post'])
+    def complete(self, request, pk=None):
+        task = self.get_object()
+        if task.status == 'done':
+            return Response({'detail': 'این تسک قبلا تکمیل شده است.'}, status=status.HTTP_400_BAD_REQUEST)
+        task.status = 'done'
+        task.scanned_by = request.user
+        task.completed_at = timezone.now()
+        task.save()
+        return Response(ProductionTaskSerializer(task, context=self.get_serializer_context()).data)
