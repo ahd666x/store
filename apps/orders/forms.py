@@ -1,6 +1,6 @@
 from django import forms
 from .models import Order
-from apps.cart.models import Cart
+from .services import OrderService, InsufficientStockError
 
 
 class OrderForm(forms.ModelForm):
@@ -16,9 +16,11 @@ class OrderForm(forms.ModelForm):
         order = super().save(commit=False)
         if self.request:
             order.user = self.request.user
-            cart = Cart.objects.get(user=self.request.user)
-            order.total_amount = cart.total_price
-            order.final_amount = order.total_amount
         if commit:
             order.save()
+            if self.request:
+                OrderService.create_order_from_cart(
+                    user=self.request.user,
+                    shipping_address=order.shipping_address,
+                )
         return order

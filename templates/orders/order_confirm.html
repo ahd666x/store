@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}تایید سفارش{% endblock %}
+
+{% block content %}
+<div class="order-confirm">
+    <h1>تایید سفارش #{{ order.id }}</h1>
+    <p><strong>مشتری:</strong> {{ order.customer.name }}</p>
+    <p><strong>آدرس ارسال:</strong> {{ order.shipping_address }}</p>
+    <p><strong>مبلغ کل:</strong> {{ order.final_amount }} تومان</p>
+
+    <h2>آیتم‌های سفارش</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>محصول</th>
+                <th>تعداد</th>
+                <th>قیمت واحد</th>
+                <th>مجموع</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit_price }} تومان</td>
+                    <td>{{ item.line_total }} تومان</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="actions">
+        <a href="{% url 'payments:payment_create' order.id %}" class="btn btn-primary">پرداخت و ادامه</a>
+        <a href="{% url 'cart:cart_detail' %}" class="btn btn-danger">بازگشت به سبد خرید</a>
+    </div>
+</div>
+{% endblock %}

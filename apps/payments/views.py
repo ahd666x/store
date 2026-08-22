@@ -34,6 +34,18 @@ def payment_verify(request):
             payment.transaction_id = result.get('ref_id', '')
             payment.paid_at = timezone.now()
             payment.save()
+
+            order = payment.order
+            order.status = 'paid'
+            order.paid_at = payment.paid_at
+            order.save()
+
+            for item in order.items.all():
+                product = item.product
+                if product.stock >= item.quantity:
+                    product.stock -= item.quantity
+                    product.save(update_fields=['stock'])
+
             return redirect('orders:order_detail', order_id=payment.order.id)
         else:
             payment.status = 'failed'

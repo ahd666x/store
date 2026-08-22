@@ -18,7 +18,15 @@ def cart_add(request, product_id):
     cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
     if not created:
         cart_item.quantity += 1
+        if cart_item.quantity > product.stock:
+            messages.error(request, f"موجودی {product.name} فقط {product.stock} عدد است.")
+            cart_item.quantity = product.stock
         cart_item.save()
+    else:
+        if cart_item.quantity > product.stock:
+            messages.error(request, f"موجودی {product.name} فقط {product.stock} عدد است.")
+            cart_item.quantity = product.stock
+            cart_item.save()
     messages.success(request, 'محصول به سبد خرید اضافه شد.')
     return redirect('catalog:product_list')
 
