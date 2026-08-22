@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load jformat %}
 
 {% block title %}لیست تخفیف‌ها{% endblock %}
 
@@ -36,7 +37,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {{ discount.valid_from|date:"Y/m/d" }} تا {{ discount.valid_until|date:"Y/m/d" }}
+                            {{ discount.valid_from|jformat:"Y/m/d" }} تا {{ discount.valid_until|jformat:"Y/m/d" }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <a href="{% url 'discounts:discount_update' discount.pk %}" class="text-indigo-600 hover:text-indigo-900">

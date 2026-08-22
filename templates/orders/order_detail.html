@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load jformat %}
 
 {% block title %}جزئیات سفارش {{ order.id }}{% endblock %}
 
@@ -6,7 +7,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">سفارش #{{ order.id }}</h1>
-        <p class="text-gray-600">تاریخ: {{ order.created_at|date:"Y/m/d" }}</p>
+        <p class="text-gray-600">تاریخ: {{ order.created_at|jformat:"Y/m/d" }}</p>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
             {% if order.status == 'paid' %}bg-green-100 text-green-800
             {% elif order.status == 'shipped' %}bg-blue-100 text-blue-800

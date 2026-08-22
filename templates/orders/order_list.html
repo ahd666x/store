@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load jformat %}
 
 {% block title %}لیست سفارشات{% endblock %}
 
@@ -17,7 +18,7 @@
                                     سفارش #{{ order.id }}
                                 </h3>
                                 <p class="text-sm text-gray-600 mt-1">
-                                    تاریخ: {{ order.created_at|date:"Y/m/d" }}
+                                    تاریخ: {{ order.created_at|jformat:"Y/m/d" }}
                                 </p>
                                 <p class="text-sm text-gray-600">
                                     وضعیت:

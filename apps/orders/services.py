@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.cart.models import Cart, CartItem
 from apps.catalog.models import Product
-from apps.orders.models import Order, OrderItem
+from apps.orders.models import Order, OrderItem, Customer
 
 
 class InsufficientStockError(Exception):
@@ -45,6 +45,7 @@ class OrderService:
             total_amount=cart.total_price,
             final_amount=cart.final_price if cart.discount else cart.total_price,
             discount_amount=cart.discount_amount,
+            discount=cart.discount,
             status='draft',
         )
 

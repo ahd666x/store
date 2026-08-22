@@ -55,7 +55,7 @@ class ProductListView(ListView):
             queryset = queryset.order_by('-created_at')
         elif sort == 'oldest':
             queryset = queryset.order_by('created_at')
-        elif sort == 'rating':
+        elif sort == 'rating' or sort == '-average_rating':
             queryset = queryset.order_by('-avg_rating')
         else:
             queryset = queryset.order_by('-created_at')

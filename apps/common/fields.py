@@ -8,18 +8,18 @@ class PersianDateField(models.DateField):
         if value is None:
             return value
         try:
-            return jdatetime.date.fromgregorian(date=value).togregorian()
+            return jdatetime.date.fromgregorian(date=value)
         except Exception:
             return value
 
     def to_python(self, value):
         if isinstance(value, jdatetime.date):
-            return value.togregorian()
+            return value
         if value is None:
             return value
         if isinstance(value, str):
             try:
-                return jdatetime.datetime.strptime(value, '%Y-%m-%d').date().togregorian()
+                return jdatetime.datetime.strptime(value, '%Y-%m-%d').date()
             except ValueError:
                 pass
         return super().to_python(value)
@@ -56,12 +56,12 @@ class PersianDateTimeField(models.DateTimeField):
 
     def to_python(self, value):
         if isinstance(value, jdatetime.datetime):
-            return value.togregorian()
+            return value
         if value is None:
             return value
         if isinstance(value, str):
             try:
-                return jdatetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S').togregorian()
+                return jdatetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 pass
         return super().to_python(value)
