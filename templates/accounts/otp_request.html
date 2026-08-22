@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}ورود با OTP{% endblock %}
+
+{% block content %}
+<h1>ورود با کد یکبار مصرف</h1>
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <label>شماره موبایل:</label>
+    <input type="text" name="phone" placeholder="09123456789" required>
+    <button type="submit">درخواست کد</button>
+</form>
+{% endblock %}

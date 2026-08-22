@@ -9,4 +9,11 @@
     {{ form.as_p }}
     <button type="submit">ورود</button>
 </form>
+<p>
+    <a href="{% url 'accounts:password_reset' %}">رمز عبور را فراموش کرده‌اید؟</a>
+</p>
+<p>
+    <a href="{% url 'accounts:register' %}">ثبت‌نام</a> |
+    <a href="{% url 'accounts:otp_request' %}">ورود با OTP</a>
+</p>
 {% endblock %}
