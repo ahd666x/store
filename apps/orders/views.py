@@ -83,6 +83,18 @@ class OrderDetailView(LoginRequiredMixin, ListView):
         return context
 
 
+class OrderCancelView(LoginRequiredMixin, View):
+    def post(self, request, order_id, *args, **kwargs):
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        if order.status in ('draft', 'planned'):
+            order.status = 'cancelled'
+            order.save(update_fields=['status'])
+            messages.success(request, 'سفارش شما با موفقیت لغو شد.')
+        else:
+            messages.error(request, 'امکان لغو سفارش در این وضعیت وجود ندارد.')
+        return redirect('orders:order_detail', order_id=order.id)
+
+
 class PackagingMarkPackedView(LoginRequiredMixin, View):
     def post(self, request, unit_id, *args, **kwargs):
         if not is_production_staff(request.user):

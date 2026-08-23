@@ -31,6 +31,14 @@
                 <a href="{% url 'orders:order_detail' order.id %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">
                   مشاهده جزئیات
                 </a>
+                {% if order.status in 'draft,planned' %}
+                  <form method="post" action="{% url 'orders:order_cancel' order.id %}" class="mt-2" onsubmit="return confirm('آیا مطمئن هستید می‌خواهید سفارش #{{ order.id }} را لغو کنید؟')">
+                    {% csrf_token %}
+                    <button type="submit" class="text-danger-600 hover:text-danger-800 text-sm font-medium">
+                      لغو سفارش
+                    </button>
+                  </form>
+                {% endif %}
               </div>
             </div>
           </div>

@@ -5,7 +5,8 @@ from apps.catalog.models import Product
 
 
 class Cart(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart', verbose_name="کاربر")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart', null=True, blank=True, verbose_name="کاربر")
+    session_key = models.CharField(max_length=40, null=True, blank=True, db_index=True, verbose_name="کلید جلسه")
     discount = models.ForeignKey('discounts.Discount', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="تخفیف")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
 
@@ -14,7 +15,9 @@ class Cart(BaseModel):
         verbose_name_plural = "سبدهای خرید"
 
     def __str__(self):
-        return f"سبد خرید {self.user.username}"
+        if self.user:
+            return f"سبد خرید {self.user.username}"
+        return f"سبد خرید مهمان ({self.session_key})"
 
     @property
     def total_items(self):

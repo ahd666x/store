@@ -7,9 +7,20 @@ from .services import CartService
 from apps.catalog.models import Product
 
 
-@login_required
+def _get_cart(request):
+    if request.user.is_authenticated:
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+    else:
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        cart, _ = Cart.objects.get_or_create(session_key=session_key, user=None)
+    return cart
+
+
 def cart_detail(request):
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart = _get_cart(request)
     return render(request, 'cart/detail.html', {'cart': cart})
 
 
@@ -24,10 +35,9 @@ def _parse_dim(request, name):
         return None
 
 
-@login_required
 def cart_add(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart = _get_cart(request)
 
     try:
         quantity = max(1, int(request.POST.get('quantity', 1)))
@@ -53,17 +63,15 @@ def cart_add(request, product_id):
     return redirect('catalog:product_list')
 
 
-@login_required
 def cart_remove(request, product_id):
-    cart = get_object_or_404(Cart, user=request.user)
+    cart = _get_cart(request)
     CartService.remove_item(cart, product_id)
     messages.success(request, 'محصول از سبد خرید حذف شد.')
     return redirect('cart:cart_detail')
 
 
-@login_required
 def cart_update(request, product_id):
-    cart = get_object_or_404(Cart, user=request.user)
+    cart = _get_cart(request)
     cart_item = get_object_or_404(CartItem, cart=cart, product_id=product_id)
     try:
         new_quantity = int(request.POST.get('quantity', cart_item.quantity))
