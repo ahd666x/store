@@ -39,31 +39,21 @@
 
         {# Pagination #}
         {% if is_paginated %}
-            <nav class="flex items-center justify-center gap-2" aria-label="Pagination">
+            <div class="flex justify-center items-center gap-2 mt-10">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" class="btn-secondary">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                       class="btn-secondary btn-sm">قبلی</a>
                 {% endif %}
-                
-                {% for num in paginator.page_range %}
-                    {% if page_obj.number == num %}
-                        <span class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium">{{ num }}</span>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <a href="?page={{ num }}" class="px-4 py-2 text-stone-600 hover:bg-stone-100 rounded-lg text-sm font-medium transition-colors">{{ num }}</a>
-                    {% endif %}
-                {% endfor %}
-                
+
+                <span class="text-sm text-gray-600">
+                    صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+                </span>
+
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </a>
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                       class="btn-secondary btn-sm">بعدی</a>
                 {% endif %}
-            </nav>
+            </div>
         {% endif %}
     {% else %}
         <div class="text-center py-16">

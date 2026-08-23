@@ -391,6 +391,9 @@ class ProductionTask(BaseModel):
 
     def _update_order_status(self):
         order = self.order
+        if order.status in {'paid', 'shipped', 'delivered', 'cancelled'}:
+            return
+
         all_tasks = order.tasks.all()
         total = all_tasks.count()
         done = all_tasks.filter(status='done').count()

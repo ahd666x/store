@@ -3,8 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Sum, F
+from django.db import transaction
 from .models import Payment, Transaction
 from apps.orders.models import Order
+from apps.discounts.models import Discount
 from .gateways import PaymentGatewayFactory
 
 
@@ -66,9 +68,12 @@ def payment_verify(request):
         order.paid_at = payment.paid_at
         order.save(update_fields=['status', 'paid_at'])
 
-        if order.discount and order.discount.is_valid:
-            order.discount.used_count = F('used_count') + 1
-            order.discount.save(update_fields=['used_count'])
+        if order.discount_id:
+            with transaction.atomic():
+                discount = Discount.objects.select_for_update().get(pk=order.discount_id)
+                if discount.is_valid:
+                    discount.used_count = F('used_count') + 1
+                    discount.save(update_fields=['used_count'])
 
         for item in order.items.all():
             product = item.product

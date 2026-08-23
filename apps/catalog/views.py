@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
 from django.db.models import Q, Min, Max, Avg, Count
+from django.db import IntegrityError
+from django.contrib import messages
 from .models import Product, ProductCategory, ProductReview
 
 
@@ -12,7 +14,7 @@ class ProductListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = Product.objects.filter(is_active=True).prefetch_related('images', 'sections__pieces')
+        queryset = Product.active_objects.filter().prefetch_related('images', 'sections__pieces')
 
         # Search
         query = self.request.GET.get('q', '').strip()
@@ -79,7 +81,7 @@ class ProductDetailView(DetailView):
     context_object_name = 'product'
 
     def get_queryset(self):
-        return Product.objects.filter(is_active=True).prefetch_related(
+        return Product.active_objects.filter().prefetch_related(
             'images',
             'sections__color',
             'sections__pieces',
@@ -101,15 +103,24 @@ class ProductDetailView(DetailView):
         if not request.user.is_authenticated:
             return redirect('accounts:login')
         product = self.get_object()
+        if ProductReview.objects.filter(product=product, user=request.user).exists():
+            messages.error(request, 'شما قبلاً برای این محصول نظر ثبت کرده‌اید.')
+            return redirect('catalog:product_detail', slug=product.slug)
         rating = request.POST.get('rating')
         comment = request.POST.get('comment', '').strip()
         if rating and comment:
-            ProductReview.objects.create(
-                product=product,
-                user=request.user,
-                rating=int(rating),
-                comment=comment,
-            )
+            try:
+                ProductReview.objects.create(
+                    product=product,
+                    user=request.user,
+                    rating=int(rating),
+                    comment=comment,
+                )
+                messages.success(request, 'نظر شما ثبت شد.')
+            except IntegrityError:
+                messages.error(request, 'شما قبلاً برای این محصول نظر ثبت کرده‌اید.')
+        else:
+            messages.error(request, 'امتیاز و متن نظر الزامی است.')
         return redirect('catalog:product_detail', slug=product.slug)
 
 
@@ -126,9 +137,8 @@ class CategoryDetailView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Product.objects.filter(
+        return Product.active_objects.filter(
             category__slug=self.kwargs['slug'],
-            is_active=True
         ).prefetch_related('images', 'sections__pieces').annotate(
             avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
             rev_count=Count('reviews', filter=Q(reviews__is_active=True)),

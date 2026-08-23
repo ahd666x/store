@@ -1,9 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, View
 from django.contrib import messages
+from django.utils import timezone
 from apps.cart.models import Cart
-from .models import Order, OrderItem, Customer
+from apps.production.views import is_production_staff
+from .models import Order, OrderItem, Customer, PackagingUnit, ShipmentLog
 from .forms import OrderForm
 from .services import validate_cart_stock, InsufficientStockError, OrderService
 
@@ -57,7 +59,51 @@ class OrderDetailView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['order'] = get_object_or_404(Order, id=self.kwargs['order_id'], user=self.request.user)
+        context['production_staff'] = is_production_staff(self.request.user)
         return context
+
+
+class PackagingMarkPackedView(LoginRequiredMixin, View):
+    def post(self, request, unit_id, *args, **kwargs):
+        if not is_production_staff(request.user):
+            messages.error(request, 'دسترسی مجاز نیست.')
+            return redirect('home')
+        unit = get_object_or_404(PackagingUnit, id=unit_id)
+        if not unit.is_packed:
+            unit.is_packed = True
+            unit.packed_at = timezone.now()
+            unit.packed_by = request.user
+            unit.save(update_fields=['is_packed', 'packed_at', 'packed_by'])
+            messages.success(request, f'واحد {unit.unit_number} بسته‌بندی شد.')
+        else:
+            messages.info(request, 'این واحد قبلاً بسته‌بندی شده است.')
+        return redirect('orders:order_detail', order_id=unit.order_item.order_id)
+
+
+class PackagingMarkShippedView(LoginRequiredMixin, View):
+    def post(self, request, unit_id, *args, **kwargs):
+        if not is_production_staff(request.user):
+            messages.error(request, 'دسترسی مجاز نیست.')
+            return redirect('home')
+        unit = get_object_or_404(PackagingUnit, id=unit_id)
+        if not unit.is_packed:
+            messages.error(request, 'قبل از ارسال باید بسته‌بندی شود.')
+            return redirect('orders:order_detail', order_id=unit.order_item.order_id)
+        plate_number = request.POST.get('plate_number', '').strip()
+        if not unit.is_shipped:
+            unit.is_shipped = True
+            unit.shipped_at = timezone.now()
+            unit.shipped_by = request.user
+            unit.save(update_fields=['is_shipped', 'shipped_at', 'shipped_by'])
+            ShipmentLog.objects.create(
+                packaging_unit=unit,
+                plate_number=plate_number,
+                shipped_by=request.user,
+            )
+            messages.success(request, f'واحد {unit.unit_number} ارسال شد.')
+        else:
+            messages.info(request, 'این واحد قبلاً ارسال شده است.')
+        return redirect('orders:order_detail', order_id=unit.order_item.order_id)
 
 
 class OrderConfirmView(LoginRequiredMixin, ListView):

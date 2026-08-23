@@ -32,7 +32,8 @@ class Color(BaseModel):
     name = models.CharField(max_length=50, unique=True, verbose_name="نام رنگ")
     code = models.CharField(max_length=7, blank=True, verbose_name="کد رنگ (هگز)")
 
-    objects = ActiveManager()
+    objects = models.Manager()
+    active_objects = ActiveManager()
 
     class Meta:
         verbose_name = "رنگ"
@@ -71,7 +72,8 @@ class Product(BaseModel):
     stock = models.PositiveIntegerField(default=0, verbose_name="موجودی")
     parts_list_key = models.CharField(max_length=255, blank=True, verbose_name="مسیر فایل")
 
-    objects = ActiveManager()
+    objects = models.Manager()
+    active_objects = ActiveManager()
 
     class Meta:
         verbose_name = "محصول"
@@ -147,7 +149,8 @@ class ProductSection(BaseModel):
     color = models.ForeignKey(Color, on_delete=models.PROTECT, verbose_name="رنگ")
     description = models.TextField(blank=True, verbose_name="توضیحات")
 
-    objects = ActiveManager()
+    objects = models.Manager()
+    active_objects = ActiveManager()
 
     class Meta:
         verbose_name = "جزء محصول"
@@ -163,7 +166,8 @@ class Piece(BaseModel):
     width = models.PositiveIntegerField(verbose_name="عرض (سانتی‌متر)")
     description = models.TextField(blank=True, verbose_name="توضیحات")
 
-    objects = ActiveManager()
+    objects = models.Manager()
+    active_objects = ActiveManager()
 
     class Meta:
         verbose_name = "قطعه"

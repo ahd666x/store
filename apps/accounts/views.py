@@ -13,7 +13,7 @@ from .forms import UserRegistrationForm
 
 
 def home(request):
-    featured_products = Product.objects.filter(is_active=True, stock__gt=0).annotate(
+    featured_products = Product.active_objects.filter(stock__gt=0).annotate(
         avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
         rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
     ).order_by('-created_at')[:8]

@@ -3,6 +3,7 @@ from django.views.generic import ListView, TemplateView
 from django.db.models import Count, Q
 from django.utils import timezone
 from apps.orders.models import ProductionTask
+from apps.production.models import WorkerProfile, Holiday, PaintingProcess
 
 
 def is_production_staff(user):
@@ -90,3 +91,42 @@ class ProductionTaskListView(LoginRequiredMixin, ListView):
         context['stations'] = ProductionTask.STATION_CHOICES
         context['status_choices'] = ProductionTask.TASK_STATUS
         return context
+
+
+class WorkerListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = WorkerProfile
+    template_name = 'production/worker_list.html'
+    context_object_name = 'workers'
+    login_url = 'accounts:login'
+
+    def test_func(self):
+        return is_production_staff(self.request.user)
+
+    def get_queryset(self):
+        return WorkerProfile.objects.select_related('user').order_by('user__username')
+
+
+class HolidayListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Holiday
+    template_name = 'production/holiday_list.html'
+    context_object_name = 'holidays'
+    login_url = 'accounts:login'
+
+    def test_func(self):
+        return is_production_staff(self.request.user)
+
+    def get_queryset(self):
+        return Holiday.objects.order_by('date')
+
+
+class PaintingProcessListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = PaintingProcess
+    template_name = 'production/painting_process_list.html'
+    context_object_name = 'processes'
+    login_url = 'accounts:login'
+
+    def test_func(self):
+        return is_production_staff(self.request.user)
+
+    def get_queryset(self):
+        return PaintingProcess.objects.order_by('name')

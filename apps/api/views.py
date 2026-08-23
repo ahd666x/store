@@ -56,7 +56,7 @@ class ProductCategoryViewSet(viewsets.ModelViewSet):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.filter(is_active=True, stock__gt=0)
+    queryset = Product.active_objects.filter(stock__gt=0)
     permission_classes = [IsAdminOrReadOnly]
     lookup_field = 'slug'
 

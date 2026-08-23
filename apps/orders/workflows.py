@@ -1,3 +1,9 @@
+# هشدار: این کلاس در حال حاضر در هیچ‌جای پروژه فراخوانی نمی‌شود.
+# تغییرات وضعیت سفارش فعلاً مستقیماً در apps/payments/views.py و
+# apps/orders/models.py (ProductionTask._update_order_status) انجام می‌شود.
+# قبل از استفاده از این کلاس، مطمئن شوید با LOCKED_STATUSES در
+# ProductionTask._update_order_status هماهنگ است تا رونویسی وضعیت رخ ندهد.
+
 from django.db import transaction
 from django.utils import timezone
 from .models import Order
