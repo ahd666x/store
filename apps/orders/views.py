@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, View
+from django.views.generic import ListView, CreateView, DetailView, View
 from django.contrib import messages
+from django.urls import reverse_lazy
 from django.utils import timezone
 from apps.cart.models import Cart
 from apps.production.views import is_production_staff
-from .models import Order, OrderItem, Customer, PackagingUnit, ShipmentLog, Address
+from .models import Order, OrderItem, Customer, PackagingUnit, ShipmentLog, Address, ReturnRequest
 from .forms import OrderForm
 from .services import validate_cart_stock, InsufficientStockError, OrderService
 
@@ -150,3 +151,75 @@ class OrderConfirmView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['order'] = get_object_or_404(Order, id=self.kwargs['order_id'], user=self.request.user)
         return context
+
+
+class ReturnRequestCreateView(LoginRequiredMixin, CreateView):
+    model = ReturnRequest
+    fields = ['reason']
+    template_name = 'orders/return_request_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['order_item'] = get_object_or_404(OrderItem, id=self.kwargs['item_id'], order__user=self.request.user)
+        return context
+
+    def form_valid(self, form):
+        order_item = get_object_or_404(OrderItem, id=self.kwargs['item_id'], order__user=self.request.user)
+        form.instance.order_item = order_item
+        form.instance.user = self.request.user
+        messages.success(self.request, 'درخواست مرجوعی شما ثبت شد.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('orders:order_detail', kwargs={'order_id': self.object.order_item.order_id})
+
+
+class ReturnRequestListView(LoginRequiredMixin, ListView):
+    model = ReturnRequest
+    template_name = 'orders/return_request_list.html'
+    context_object_name = 'return_requests'
+
+    def get_queryset(self):
+        qs = ReturnRequest.objects.all().select_related('order_item__product', 'user')
+        if not is_production_staff(self.request.user):
+            qs = qs.filter(user=self.request.user)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_production_staff'] = is_production_staff(self.request.user)
+        return context
+
+
+class ReturnRequestDetailView(LoginRequiredMixin, DetailView):
+    model = ReturnRequest
+    template_name = 'orders/return_request_detail.html'
+    context_object_name = 'return_request'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_production_staff'] = is_production_staff(self.request.user)
+        return context
+
+
+class ReturnRequestProcessView(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        if not is_production_staff(request.user):
+            messages.error(request, 'دسترسی مجاز نیست.')
+            return redirect('home')
+        
+        return_request = get_object_or_404(ReturnRequest, pk=pk)
+        action = request.POST.get('action')
+        admin_note = request.POST.get('admin_note', '').strip()
+        
+        if action == 'approve':
+            return_request.approve(admin_note)
+            messages.success(request, 'درخواست مرجوعی تایید شد.')
+        elif action == 'reject':
+            return_request.reject(admin_note)
+            messages.success(request, 'درخواست مرجوعی رد شد.')
+        elif action == 'refund':
+            return_request.refund()
+            messages.success(request, 'بازپرداخت انجام شد.')
+        
+        return redirect('orders:return_request_detail', pk=return_request.id)

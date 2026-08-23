@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load jformat %}
+
+{% block title %}جزئیات درخواست مرجوعی{% endblock %}
+
+{% block content %}
+<div class="section-container section-padding">
+  <div class="max-w-3xl mx-auto">
+    <div class="card p-6 sm:p-8">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-stone-900">درخواست مرجوعی #{{ return_request.id }}</h1>
+        {% include 'orders/includes/return_status_badge.html' with status=return_request.status %}
+      </div>
+
+      <div class="bg-stone-50 rounded-lg p-4 mb-6">
+        <h2 class="font-semibold text-stone-900">{{ return_request.order_item.product.name }}</h2>
+        <p class="text-sm text-stone-500 mt-1">سفارش #{{ return_request.order_item.order_id }}</p>
+        <p class="text-sm text-stone-500">تعداد: {{ return_request.order_item.quantity }} • اندازه: {{ return_request.order_item.size|default:'-' }}</p>
+      </div>
+
+      <div class="space-y-4 mb-6">
+        <div>
+          <h3 class="text-sm font-medium text-stone-500 mb-1">دلیل مرجوعی</h3>
+          <p class="text-stone-900">{{ return_request.reason }}</p>
+        </div>
+
+        {% if return_request.admin_note %}
+          <div class="bg-blue-50 rounded-lg p-4">
+            <h3 class="text-sm font-medium text-blue-800 mb-1">یادداشت مدیر</h3>
+            <p class="text-blue-900">{{ return_request.admin_note }}</p>
+          </div>
+        {% endif %}
+
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <h3 class="text-stone-500 mb-1">تاریخ درخواست</h3>
+            <p class="text-stone-900">{{ return_request.created_at|jformat:"Y/m/d H:i" }}</p>
+          </div>
+          {% if return_request.processed_at %}
+            <div>
+              <h3 class="text-stone-500 mb-1">تاریخ پردازش</h3>
+              <p class="text-stone-900">{{ return_request.processed_at|jformat:"Y/m/d H:i" }}</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if is_production_staff and return_request.status == 'pending' %}
+        <div class="border-t border-stone-200 pt-6">
+          <h3 class="font-semibold text-stone-900 mb-4">پردازش درخواست</h3>
+          <form method="post" action="{% url 'orders:return_request_process' return_request.id %}" class="space-y-4">
+            {% csrf_token %}
+            <div>
+              <label class="block text-sm font-medium text-stone-700 mb-2">یادداشت مدیر</label>
+              <textarea name="admin_note" rows="3" class="form-input w-full" placeholder="یادداشت خود را وارد کنید..."></textarea>
+            </div>
+            <div class="flex gap-3">
+              <button type="submit" name="action" value="approve" class="btn-success">تایید</button>
+              <button type="submit" name="action" value="reject" class="btn-danger">رد</button>
+              <button type="submit" name="action" value="refund" class="btn-primary">بازپرداخت</button>
+            </div>
+          </form>
+        </div>
+      {% endif %}
+
+      <div class="mt-6">
+        <a href="{% if is_production_staff %}{% url 'orders:return_request_list' %}{% else %}{% url 'orders:order_list' %}{% endif %}" class="text-primary-600 hover:text-primary-800 font-medium">بازگشت</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

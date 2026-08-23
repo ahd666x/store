@@ -16,7 +16,7 @@ if not SECRET_KEY:
     raise Exception('SECRET_KEY environment variable is required.')
 
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', 'testserver'])
 
 # Application definition
 DJANGO_APPS = [

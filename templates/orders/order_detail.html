@@ -43,7 +43,7 @@
             <h2 class="text-lg font-semibold text-stone-900">آیتم‌های سفارش</h2>
           </div>
           
-          {% include 'orders/includes/order_items.html' with items=items %}
+          {% include 'orders/includes/order_items.html' with items=items order=order production_staff=production_staff %}
         </div>
       </div>
 

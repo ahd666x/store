@@ -469,3 +469,45 @@ class ShipmentLog(BaseModel):
         verbose_name = "بارگیری"
         verbose_name_plural = "بارگیری"
         ordering = ['-shipped_at']
+
+
+class ReturnRequest(BaseModel):
+    STATUS_CHOICES = [
+        ('pending', 'در انتظار بررسی'),
+        ('approved', 'تایید شده'),
+        ('rejected', 'رد شده'),
+        ('refunded', 'بازپرداخت شده'),
+    ]
+
+    order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='return_requests', verbose_name="آیتم سفارش")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="کاربر")
+    reason = models.TextField(verbose_name="دلیل مرجوعی")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="وضعیت")
+    admin_note = models.TextField(blank=True, verbose_name="یادداشت مدیر")
+    created_at = PersianDateTimeField(auto_now_add=True, verbose_name="تاریخ درخواست")
+    processed_at = PersianDateTimeField(null=True, blank=True, verbose_name="تاریخ پردازش")
+
+    class Meta:
+        verbose_name = "درخواست مرجوعی"
+        verbose_name_plural = "درخواست‌های مرجوعی"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"مرجوعی #{self.id} - {self.order_item.product.name}"
+
+    def approve(self, admin_note=''):
+        self.status = 'approved'
+        self.admin_note = admin_note
+        self.processed_at = timezone.now()
+        self.save()
+
+    def reject(self, admin_note=''):
+        self.status = 'rejected'
+        self.admin_note = admin_note
+        self.processed_at = timezone.now()
+        self.save()
+
+    def refund(self):
+        self.status = 'refunded'
+        self.processed_at = timezone.now()
+        self.save()

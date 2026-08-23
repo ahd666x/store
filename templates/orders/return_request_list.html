@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load jformat %}
+
+{% block title %}لیست درخواست‌های مرجوعی{% endblock %}
+
+{% block content %}
+<div class="section-container section-padding">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-stone-900 mb-8">درخواست‌های مرجوعی من</h1>
+
+    {% if return_requests %}
+      <div class="space-y-4">
+        {% for req in return_requests %}
+          <div class="card p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div class="flex-1">
+                <h3 class="font-semibold text-stone-900">{{ req.order_item.product.name }}</h3>
+                <p class="text-sm text-stone-500 mt-1">سفارش #{{ req.order_item.order_id }} • تاریخ: {{ req.created_at|jformat:"Y/m/d" }}</p>
+                <p class="text-sm text-stone-600 mt-2">{{ req.reason|truncatechars:100 }}</p>
+              </div>
+              <div class="flex items-center gap-3">
+                {% include 'orders/includes/return_status_badge.html' with status=req.status %}
+                <a href="{% url 'orders:return_request_detail' req.id %}" class="btn-secondary btn-sm">جزئیات</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card p-12 text-center">
+        <p class="text-stone-500">هنوز درخواست مرجوعی ثبت نکرده‌اید.</p>
+        <a href="{% url 'orders:order_list' %}" class="btn-primary mt-4 inline-block">مشاهده سفارشات</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
