@@ -4,8 +4,8 @@
 در سبد) و هم در apps/orders (هنگام ثبت نهایی سفارش) باید از همین تابع استفاده
 شود تا قیمت هرگز بین سبد و سفارش نهایی مغایرت نداشته باشد.
 
-فرمول: مجموع اختلاف هر بعد (طول + عرض + ارتفاع) نسبت به ابعاد پیش‌فرض محصول،
-ضربدر درصد افزایش قیمت به ازای هر سانتی‌متر (price_increment_per_cm).
+فرمول: برای هر بعد جداگانه، اختلاف سانتی‌متری نسبت به پیش‌فرض ضربدر درصد افزایش
+قیمت آن بعد. مجموع سه بعد در قیمت نهایی لحاظ می‌شود.
 """
 
 
@@ -23,33 +23,43 @@ def _dimension_diff(custom, default):
 
 def calculate_dimension_price(
     base_price,
-    price_increment_per_cm,
-    default_length=None,
-    default_width=None,
-    default_height=None,
+    default_length,
+    default_width,
+    default_height,
+    length_percent,
+    width_percent,
+    height_percent,
+    length_editable,
+    width_editable,
+    height_editable,
     length=None,
     width=None,
     height=None,
 ):
     """قیمت نهایی را بر اساس ابعاد سفارشی محاسبه می‌کند.
 
-    - base_price / price_increment_per_cm: از Product
+    - base_price: قیمت پایه محصول
     - default_length/width/height: ابعاد پیش‌فرض محصول (Product.length/width/height)
+    - length/width/height_percent: درصد افزایش قیمت به ازای هر سانتی‌متر هر بعد
+    - length/width/height_editable: آیا مشتیب می‌تواند آن بعد را تغییر دهد
     - length/width/height: ابعاد انتخابی مشتری
+
+    اگر یک بعد editable=False باشد، آن بعد را کاملاً نادیده بگیر (حتی اگر مقدار متفاوتی
+    پاس داده شده باشد) — یعنی diff آن بعد همیشه صفر در نظر گرفته شود.
 
     خروجی: عدد صحیح غیرمنفی
     """
     base_price_int = int(base_price or 0)
-    increment_percent = float(price_increment_per_cm or 0)
 
-    total_diff_cm = (
-        _dimension_diff(length, default_length)
-        + _dimension_diff(width, default_width)
-        + _dimension_diff(height, default_height)
-    )
+    diffs = 0
+    if length_editable:
+        diffs += _dimension_diff(length, default_length) * float(length_percent or 0)
+    if width_editable:
+        diffs += _dimension_diff(width, default_width) * float(width_percent or 0)
+    if height_editable:
+        diffs += _dimension_diff(height, default_height) * float(height_percent or 0)
 
-    diff_percent = (total_diff_cm * increment_percent) / 100
-    price_increase = base_price_int * diff_percent
+    price_increase = base_price_int * (diffs / 100)
     final_price = base_price_int + price_increase
 
     if final_price < 0:

@@ -211,10 +211,15 @@ class OrderItem(BaseModel):
         from apps.catalog.pricing import calculate_dimension_price
         return calculate_dimension_price(
             base_price=self.product.base_price,
-            price_increment_per_cm=self.product.price_increment_per_cm,
             default_length=self.product.length,
             default_width=self.product.width,
             default_height=self.product.height,
+            length_percent=self.product.length_price_percent,
+            width_percent=self.product.width_price_percent,
+            height_percent=self.product.height_price_percent,
+            length_editable=self.product.length_editable,
+            width_editable=self.product.width_editable,
+            height_editable=self.product.height_editable,
             length=self.length,
             width=self.width,
             height=self.height,

@@ -41,11 +41,26 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'category', 'price', 'stock', 'length', 'width', 'height', 'default_size', 'base_price', 'is_active']
+    list_display = ['name', 'slug', 'category', 'price', 'stock', 'length', 'width', 'height', 'base_price', 'is_active']
     list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductSectionInline, ProductImageInline]
+    fieldsets = (
+        ('اطلاعات اصلی', {
+            'fields': ('category', 'name', 'slug', 'color', 'description', 'base_price', 'price', 'stock', 'is_active')
+        }),
+        ('ابعاد و قیمت‌گذاری سفارشی', {
+            'fields': (
+                ('length', 'length_editable', 'length_price_percent'),
+                ('width', 'width_editable', 'width_price_percent'),
+                ('height', 'height_editable', 'height_price_percent'),
+            )
+        }),
+        ('سایر', {
+            'fields': ('default_size', 'default_colors', 'parts_list_key')
+        }),
+    )
 
 
 @admin.register(ProductImage)

@@ -181,7 +181,9 @@
             {# Add to Cart #}
             <form id="add-to-cart-form" action="{% url 'cart:cart_add' product.id %}" method="post" class="mb-8"
                   data-base-price="{{ product.base_price|default:0 }}"
-                  data-increment="{{ product.price_increment_per_cm|default:0 }}"
+                  data-length-percent="{{ product.length_price_percent|default:0 }}"
+                  data-width-percent="{{ product.width_price_percent|default:0 }}"
+                  data-height-percent="{{ product.height_price_percent|default:0 }}"
                   data-default-length="{{ product.length|default_if_none:'' }}"
                   data-default-width="{{ product.width|default_if_none:'' }}"
                   data-default-height="{{ product.height|default_if_none:'' }}">
@@ -199,21 +201,21 @@
                             <label class="form-label">طول</label>
                             <input type="number" name="length" id="dim-length" min="1" step="1"
                                    value="{{ product.length|default_if_none:'' }}"
-                                   {% if not product.length %}disabled placeholder="تعریف نشده"{% endif %}
+                                   {% if not product.length_editable %}disabled{% endif %}
                                    class="form-input">
                         </div>
                         <div>
                             <label class="form-label">عرض</label>
                             <input type="number" name="width" id="dim-width" min="1" step="1"
                                    value="{{ product.width|default_if_none:'' }}"
-                                   {% if not product.width %}disabled placeholder="تعریف نشده"{% endif %}
+                                   {% if not product.width_editable %}disabled{% endif %}
                                    class="form-input">
                         </div>
                         <div>
                             <label class="form-label">ارتفاع</label>
                             <input type="number" name="height" id="dim-height" min="1" step="1"
                                    value="{{ product.height|default_if_none:'' }}"
-                                   {% if not product.height %}disabled placeholder="تعریف نشده"{% endif %}
+                                   {% if not product.height_editable %}disabled{% endif %}
                                    class="form-input">
                         </div>
                     </div>
@@ -294,7 +296,9 @@
                 if (!form) return;
 
                 var basePrice = parseFloat(form.dataset.basePrice) || 0;
-                var increment = parseFloat(form.dataset.increment) || 0;
+                var lengthPercent = parseFloat(form.dataset.lengthPercent) || 0;
+                var widthPercent = parseFloat(form.dataset.widthPercent) || 0;
+                var heightPercent = parseFloat(form.dataset.heightPercent) || 0;
                 var defaults = {
                     length: form.dataset.defaultLength ? parseFloat(form.dataset.defaultLength) : null,
                     width: form.dataset.defaultWidth ? parseFloat(form.dataset.defaultWidth) : null,
@@ -313,14 +317,18 @@
                 }
 
                 function recalc() {
-                    var totalDiff = 0;
-                    ['length', 'width', 'height'].forEach(function (key) {
-                        var input = inputs[key];
-                        var val = (input && !input.disabled) ? input.value : null;
-                        totalDiff += diff(val, defaults[key]);
-                    });
-                    var diffPercent = (totalDiff * increment) / 100;
-                    var finalPrice = basePrice + (basePrice * diffPercent);
+                    var diffs = 0;
+                    if (inputs.length && !inputs.length.disabled) {
+                        diffs += diff(inputs.length.value, defaults.length) * lengthPercent;
+                    }
+                    if (inputs.width && !inputs.width.disabled) {
+                        diffs += diff(inputs.width.value, defaults.width) * widthPercent;
+                    }
+                    if (inputs.height && !inputs.height.disabled) {
+                        diffs += diff(inputs.height.value, defaults.height) * heightPercent;
+                    }
+                    var priceIncrease = basePrice * (diffs / 100);
+                    var finalPrice = basePrice + priceIncrease;
                     if (finalPrice < 0) finalPrice = 0;
                     finalPrice = Math.round(finalPrice);
                     priceEl.textContent = finalPrice.toLocaleString('fa-IR') + ' تومان';

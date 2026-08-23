@@ -38,7 +38,9 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'category', 'name', 'slug', 'color', 'description',
             'default_size', 'default_colors', 'base_price', 'price',
-            'price_increment_per_cm', 'length', 'width', 'height',
+            'length_price_percent', 'width_price_percent', 'height_price_percent',
+            'length_editable', 'width_editable', 'height_editable',
+            'length', 'width', 'height',
             'stock', 'images', 'reviews', 'average_rating', 'review_count',
             'created_at', 'updated_at'
         ]
