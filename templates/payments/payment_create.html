@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}پرداخت{% endblock %}
+
+{% block content %}
+<div class="section-container section-padding">
+  <div class="max-w-2xl mx-auto">
+    <div class="card">
+      <div class="p-6 sm:p-8">
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold text-stone-900">انتخاب روش پرداخت</h2>
+          <p class="mt-2 text-stone-600">مبلغ قابل پرداخت: <span class="font-bold text-primary-600">{{ order.final_amount }} تومان</span></p>
+        </div>
+
+        <form method="post" class="space-y-4">
+          {% csrf_token %}
+          
+          <div class="space-y-3">
+            <label class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-colors hover:border-primary-300 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50">
+              <input type="radio" name="gateway" value="zarinpal" checked class="w-4 h-4 text-primary-600">
+              <div class="mr-3">
+                <p class="font-semibold text-stone-900">درگاه زرینپال</p>
+                <p class="text-sm text-stone-500">پرداخت آنلاین با کارت بانکی</p>
+              </div>
+            </label>
+            
+            <label class="flex items-center p-4 border-2 rounded-xl cursor-pointer transition-colors hover:border-primary-300 has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50">
+              <input type="radio" name="gateway" value="cash_on_delivery" class="w-4 h-4 text-primary-600">
+              <div class="mr-3">
+                <p class="font-semibold text-stone-900">پرداخت درب منزل</p>
+                <p class="text-sm text-stone-500">پرداخت نقدی هنگام تحویل کابینت</p>
+              </div>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-primary w-full py-3 text-lg">
+            ادامه به پرداخت
+          </button>
+        </form>
+
+        <div class="mt-6 text-center">
+          <a href="{% url 'orders:order_detail' order.id %}" class="text-primary-600 hover:text-primary-800 font-medium">
+            بازگشت به جزئیات سفارش
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

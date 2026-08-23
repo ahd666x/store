@@ -79,6 +79,7 @@ class ProductListView(ListView):
         context['selected_color'] = self.request.GET.get('color', '')
         context['categories'] = ProductCategory.objects.all()
         context['colors'] = Product.active_objects.exclude(color__isnull=True).exclude(color__exact='').values_list('color', flat=True).distinct().order_by('color')
+        context['featured_products'] = Product.active_objects.filter(stock__gt=0).order_by('-created_at')[:8]
         return context
 
 

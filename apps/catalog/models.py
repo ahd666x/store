@@ -114,6 +114,7 @@ class Product(BaseModel):
 
 class ProductImage(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', verbose_name="محصول")
+    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True, related_name='images', verbose_name="رنگ")
     image = models.ImageField(upload_to='products/', verbose_name="تصویر")
     alt_text = models.CharField(max_length=200, blank=True, verbose_name="متن جایگزین")
 

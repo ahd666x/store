@@ -1,10 +1,12 @@
 from django.conf import settings
 from .zarinpal import ZarinpalGateway
+from .cod import CashOnDeliveryGateway
 
 
 class PaymentGatewayFactory:
     _gateways = {
         'zarinpal': ZarinpalGateway,
+        'cash_on_delivery': CashOnDeliveryGateway,
     }
 
     @classmethod

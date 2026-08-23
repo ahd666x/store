@@ -239,9 +239,20 @@
                         </svg>
                     </div>
                     <p class="text-stone-500 text-lg mb-4">محصولی با این معیارها یافت نشد.</p>
-                    <button onclick="resetFilters()" class="btn-primary">
+                    <button onclick="resetFilters()" class="btn-primary mb-8">
                         پاک کردن فیلترها
                     </button>
+                    
+                    {% if query %}
+                        <div class="mt-12">
+                            <h3 class="text-xl font-bold text-stone-900 mb-6">پیشنهادهای ما</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {% for product in featured_products %}
+                                    {% include 'catalog/includes/product_card.html' with product=product %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>

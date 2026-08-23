@@ -23,6 +23,41 @@
 </nav>
 {% endblock %}
 
+{% block breadcrumb_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "خانه",
+      "item": "{% url 'home' %}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "محصولات",
+      "item": "{% url 'catalog:product_list' %}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ product.category.name }}",
+      "item": "{% url 'catalog:category_detail' product.category.slug %}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "{{ product.name }}",
+      "item": "{{ request.build_absolute_uri }}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="section-container section-padding">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -40,16 +75,42 @@
                 {% endif %}
             </div>
             
-            {# Thumbnails #}
-            {% if product.images.all|length > 1 %}
-                <div class="flex gap-3 overflow-x-auto pb-2">
-                    {% for image in product.images.all %}
-                        <button @click="selectedImage = '{{ image.image.url }}'" class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors" :class="selectedImage === '{{ image.image.url }}' ? 'border-primary-600' : 'border-transparent hover:border-stone-300'">
-                                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" class="w-full h-full object-cover" loading="lazy">
+        {# Color Selector #}
+            {% with color_images=product.images.all|dictsort:"color__name" %}
+                {% if color_images|length > 1 %}
+                    <div class="flex gap-2 mb-4">
+                        <button @click="selectedColor = null; selectedImage = '{{ product.images.all.0.image.url }}'" 
+                                class="w-8 h-8 rounded-full border-2 transition-colors"
+                                :class="selectedColor === null ? 'border-primary-600 ring-2 ring-primary-200' : 'border-transparent hover:border-stone-300'"
+                                title="همه رنگ‌ها">
+                            <span class="block w-full h-full rounded-full bg-gradient-to-br from-stone-200 to-stone-300"></span>
                         </button>
-                    {% endfor %}
-                </div>
-            {% endif %}
+                        {% for image in color_images %}
+                            {% if image.color %}
+                                <button @click="selectedColor = '{{ image.color.id }}'; selectedImage = '{{ image.image.url }}'" 
+                                        class="w-8 h-8 rounded-full border-2 transition-colors"
+                                        :class="selectedColor == '{{ image.color.id }}' ? 'border-primary-600 ring-2 ring-primary-200' : 'border-transparent hover:border-stone-300'"
+                                        title="{{ image.color.name }}"
+                                        style="background-color: {{ image.color.code|default:'#ccc' }}">
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            {# Thumbnails #}
+            {% with filtered_images=product.images.all %}
+                {% if filtered_images|length > 1 %}
+                    <div class="flex gap-3 overflow-x-auto pb-2">
+                        {% for image in filtered_images %}
+                            <button @click="selectedImage = '{{ image.image.url }}'" class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors" :class="selectedImage === '{{ image.image.url }}' ? 'border-primary-600' : 'border-transparent hover:border-stone-300'">
+                                    <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" class="w-full h-full object-cover" loading="lazy">
+                            </button>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
         </div>
 
         {# Product Info - Sticky #}
