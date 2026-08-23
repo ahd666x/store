@@ -128,6 +128,14 @@ class OrderItem(BaseModel):
     notes = models.CharField(max_length=200, blank=True, verbose_name="توضیحات")
     quantity = models.PositiveIntegerField(default=1, verbose_name="تعداد")
     size = models.CharField(max_length=100, blank=True, verbose_name="اندازه")
+
+    # ابعاد سفارشی نهایی (از CartItem منتقل می‌شود). فیلد size بالا صرفاً
+    # برای نمایش خوانا در تمپلیت‌های فعلی (order_items.html و ...) به‌صورت
+    # خودکار از همین سه فیلد پر می‌شود و دیگر مبنای محاسبه قیمت نیست.
+    length = models.PositiveIntegerField(null=True, blank=True, verbose_name="طول سفارشی (سانتی‌متر)")
+    width = models.PositiveIntegerField(null=True, blank=True, verbose_name="عرض سفارشی (سانتی‌متر)")
+    height = models.PositiveIntegerField(null=True, blank=True, verbose_name="ارتفاع سفارشی (سانتی‌متر)")
+
     qr_code = models.ImageField(upload_to='qr/', blank=True, null=True)
     unit_price = models.DecimalField(max_digits=12, decimal_places=0, default=0, verbose_name="قیمت واحد")
 
@@ -174,41 +182,28 @@ class OrderItem(BaseModel):
         return self.unit_price * self.quantity
 
     def calculate_price(self):
+        """قیمت را بر اساس ابعاد سفارشی (طول/عرض/ارتفاع) نسبت به ابعاد
+        پیش‌فرض محصول محاسبه می‌کند — همان تابع مشترکی که در سبد خرید هم
+        استفاده می‌شود، تا قیمت سبد و فاکتور نهایی هرگز مغایرت نداشته باشند."""
         if not self.product:
             return 0
-
-        order_size_str = self.size or self.product.default_size
-        default_size_str = self.product.default_size
-
-        if not order_size_str or not default_size_str:
-            return int(self.product.base_price or 0)
-
-        import re
-        order_numbers = re.findall(r'\d+', order_size_str)
-        default_numbers = re.findall(r'\d+', default_size_str)
-
-        if not order_numbers or not default_numbers:
-            return int(self.product.base_price or 0)
-
-        order_length = int(order_numbers[0])
-        default_length = int(default_numbers[0])
-
-        if default_length == 0:
-            return int(self.product.base_price or 0)
-
-        base_price_int = int(self.product.base_price or 0)
-        increment_percent_float = float(self.product.price_increment_per_cm or 0)
-
-        diff_percent = ((order_length - default_length) * increment_percent_float) / 100
-        price_increase = base_price_int * diff_percent
-        final_price = base_price_int + price_increase
-
-        if final_price < 0:
-            return 0
-        return int(round(final_price))
+        from apps.catalog.pricing import calculate_dimension_price
+        return calculate_dimension_price(
+            base_price=self.product.base_price,
+            price_increment_per_cm=self.product.price_increment_per_cm,
+            default_length=self.product.length,
+            default_width=self.product.width,
+            default_height=self.product.height,
+            length=self.length,
+            width=self.width,
+            height=self.height,
+        )
 
     def save(self, *args, **kwargs):
         if self.product:
+            dims = [d for d in (self.length, self.width, self.height) if d is not None]
+            if dims:
+                self.size = "×".join(str(d) for d in dims)
             try:
                 self.unit_price = self.calculate_price()
             except Exception:

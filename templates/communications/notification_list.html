@@ -20,15 +20,15 @@
       <table class="table-modern">
         <thead>
           <tr>
-            <th>نوع</th>
-            <th>موضوع</th>
-            <th>تاریخ</th>
-            <th>وضعیت</th>
+            <th scope="col">نوع</th>
+            <th scope="col">موضوع</th>
+            <th scope="col">تاریخ</th>
+            <th scope="col">وضعیت</th>
           </tr>
         </thead>
         <tbody>
           {% for notification in notifications %}
-            <tr class="{% if not notification.is_read %}bg-indigo-50{% endif %}">
+            <tr class="{% if not notification.is_read %}bg-primary-50{% endif %}">
               <td class="whitespace-nowrap">
                 <div class="flex items-center gap-2">
                   {% if notification.notification_type == 'email' %}

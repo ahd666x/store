@@ -29,8 +29,13 @@
                 <ul class="space-y-2">
                     <li><a href="{% url 'catalog:product_list' %}" class="text-sm hover:text-primary-400 transition-colors">محصولات</a></li>
                     <li><a href="{% url 'cart:cart_detail' %}" class="text-sm hover:text-primary-400 transition-colors">سبد خرید</a></li>
-                    <li><a href="{% url 'accounts:profile' %}" class="text-sm hover:text-primary-400 transition-colors">پروفایل</a></li>
-                    <li><a href="{% url 'accounts:login' %}" class="text-sm hover:text-primary-400 transition-colors">ورود</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'accounts:profile' %}" class="text-sm hover:text-primary-400 transition-colors">پروفایل</a></li>
+                        <li><a href="{% url 'accounts:logout' %}" class="text-sm hover:text-primary-400 transition-colors">خروج</a></li>
+                    {% else %}
+                        <li><a href="{% url 'accounts:login' %}" class="text-sm hover:text-primary-400 transition-colors">ورود</a></li>
+                        <li><a href="{% url 'accounts:register' %}" class="text-sm hover:text-primary-400 transition-colors">ثبت‌نام</a></li>
+                    {% endif %}
                 </ul>
             </div>
 

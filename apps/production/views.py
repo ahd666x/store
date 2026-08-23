@@ -67,6 +67,7 @@ class ProductionReportView(LoginRequiredMixin, UserPassesTestMixin, TemplateView
 
         context['report'] = sorted(report.values(), key=lambda x: x['total_tasks'], reverse=True)
         context['report_date'] = report_date
+        context['total_completed_today'] = sum(row['total_tasks'] for row in context['report'])
         return context
 
 

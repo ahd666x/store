@@ -54,7 +54,9 @@ class OrderService:
                 order=order,
                 product=cart_item.product,
                 quantity=cart_item.quantity,
-                unit_price=cart_item.product.price,
+                length=cart_item.custom_length,
+                width=cart_item.custom_width,
+                height=cart_item.custom_height,
             )
 
         cart.items.all().delete()
@@ -73,7 +75,9 @@ class OrderService:
                 order=order,
                 product=cart_item.product,
                 quantity=cart_item.quantity,
-                unit_price=cart_item.product.price,
+                length=cart_item.custom_length,
+                width=cart_item.custom_width,
+                height=cart_item.custom_height,
             )
 
         order.discount = cart.discount

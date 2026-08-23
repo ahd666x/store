@@ -30,7 +30,7 @@
         <div x-data="{ selectedImage: '{{ product.images.all.0.image.url|default:"" }}' }">
             <div class="aspect-square bg-stone-100 rounded-2xl overflow-hidden mb-4">
                 {% if product.images.all %}
-                    <img :src="selectedImage" alt="{{ product.name }}" class="w-full h-full object-cover">
+                    <img :src="selectedImage" alt="{{ product.name }}" class="w-full h-full object-cover" loading="lazy">
                 {% else %}
                     <div class="w-full h-full flex items-center justify-center">
                         <svg class="w-24 h-24 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,7 +45,7 @@
                 <div class="flex gap-3 overflow-x-auto pb-2">
                     {% for image in product.images.all %}
                         <button @click="selectedImage = '{{ image.image.url }}'" class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors" :class="selectedImage === '{{ image.image.url }}' ? 'border-primary-600' : 'border-transparent hover:border-stone-300'">
-                            <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" class="w-full h-full object-cover">
+                                <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" class="w-full h-full object-cover" loading="lazy">
                         </button>
                     {% endfor %}
                 </div>
@@ -118,18 +118,57 @@
             {% endif %}
             
             {# Add to Cart #}
-            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="mb-8">
+            <form id="add-to-cart-form" action="{% url 'cart:cart_add' product.id %}" method="post" class="mb-8"
+                  data-base-price="{{ product.base_price|default:0 }}"
+                  data-increment="{{ product.price_increment_per_cm|default:0 }}"
+                  data-default-length="{{ product.length|default_if_none:'' }}"
+                  data-default-width="{{ product.width|default_if_none:'' }}"
+                  data-default-height="{{ product.height|default_if_none:'' }}">
                 {% csrf_token %}
+
+                <div class="mb-6">
+                    <h3 class="font-semibold text-stone-900 mb-3">ابعاد سفارشی (سانتی‌متر)</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="form-label">طول</label>
+                            <input type="number" name="length" id="dim-length" min="1" step="1"
+                                   value="{{ product.length|default_if_none:'' }}"
+                                   {% if not product.length %}disabled placeholder="تعریف نشده"{% endif %}
+                                   class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">عرض</label>
+                            <input type="number" name="width" id="dim-width" min="1" step="1"
+                                   value="{{ product.width|default_if_none:'' }}"
+                                   {% if not product.width %}disabled placeholder="تعریف نشده"{% endif %}
+                                   class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">ارتفاع</label>
+                            <input type="number" name="height" id="dim-height" min="1" step="1"
+                                   value="{{ product.height|default_if_none:'' }}"
+                                   {% if not product.height %}disabled placeholder="تعریف نشده"{% endif %}
+                                   class="form-input">
+                        </div>
+                    </div>
+                    <p class="form-hint">با تغییر ابعاد، قیمت زیر بلافاصله به‌روزرسانی می‌شود.</p>
+                </div>
+
+                <div class="flex items-center justify-between bg-primary-50 border border-primary-200 rounded-lg px-4 py-3 mb-6">
+                    <span class="text-sm text-stone-600">قیمت با این ابعاد:</span>
+                    <span id="live-price" class="text-2xl font-bold text-primary-700">{{ product.price }} تومان</span>
+                </div>
+
                 <div class="flex items-center gap-4 mb-4">
                     <label class="form-label mb-0">تعداد:</label>
                     <div class="flex items-center border border-stone-300 rounded-lg overflow-hidden">
                         <button type="button" onclick="this.nextElementSibling.value = Math.max(1, parseInt(this.nextElementSibling.value) - 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">-</button>
-                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-16 text-center border-0 focus:ring-0 p-2">
+                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-16 text-center border-0 p-2">
                         <button type="button" onclick="this.previousElementSibling.value = Math.min({{ product.stock }}, parseInt(this.previousElementSibling.value) + 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">+</button>
                     </div>
                     <span class="text-sm text-stone-500">موجودی: {{ product.stock }}</span>
                 </div>
-                
+
                 <button type="submit" class="btn-primary w-full py-3 text-lg" {% if product.stock == 0 %}disabled{% endif %}>
                     {% if product.stock > 0 %}
                         <svg class="w-5 h-5 inline-block me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,8 +179,53 @@
                         ناموجود
                     {% endif %}
                 </button>
-                <p class="text-xs text-stone-500 mt-2">TODO: quantity stepper UI only — backend needs cart_add update to read quantity field</p>
             </form>
+
+            <script>
+            (function () {
+                var form = document.getElementById('add-to-cart-form');
+                if (!form) return;
+
+                var basePrice = parseFloat(form.dataset.basePrice) || 0;
+                var increment = parseFloat(form.dataset.increment) || 0;
+                var defaults = {
+                    length: form.dataset.defaultLength ? parseFloat(form.dataset.defaultLength) : null,
+                    width: form.dataset.defaultWidth ? parseFloat(form.dataset.defaultWidth) : null,
+                    height: form.dataset.defaultHeight ? parseFloat(form.dataset.defaultHeight) : null,
+                };
+                var inputs = {
+                    length: document.getElementById('dim-length'),
+                    width: document.getElementById('dim-width'),
+                    height: document.getElementById('dim-height'),
+                };
+                var priceEl = document.getElementById('live-price');
+
+                function diff(customVal, defaultVal) {
+                    if (defaultVal === null || customVal === '' || customVal === null || isNaN(customVal)) return 0;
+                    return parseFloat(customVal) - defaultVal;
+                }
+
+                function recalc() {
+                    var totalDiff = 0;
+                    ['length', 'width', 'height'].forEach(function (key) {
+                        var input = inputs[key];
+                        var val = (input && !input.disabled) ? input.value : null;
+                        totalDiff += diff(val, defaults[key]);
+                    });
+                    var diffPercent = (totalDiff * increment) / 100;
+                    var finalPrice = basePrice + (basePrice * diffPercent);
+                    if (finalPrice < 0) finalPrice = 0;
+                    finalPrice = Math.round(finalPrice);
+                    priceEl.textContent = finalPrice.toLocaleString('fa-IR') + ' تومان';
+                }
+
+                ['length', 'width', 'height'].forEach(function (key) {
+                    if (inputs[key]) inputs[key].addEventListener('input', recalc);
+                });
+
+                recalc();
+            })();
+            </script>
         </div>
     </div>
 
@@ -174,9 +258,9 @@
                                     <table class="table-modern">
                                         <thead>
                                             <tr>
-                                                <th>طول (سانتی‌متر)</th>
-                                                <th>عرض (سانتی‌متر)</th>
-                                                <th>توضیحات</th>
+                                                <th scope="col">طول (سانتی‌متر)</th>
+                                                <th scope="col">عرض (سانتی‌متر)</th>
+                                                <th scope="col">توضیحات</th>
                                             </tr>
                                         </thead>
                                         <tbody>

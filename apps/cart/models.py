@@ -43,14 +43,44 @@ class CartItem(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="محصول")
     quantity = models.PositiveIntegerField(default=1, verbose_name="تعداد")
 
+    # ابعاد سفارشی انتخاب‌شده توسط مشتری در صفحه جزئیات محصول.
+    # اگر خالی باشند یعنی مشتری ابعاد پیش‌فرض محصول را پذیرفته است.
+    custom_length = models.PositiveIntegerField(null=True, blank=True, verbose_name="طول سفارشی (سانتی‌متر)")
+    custom_width = models.PositiveIntegerField(null=True, blank=True, verbose_name="عرض سفارشی (سانتی‌متر)")
+    custom_height = models.PositiveIntegerField(null=True, blank=True, verbose_name="ارتفاع سفارشی (سانتی‌متر)")
+
+    # قیمت واحد محاسبه‌شده بر اساس ابعاد سفارشی، در لحظه افزودن/ویرایش
+    # ذخیره می‌شود تا اگر قیمت پایه محصول بعداً تغییر کرد، قیمت داخل سبد
+    # کاربر همان چیزی بماند که در لحظه انتخاب دیده است.
+    unit_price = models.DecimalField(max_digits=12, decimal_places=0, default=0, verbose_name="قیمت واحد")
+
     class Meta:
         verbose_name = "آیتم سبد خرید"
         verbose_name_plural = "آیتم‌های سبد خرید"
-        unique_together = ['cart', 'product']
+        # توجه: unique_together قبلی (cart, product) عمداً حذف شده — چون حالا
+        # یک محصول می‌تواند با ابعاد سفارشی متفاوت چند بار در سبد باشد.
 
     def __str__(self):
         return f"{self.product.name} - {self.quantity}"
 
+    def recalculate_price(self):
+        """قیمت واحد را بر اساس ابعاد سفارشی فعلی دوباره محاسبه می‌کند."""
+        from apps.catalog.pricing import calculate_dimension_price
+        self.unit_price = calculate_dimension_price(
+            base_price=self.product.base_price,
+            price_increment_per_cm=self.product.price_increment_per_cm,
+            default_length=self.product.length,
+            default_width=self.product.width,
+            default_height=self.product.height,
+            length=self.custom_length,
+            width=self.custom_width,
+            height=self.custom_height,
+        )
+
     @property
     def total_price(self):
-        return self.product.price * self.quantity
+        return (self.unit_price or 0) * self.quantity
+
+    @property
+    def has_custom_dimensions(self):
+        return any([self.custom_length, self.custom_width, self.custom_height])

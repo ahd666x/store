@@ -39,7 +39,7 @@
             {% for item in cart.items.all %}
               <div class="p-4 sm:p-6 flex items-start gap-4 sm:gap-6">
                 {% if item.product.images.all %}
-                  <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0">
+                  <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0" loading="lazy">
                 {% else %}
                   <div class="w-16 h-16 sm:w-20 sm:h-20 bg-stone-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg class="w-6 h-6 sm:w-8 sm:h-8 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,18 +51,23 @@
                 <div class="flex-1 min-w-0">
                   <h3 class="text-base sm:text-lg font-semibold text-stone-900 truncate">{{ item.product.name }}</h3>
                   <p class="text-sm text-stone-500 mt-1">{{ item.product.category.name }}</p>
+                  {% if item.has_custom_dimensions %}
+                    <p class="text-xs text-stone-400 mt-1">
+                      ابعاد: {{ item.custom_length|default:"—" }} × {{ item.custom_width|default:"—" }} × {{ item.custom_height|default:"—" }} سانتی‌متر
+                    </p>
+                  {% endif %}
                   <div class="flex items-center gap-4 mt-2">
-                    <span class="text-base sm:text-lg font-bold text-primary-600">{{ item.product.price }} تومان</span>
+                    <span class="text-base sm:text-lg font-bold text-primary-600">{{ item.unit_price }} تومان</span>
                     <span class="text-stone-400">×</span>
                     
                     <!-- TODO: Quantity Stepper Placeholder -->
                     <!-- بعد از اضافه شدن ویو cart:cart_update، این بخش را با فرم جایگزین کنید -->
                     <div class="flex items-center gap-2" title="به‌زودی امکان تغییر تعداد">
-                      <button type="button" disabled class="w-8 h-8 rounded-lg border border-stone-300 flex items-center justify-center text-stone-400 cursor-not-allowed">
+                      <button type="button" disabled class="w-8 h-8 rounded-lg border border-stone-300 flex items-center justify-center text-stone-400 cursor-not-allowed" aria-label="کاهش تعداد">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
                       </button>
                       <span class="text-sm font-medium text-stone-900 w-8 text-center">{{ item.quantity }}</span>
-                      <button type="button" disabled class="w-8 h-8 rounded-lg border border-stone-300 flex items-center justify-center text-stone-400 cursor-not-allowed">
+                      <button type="button" disabled class="w-8 h-8 rounded-lg border border-stone-300 flex items-center justify-center text-stone-400 cursor-not-allowed" aria-label="افزایش تعداد">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                       </button>
                     </div>
@@ -121,7 +126,7 @@
               {% csrf_token %}
               <label class="form-label">کد تخفیف</label>
               <div class="input-group mt-1">
-                <input type="text" name="code" x-model="code" placeholder="کد تخفیف" required class="form-input flex-1">
+                <input type="text" name="code" x-model="code" placeholder="کد تخفیف" aria-label="کد تخفیف" required class="form-input flex-1">
                 <button type="submit" class="btn-secondary" :class="{ 'is-loading': code && code.length > 0 }">
                   اعمال
                 </button>

@@ -28,4 +28,6 @@ class Discount(BaseModel):
     def is_valid(self):
         from django.utils import timezone
         now = timezone.now()
-        return self.is_active and self.valid_from <= now <= self.valid_until and self.used_count < self.max_uses
+        within_dates = self.valid_from <= now <= self.valid_until
+        usage_ok = self.max_uses == 0 or self.used_count < self.max_uses
+        return self.is_active and within_dates and usage_ok

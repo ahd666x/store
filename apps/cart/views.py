@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 from .models import Cart, CartItem
+from .services import CartService
 from apps.catalog.models import Product
 
 
@@ -12,22 +13,37 @@ def cart_detail(request):
     return render(request, 'cart/detail.html', {'cart': cart})
 
 
+def _parse_dim(request, name):
+    raw = request.POST.get(name)
+    if raw in (None, ''):
+        return None
+    try:
+        value = int(raw)
+        return value if value > 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
 @login_required
 def cart_add(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    if not created:
-        cart_item.quantity += 1
-        if cart_item.quantity > product.stock:
-            messages.error(request, f"موجودی {product.name} فقط {product.stock} عدد است.")
-            cart_item.quantity = product.stock
-        cart_item.save()
-    else:
-        if cart_item.quantity > product.stock:
-            messages.error(request, f"موجودی {product.name} فقط {product.stock} عدد است.")
-            cart_item.quantity = product.stock
-            cart_item.save()
+
+    try:
+        quantity = max(1, int(request.POST.get('quantity', 1)))
+    except (TypeError, ValueError):
+        quantity = 1
+
+    length = _parse_dim(request, 'length')
+    width = _parse_dim(request, 'width')
+    height = _parse_dim(request, 'height')
+
+    cart_item, capped = CartService.add_item(
+        cart, product_id, quantity, length=length, width=width, height=height
+    )
+
+    if capped:
+        messages.error(request, f"موجودی {product.name} فقط {product.stock} عدد است.")
     messages.success(request, 'محصول به سبد خرید اضافه شد.')
 
     if request.headers.get('HX-Request'):
@@ -40,7 +56,6 @@ def cart_add(request, product_id):
 @login_required
 def cart_remove(request, product_id):
     cart = get_object_or_404(Cart, user=request.user)
-    cart_item = get_object_or_404(CartItem, cart=cart, product_id=product_id)
-    cart_item.delete()
+    CartService.remove_item(cart, product_id)
     messages.success(request, 'محصول از سبد خرید حذف شد.')
     return redirect('cart:cart_detail')

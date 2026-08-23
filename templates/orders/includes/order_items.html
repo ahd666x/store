@@ -3,7 +3,7 @@
   {% for item in items %}
     <div class="p-4 sm:p-6 flex items-start gap-4 sm:gap-6">
       {% if item.product.images.all %}
-        <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0">
+        <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0" loading="lazy">
       {% else %}
         <div class="w-16 h-16 sm:w-20 sm:h-20 bg-stone-100 rounded-lg flex items-center justify-center flex-shrink-0">
           <svg class="w-6 h-6 sm:w-8 sm:h-8 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +44,7 @@
                 {% elif not unit.is_shipped %}
                   <form method="post" action="{% url 'orders:packaging_mark_shipped' unit.id %}" class="flex gap-2">
                     {% csrf_token %}
-                    <input type="text" name="plate_number" placeholder="پلاک خودرو" class="form-input text-xs py-1">
+                    <input type="text" name="plate_number" placeholder="پلاک خودرو" aria-label="پلاک خودرو" class="form-input text-xs py-1">
                     <button type="submit" class="btn-primary btn-sm">ارسال شد</button>
                   </form>
                 {% endif %}

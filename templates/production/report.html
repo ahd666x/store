@@ -21,7 +21,7 @@
   </form>
 
   <!-- Summary Stats -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     <div class="card p-4">
       <div class="text-sm text-stone-500">تاریخ گزارش</div>
       <div class="text-2xl font-bold text-stone-900 mt-1">{{ report_date }}</div>
@@ -29,6 +29,10 @@
     <div class="card p-4">
       <div class="text-sm text-stone-500">تعداد کارگران فعال</div>
       <div class="text-2xl font-bold text-stone-900 mt-1">{{ report|length }}</div>
+    </div>
+    <div class="card p-4">
+      <div class="text-sm text-stone-500">کل تسک‌های تکمیل‌شده امروز</div>
+      <div class="text-2xl font-bold text-primary-600 mt-1">{{ total_completed_today }}</div>
     </div>
   </div>
 
@@ -38,9 +42,9 @@
       <table class="table-modern">
         <thead>
           <tr>
-            <th>کارگر</th>
-            <th>تعداد کل وظایف</th>
-            <th>جزئیات ایستگاه‌ها</th>
+            <th scope="col">کارگر</th>
+            <th scope="col">تعداد کل وظایف</th>
+            <th scope="col">جزئیات ایستگاه‌ها</th>
           </tr>
         </thead>
         <tbody>
