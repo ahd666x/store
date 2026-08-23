@@ -34,7 +34,7 @@ class OrderService:
             user=user,
             defaults={
                 'name': user.get_full_name() or user.username,
-                'phone': getattr(user, 'phone', ''),
+                'phone': getattr(user, 'phone', '') or '',
             }
         )
 
