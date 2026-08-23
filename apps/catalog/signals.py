@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Product, StockAlert, ProductSection, ColorMaterialMap
+from .models import Product, StockAlert, ProductSection, ColorMaterialMap, Part
 
 
 @receiver(pre_save, sender=Product)
@@ -64,3 +64,21 @@ def update_parts_material_on_color_change(sender, instance, created, **kwargs):
             if resolved:
                 part.material = resolved
                 part.save(update_fields=['material'])
+
+
+@receiver(pre_save, sender=Part)
+def resolve_part_material(sender, instance, **kwargs):
+    if not instance.section_id:
+        return
+    old_material_id = None
+    if instance.pk:
+        try:
+            old = Part.objects.get(pk=instance.pk)
+            old_material_id = old.material_id
+        except Part.DoesNotExist:
+            pass
+    if instance.material_id is None or instance.material_id == old_material_id:
+        color = instance.section.color
+        mapping = ColorMaterialMap.objects.filter(color=color).first()
+        if mapping:
+            instance.material = mapping.material

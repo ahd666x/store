@@ -274,12 +274,14 @@
             </form>
 
             <div class="flex gap-2 mt-3">
+                {% if user.is_authenticated %}
                 <form method="post" action="{% url 'catalog:comparison_add' product.id %}" class="flex-1">
                     {% csrf_token %}
                     <button type="submit" class="btn-secondary w-full">
                         مقایسه
                     </button>
                 </form>
+                {% endif %}
                 {% if product.stock == 0 and user.is_authenticated %}
                     <form method="post" action="{% url 'catalog:stock_alert_add' product.id %}" class="flex-1">
                         {% csrf_token %}
@@ -368,22 +370,22 @@
                         </button>
                         
                         <div x-show="open" x-transition class="border-t border-stone-200">
-                            {% if section.pieces.all %}
+                            {% if section.parts.all %}
                                 <div class="p-6">
                                     <table class="table-modern">
                                         <thead>
                                             <tr>
-                                                <th scope="col">طول (سانتی‌متر)</th>
-                                                <th scope="col">عرض (سانتی‌متر)</th>
-                                                <th scope="col">توضیحات</th>
+                                                <th scope="col">طول (X)</th>
+                                                <th scope="col">عرض (Y)</th>
+                                                <th scope="col">تحویل به مرحله</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for piece in section.pieces.all %}
+                                            {% for part in section.parts.all %}
                                                 <tr>
-                                                    <td>{{ piece.length }}</td>
-                                                    <td>{{ piece.width }}</td>
-                                                    <td>{{ piece.description|default:"-" }}</td>
+                                                    <td>{{ part.length }}</td>
+                                                    <td>{{ part.width }}</td>
+                                                    <td>{{ part.routing_code|default:"-" }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

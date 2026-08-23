@@ -58,7 +58,7 @@ def cart_add(request, product_id):
 
     if request.headers.get('HX-Request'):
         cart_count = cart.items.count()
-        return HttpResponse(f'<span id="cart-count" class="mr-1 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{cart_count}</span>')
+        return HttpResponse(f'<span id="cart-count" class="absolute -top-2 -start-3 bg-primary-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">{cart_count}</span>')
 
     return redirect('catalog:product_list')
 

@@ -14,7 +14,7 @@ class ProductListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = Product.active_objects.filter().prefetch_related('images', 'sections__pieces')
+        queryset = Product.active_objects.filter().prefetch_related('images', 'sections__parts')
 
         # Search
         query = self.request.GET.get('q', '').strip()
@@ -92,7 +92,7 @@ class ProductDetailView(DetailView):
         return Product.active_objects.filter().prefetch_related(
             'images',
             'sections__color',
-            'sections__pieces',
+            'sections__parts',
         ).annotate(
             avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
             rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
@@ -184,7 +184,7 @@ class CategoryDetailView(ListView):
     def get_queryset(self):
         return Product.active_objects.filter(
             category__slug=self.kwargs['slug'],
-        ).prefetch_related('images', 'sections__pieces').annotate(
+        ).prefetch_related('images', 'sections__parts').annotate(
             avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
             rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
         )
@@ -206,7 +206,7 @@ class ComparisonView(ListView):
             session_key = self.request.session.session_key
         comparison = ComparisonList.objects.filter(session_key=session_key).first()
         if comparison:
-            return comparison.products.prefetch_related('images', 'sections__pieces')
+            return comparison.products.prefetch_related('images', 'sections__parts')
         return Product.objects.none()
 
 

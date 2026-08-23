@@ -151,29 +151,22 @@ class ProductReview(BaseModel):
 
 
 class ColorMaterialMap(BaseModel):
-    color = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='material_maps', verbose_name="رنگ")
-    material = models.ForeignKey(Material, on_delete=models.PROTECT, related_name='color_maps', verbose_name="متریال پیش‌فرض")
-    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, null=True, blank=True, related_name='color_material_maps', verbose_name="دسته‌بندی (اختیاری — خالی یعنی برای همه دسته‌ها)")
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='material_mappings', verbose_name="رنگ")
+    material = models.ForeignKey(Material, on_delete=models.PROTECT, verbose_name="متریال")
 
     class Meta:
         verbose_name = "نگاشت رنگ به متریال"
         verbose_name_plural = "نگاشت‌های رنگ به متریال"
-        unique_together = ['color', 'category']
+        unique_together = ['color']
 
     def __str__(self):
-        scope = self.category.name if self.category else "همه دسته‌ها"
-        return f"{self.color.name} → {self.material.name} ({scope})"
+        return f"{self.color.name} → {self.material.name}"
 
     @classmethod
     def resolve_material(cls, color, category=None):
-        qs = cls.objects.filter(color=color)
-        if category:
-            specific = qs.filter(category=category).first()
-            if specific:
-                return specific.material
-        general = qs.filter(category__isnull=True).first()
-        if general:
-            return general.material
+        obj = cls.objects.filter(color=color).first()
+        if obj:
+            return obj.material
         return None
 
 
@@ -192,23 +185,6 @@ class ProductSection(BaseModel):
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"
-
-
-class Piece(BaseModel):
-    section = models.ForeignKey(ProductSection, on_delete=models.CASCADE, related_name='pieces', verbose_name="جزء محصول")
-    length = models.PositiveIntegerField(verbose_name="طول (سانتی‌متر)")
-    width = models.PositiveIntegerField(verbose_name="عرض (سانتی‌متر)")
-    description = models.TextField(blank=True, verbose_name="توضیحات")
-
-    objects = models.Manager()
-    active_objects = ActiveManager()
-
-    class Meta:
-        verbose_name = "قطعه"
-        verbose_name_plural = "قطعات"
-
-    def __str__(self):
-        return f"{self.section.product.name} - {self.section.name} - {self.length}×{self.width}"
 
 
 class Part(BaseModel):
@@ -272,6 +248,9 @@ class ProductBOM(models.Model):
         blank=True,
         verbose_name="قانون تغییر اندازه"
     )
+    allow_material_override = models.BooleanField(default=False, verbose_name="اجازه تغییر متریال بر اساس رنگ")
+    color_part = models.CharField(max_length=20, blank=True, verbose_name="بخشی که رنگ آن قابل تغییر است")
+    color_material_map = models.JSONField(default=dict, blank=True, verbose_name="نگاشت رنگ به متریال")
 
     class Meta:
         verbose_name = "فرمول ساخت"

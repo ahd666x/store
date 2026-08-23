@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ProductCategory, Color, Material, Product, ProductImage, ProductReview, ProductSection, Piece, Part, ProductBOM, ColorMaterialMap
+from .models import ProductCategory, Color, Material, Product, ProductImage, ProductReview, ProductSection, Part, ProductBOM, ColorMaterialMap
 
 
 @admin.register(Color)
@@ -23,9 +23,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(ColorMaterialMap)
 class ColorMaterialMapAdmin(admin.ModelAdmin):
-    list_display = ['color', 'material', 'category']
-    list_filter = ['category']
-    search_fields = ['color__name', 'material__name']
+    list_display = ['color', 'material']
 
 
 class ProductSectionInline(admin.TabularInline):
@@ -34,17 +32,10 @@ class ProductSectionInline(admin.TabularInline):
     fields = ['name', 'color', 'description']
 
 
-class PieceInline(admin.TabularInline):
-    model = Piece
-    extra = 1
-    fields = ['length', 'width', 'description']
-
-
 class PartInline(admin.TabularInline):
     model = Part
     extra = 1
-    fields = ['name', 'quantity', 'material', 'material_override', 'routing_code']
-    readonly_fields = ['material']
+    fields = ['name', 'material', 'length', 'width', 'routing_code']
 
 
 class ProductImageInline(admin.TabularInline):
@@ -96,7 +87,7 @@ class ProductSectionAdmin(admin.ModelAdmin):
     list_display = ['product', 'name', 'color']
     list_filter = ['product__category', 'color']
     search_fields = ['name', 'product__name']
-    inlines = [PieceInline, PartInline]
+    inlines = [PartInline]
 
 
 @admin.register(Part)

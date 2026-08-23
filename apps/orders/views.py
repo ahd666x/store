@@ -166,6 +166,9 @@ class ReturnRequestCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         order_item = get_object_or_404(OrderItem, id=self.kwargs['item_id'], order__user=self.request.user)
+        if order_item.order.status not in ('shipped', 'delivered'):
+            messages.error(self.request, 'امکان ثبت درخواست مرجوعی برای این سفارش در وضعیت فعلی وجود ندارد.')
+            return redirect('orders:order_detail', order_id=order_item.order_id)
         form.instance.order_item = order_item
         form.instance.user = self.request.user
         messages.success(self.request, 'درخواست مرجوعی شما ثبت شد.')

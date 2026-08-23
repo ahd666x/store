@@ -88,6 +88,10 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = '/accounts/login/'
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.EmailOrUsernameBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

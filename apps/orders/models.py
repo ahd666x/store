@@ -248,6 +248,10 @@ class OrderItem(BaseModel):
             self.qr_code = relative_path
             super().save(update_fields=['qr_code'])
 
+        if is_new and self.quantity > 0:
+            for i in range(1, self.quantity + 1):
+                PackagingUnit.objects.create(order_item=self, unit_number=i)
+
 
 class OrderColor(models.Model):
     PART_CHOICES = [
