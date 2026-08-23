@@ -1,4 +1,5 @@
 import ast
+import json
 import logging
 import operator
 import re
@@ -138,3 +139,13 @@ def get_item_color_assignments(order_item):
                     assignments.append(key)
 
     return assignments
+
+
+def _parse_default_colors(product):
+    default = product.default_colors or {}
+    if isinstance(default, str):
+        try:
+            default = json.loads(default) or {}
+        except (json.JSONDecodeError, TypeError):
+            default = {}
+    return default

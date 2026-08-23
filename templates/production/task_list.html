@@ -37,7 +37,7 @@
           اعمال فیلتر
         </button>
         {% if request.GET.station or request.GET.status %}
-          <a href="{% url 'production:task_list' %}" class="btn-ghost mr-2">
+          <a href="{% url 'task_list' %}" class="btn-ghost mr-2">
             پاک کردن
           </a>
         {% endif %}

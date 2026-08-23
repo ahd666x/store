@@ -1,0 +1,36 @@
+{% extends 'production/base.html' %}
+{% load static %}
+{% block title %}ثبت رنگ‌ها{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">ثبت رنگ‌های آیتم #{{ item.id }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for form in color_forms %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.part.label }}</label>
+                                {{ form.code }}
+                            </div>
+                        {% endfor %}
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'admin_edit_order' order_id=item.order.id %}" class="btn btn-secondary">
+                                بازگشت
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                ذخیره رنگ‌ها
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

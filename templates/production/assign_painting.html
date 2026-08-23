@@ -1,0 +1,50 @@
+{% extends "painting_management/base.html" %}
+{% block title %}ایجاد خودکار تسک نقاشی{% endblock %}
+
+{% block painting_content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🎨 ایجاد خودکار تسک‌های نقاشی (بر اساس رنگ)</h4>
+        </div>
+        <div class="card-body">
+            <h5>آیتم سفارش: {{ item.id }}</h5>
+            <p><strong>محصول:</strong> {{ item.product.name }}</p>
+            <p><strong>سفارش:</strong> {{ item.order.id }}</p>
+            <p><strong>تعداد:</strong> {{ item.quantity }}</p>
+
+            <hr>
+            <h6>کدهای رنگی شناسایی‌شده:</h6>
+            {% if color_info %}
+                <ul class="list-group list-group-flush mb-3">
+                    {% for info in color_info %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            کد رنگ: <span class="badge bg-info text-dark">{{ info.code }}</span>
+                            {% if info.is_rokeshi %}
+                                <span class="badge bg-success">روکشی</span>
+                            {% else %}
+                                <span class="badge bg-warning">پوششی</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <p class="text-muted small">سیستم برای هر کد رنگ، یک زنجیره‌ی نقاشی مجزا ایجاد می‌کند.</p>
+            {% else %}
+                <div class="alert alert-warning">
+                    ⚠️ هیچ کد رنگی برای این آیتم یافت نشد. لطفاً رنگ‌ها را تعیین کنید یا default_colors محصول را تنظیم کنید.
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-lg" {% if not color_info %}disabled{% endif %}>
+                    <i class="bi bi-play-circle"></i> ایجاد تسک‌های نقاشی
+                </button>
+            </form>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'item_detail' item.id %}" class="btn btn-secondary">بازگشت</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

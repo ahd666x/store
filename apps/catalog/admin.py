@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 from .models import ProductCategory, Color, Material, Product, ProductImage, ProductReview, ProductSection, Part, ProductBOM, ColorMaterialMap
 
 
@@ -44,13 +46,28 @@ class ProductImageInline(admin.TabularInline):
     fields = ['image', 'alt_text']
 
 
+class ProductBOMInline(admin.TabularInline):
+    model = ProductBOM
+    fields = [
+        'part',
+        'quantity',
+        'allow_material_override',
+        'color_part',
+        'color_material_map',
+        'size_affected',
+        'size_adjustment_rule',
+    ]
+    verbose_name = "قطعه فنی"
+    verbose_name_plural = "لیست قطعات"
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['name', 'slug', 'category', 'price', 'stock', 'length', 'width', 'height', 'base_price', 'is_active']
     list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductSectionInline, ProductImageInline]
+    inlines = [ProductSectionInline, ProductImageInline, ProductBOMInline]
     fieldsets = (
         ('اطلاعات اصلی', {
             'fields': ('category', 'name', 'slug', 'color', 'description', 'base_price', 'price', 'stock', 'is_active')
@@ -92,9 +109,9 @@ class ProductSectionAdmin(admin.ModelAdmin):
 
 @admin.register(Part)
 class PartAdmin(admin.ModelAdmin):
-    list_display = ['name', 'material', 'section', 'length', 'width', 'pname', 'routing_code']
-    list_filter = ['material', 'section', 'pname']
-    search_fields = ['name', 'f2', 'f3']
+    list_display = ['f3', 'f2', 'material', 'length', 'width', 'routing_code']
+    search_fields = ['f3', 'f2', 'routing_code']
+    list_filter = ['material']
 
 
 @admin.register(ProductBOM)

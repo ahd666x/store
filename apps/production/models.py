@@ -61,6 +61,14 @@ class PaintingStage(BaseModel):
     drying_time_minutes = models.PositiveIntegerField(default=0, verbose_name="زمان خشک‌شدن (دقیقه)")
     required_skill = models.CharField(max_length=50, default='painter', verbose_name="مهارت مورد نیاز")
 
+    SKILL_CHOICES = [
+        ('painter', 'نقاش'),
+        ('sealer', 'رزین‌کار'),
+        ('primer', 'پرایمر'),
+        ('polisher', 'پولیش'),
+        ('sprayer', 'سم‌پاش'),
+    ]
+
     class Meta:
         ordering = ['process', 'order']
         unique_together = ('process', 'order')
@@ -144,3 +152,22 @@ class Holiday(BaseModel):
 
     def __str__(self):
         return f"{self.date} - {self.description}" if self.description else str(self.date)
+
+
+def create_paint_tasks(tasks_list, order, quantity, process, base_step, order_item, color_part=''):
+    """ایجاد تسک‌های نقاشی برای یک قطعه/آیتم و افزودن به task_list."""
+    stages = process.stages.all().order_by('order')
+    for idx, stage in enumerate(stages, start=1):
+        tasks_list.append(
+            ProductionTask(
+                order=order,
+                part=None,
+                station_name='paint',
+                step_order=base_step + idx,
+                quantity=quantity,
+                status='pending' if idx == 1 else 'waiting',
+                painting_stage=stage,
+                order_item=order_item,
+                color_part=color_part,
+            )
+        )
