@@ -105,9 +105,41 @@ class ProductDetailView(DetailView):
         context['can_review'] = False
         if self.request.user.is_authenticated:
             context['can_review'] = not ProductReview.objects.filter(product=product, user=self.request.user).exists()
+        
+        # Related products by category
         context['related_products'] = Product.active_objects.filter(
             category=product.category
         ).exclude(id=product.id).prefetch_related('images')[:4]
+        
+        # Smart recommendations based on cart/wishlist
+        if self.request.user.is_authenticated:
+            from apps.cart.models import Cart
+            cart_product_ids = Cart.objects.filter(user=self.request.user).values_list('items__product_id', flat=True).distinct()
+            wishlist_product_ids = self.request.user.wishlist.items.values_list('product_id', flat=True).distinct()
+            product_ids = set(cart_product_ids) | set(wishlist_product_ids)
+            
+            if product_ids:
+                context['recommended_products'] = Product.active_objects.filter(
+                    category__in=Product.objects.filter(id__in=product_ids).values_list('category', flat=True).distinct()
+                ).exclude(id__in=product_ids).exclude(id=product.id).prefetch_related('images').annotate(
+                    avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
+                    rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
+                ).order_by('-avg_rating', '-created_at')[:8]
+            else:
+                context['recommended_products'] = Product.active_objects.filter(
+                    category=product.category
+                ).exclude(id=product.id).prefetch_related('images').annotate(
+                    avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
+                    rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
+                ).order_by('-avg_rating')[:8]
+        else:
+            context['recommended_products'] = Product.active_objects.filter(
+                category=product.category
+            ).exclude(id=product.id).prefetch_related('images').annotate(
+                avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
+                rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
+            ).order_by('-avg_rating')[:8]
+        
         return context
 
     def post(self, request, *args, **kwargs):
@@ -230,3 +262,28 @@ class StockAlertListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return StockAlert.objects.filter(user=self.request.user).select_related('product')
+
+
+class RecommendationsView(ListView):
+    template_name = 'catalog/recommendations.html'
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        queryset = Product.active_objects.filter(stock__gt=0).none()
+        user = self.request.user
+
+        if user.is_authenticated:
+            from apps.cart.models import Cart
+            cart_product_ids = Cart.objects.filter(user=user).values_list('items__product_id', flat=True).distinct()
+            wishlist_product_ids = user.wishlist.items.values_list('product_id', flat=True).distinct()
+            product_ids = set(cart_product_ids) | set(wishlist_product_ids)
+
+            if product_ids:
+                queryset = Product.active_objects.filter(
+                    category__in=Product.objects.filter(id__in=product_ids).values_list('category', flat=True).distinct()
+                ).exclude(id__in=product_ids).prefetch_related('images').annotate(
+                    avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
+                    rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
+                ).order_by('-avg_rating', '-created_at')[:12]
+
+        return queryset

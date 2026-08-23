@@ -490,5 +490,17 @@
             {% endfor %}
         </div>
     </div>
+
+    {% if recommended_products %}
+        <div class="mt-20">
+            <h2 class="text-3xl font-bold text-stone-900 mb-8">پیشنهادهای ما</h2>
+            <p class="text-stone-600 mb-6">بر اساس سبد خرید و علاقه‌مندی‌های شما</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {% for product in recommended_products %}
+                    {% include 'catalog/includes/product_card.html' with product=product %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

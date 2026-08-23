@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from apps.accounts import views as accounts_views
+from apps.common import views as common_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,6 +16,8 @@ urlpatterns = [
     path('communications/', include('apps.communications.urls')),
     path('production/', include('apps.production.urls')),
     path('api/v1/', include('apps.api.urls')),
+    path('sitemap.xml', common_views.sitemap, name='sitemap'),
+    path('robots.txt', common_views.robots, name='robots'),
     path('', accounts_views.home, name='home'),
 ]
 
