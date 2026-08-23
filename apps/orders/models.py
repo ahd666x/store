@@ -3,6 +3,7 @@ from apps.common.models import BaseModel
 from apps.common.fields import PersianDateField, PersianDateTimeField
 from apps.accounts.models import User
 from apps.catalog.models import Product
+from django.utils import timezone
 import jdatetime
 import qrcode
 import os
