@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.utils import timezone
 from apps.cart.models import Cart
 from apps.production.views import is_production_staff
-from .models import Order, OrderItem, Customer, PackagingUnit, ShipmentLog
+from .models import Order, OrderItem, Customer, PackagingUnit, ShipmentLog, Address
 from .forms import OrderForm
 from .services import validate_cart_stock, InsufficientStockError, OrderService
 
@@ -25,6 +25,8 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
     template_name = 'orders/order_form.html'
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('accounts:login')
         try:
             validate_cart_stock(request.user)
         except InsufficientStockError as e:
@@ -32,16 +34,34 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
             return redirect('cart:cart_detail')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['addresses'] = Address.objects.filter(user=self.request.user)
+        else:
+            context['addresses'] = Address.objects.none()
+        return context
+
     def form_valid(self, form):
         form.instance.user = self.request.user
         customer, _ = Customer.objects.get_or_create(
             user=self.request.user,
             defaults={
                 'name': self.request.user.get_full_name() or self.request.user.username,
-                'phone': getattr(self.request.user, 'phone', ''),
+                'phone': getattr(self.request.user, 'phone', '') or '',
             }
         )
         form.instance.customer = customer
+
+        address_id = self.request.POST.get('address_id')
+        if address_id:
+            try:
+                address = Address.objects.get(id=address_id, user=self.request.user)
+                form.instance.address = address
+                form.instance.shipping_address = f"{address.recipient}\n{address.province} {address.city}\n{address.address}\nکد پستی: {address.postal_code}"
+            except Address.DoesNotExist:
+                pass
+
         response = super().form_valid(form)
         cart = get_object_or_404(Cart, user=self.request.user)
         OrderService.add_cart_items_to_order(self.object, cart)

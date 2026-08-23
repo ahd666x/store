@@ -59,3 +59,29 @@ def cart_remove(request, product_id):
     CartService.remove_item(cart, product_id)
     messages.success(request, 'محصول از سبد خرید حذف شد.')
     return redirect('cart:cart_detail')
+
+
+@login_required
+def cart_update(request, product_id):
+    cart = get_object_or_404(Cart, user=request.user)
+    cart_item = get_object_or_404(CartItem, cart=cart, product_id=product_id)
+    try:
+        new_quantity = int(request.POST.get('quantity', cart_item.quantity))
+    except (TypeError, ValueError):
+        new_quantity = cart_item.quantity
+
+    product = cart_item.product
+    if new_quantity > product.stock:
+        new_quantity = product.stock
+    if new_quantity < 1:
+        new_quantity = 1
+
+    cart_item.quantity = new_quantity
+    cart_item.recalculate_price()
+    cart_item.save()
+
+    if request.headers.get('HX-Request'):
+        return render(request, 'cart/includes/cart_item_row.html', {'item': cart_item, 'cart': cart})
+
+    messages.success(request, 'تعداد به‌روزرسانی شد.')
+    return redirect('cart:cart_detail')

@@ -38,3 +38,15 @@ class PasswordResetForm(DjangoPasswordResetForm):
         widget=forms.EmailInput(attrs={'autocomplete': 'email', 'placeholder': 'ایمیل خود را وارد کنید'}),
         label="ایمیل"
     )
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone']
+        labels = {
+            'first_name': 'نام',
+            'last_name': 'نام خانوادگی',
+            'email': 'ایمیل',
+            'phone': 'شماره موبایل',
+        }

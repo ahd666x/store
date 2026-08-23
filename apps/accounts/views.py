@@ -4,12 +4,12 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q, Avg, Count
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, UpdateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.catalog.models import Product
 from apps.orders.models import Order
-from .models import User, OTPCode
-from .forms import UserRegistrationForm
+from .models import User, OTPCode, Wishlist, WishlistItem
+from .forms import UserRegistrationForm, ProfileUpdateForm
 
 
 def home(request):
@@ -58,6 +58,51 @@ class ProfileView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).order_by('-created_at')
+
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = ProfileUpdateForm
+    template_name = 'accounts/profile_edit.html'
+    success_url = reverse_lazy('accounts:profile')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        messages.success(self.request, 'پروفایل شما با موفقیت به‌روزرسانی شد.')
+        return super().form_valid(form)
+
+
+class WishlistView(LoginRequiredMixin, ListView):
+    model = WishlistItem
+    template_name = 'accounts/wishlist.html'
+    context_object_name = 'wishlist_items'
+
+    def get_queryset(self):
+        wishlist, _ = Wishlist.objects.get_or_create(user=self.request.user)
+        return wishlist.items.select_related('product').prefetch_related('product__images')
+
+
+class WishlistAddView(LoginRequiredMixin, View):
+    def post(self, request, product_id, *args, **kwargs):
+        product = get_object_or_404(Product, id=product_id)
+        wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+        _, created = WishlistItem.objects.get_or_create(wishlist=wishlist, product=product)
+        if created:
+            messages.success(request, 'محصول به علاقه‌مندی‌ها اضافه شد.')
+        else:
+            messages.info(request, 'این محصول قبلاً در لیست علاقه‌مندی‌ها وجود دارد.')
+        return redirect('catalog:product_detail', slug=product.slug)
+
+
+class WishlistRemoveView(LoginRequiredMixin, View):
+    def post(self, request, product_id, *args, **kwargs):
+        product = get_object_or_404(Product, id=product_id)
+        wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+        WishlistItem.objects.filter(wishlist=wishlist, product=product).delete()
+        messages.success(request, 'محصول از علاقه‌مندی‌ها حذف شد.')
+        return redirect('accounts:wishlist')
 
 
 class OTPRequestView(CreateView):

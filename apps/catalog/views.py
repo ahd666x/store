@@ -41,6 +41,11 @@ class ProductListView(ListView):
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
 
+        # Filter by color
+        color = self.request.GET.get('color', '').strip()
+        if color:
+            queryset = queryset.filter(color__iexact=color)
+
         # Annotate rating data to avoid N+1
         queryset = queryset.annotate(
             avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
@@ -71,7 +76,9 @@ class ProductListView(ListView):
         context['max_price'] = self.request.GET.get('max_price', '')
         context['selected_category'] = self.request.GET.get('category', '')
         context['selected_sort'] = self.request.GET.get('sort', '')
+        context['selected_color'] = self.request.GET.get('color', '')
         context['categories'] = ProductCategory.objects.all()
+        context['colors'] = Product.active_objects.exclude(color__isnull=True).exclude(color__exact='').values_list('color', flat=True).distinct().order_by('color')
         return context
 
 
@@ -97,6 +104,9 @@ class ProductDetailView(DetailView):
         context['can_review'] = False
         if self.request.user.is_authenticated:
             context['can_review'] = not ProductReview.objects.filter(product=product, user=self.request.user).exists()
+        context['related_products'] = Product.active_objects.filter(
+            category=product.category
+        ).exclude(id=product.id).prefetch_related('images')[:4]
         return context
 
     def post(self, request, *args, **kwargs):

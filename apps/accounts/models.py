@@ -34,3 +34,30 @@ class OTPCode(BaseModel):
     @staticmethod
     def generate_code():
         return str(random.randint(100000, 999999))
+
+
+class Wishlist(BaseModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wishlist', verbose_name="کاربر")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+
+    class Meta:
+        verbose_name = "لیست علاقه‌مندی‌ها"
+        verbose_name_plural = "لیست‌های علاقه‌مندی‌ها"
+
+    def __str__(self):
+        return f"علاقه‌مندی‌های {self.user.username}"
+
+
+class WishlistItem(BaseModel):
+    wishlist = models.ForeignKey(Wishlist, on_delete=models.CASCADE, related_name='items', verbose_name="لیست")
+    product = models.ForeignKey('catalog.Product', on_delete=models.CASCADE, verbose_name="محصول")
+    added_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ افزودن")
+
+    class Meta:
+        verbose_name = "آیتم علاقه‌مندی"
+        verbose_name_plural = "آیتم‌های علاقه‌مندی"
+        unique_together = ['wishlist', 'product']
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return f"{self.product.name} - {self.wishlist.user.username}"

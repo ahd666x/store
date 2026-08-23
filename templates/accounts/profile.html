@@ -17,8 +17,7 @@
             <h2 class="mt-4 text-lg font-semibold text-stone-900">{{ user.get_full_name|default:user.username }}</h2>
             <p class="text-sm text-stone-500">@{{ user.username }}</p>
             
-            {# TODO: Add edit profile view and replace href below #}
-            <a href="#" class="btn-secondary w-full mt-4 text-sm" onclick="return false;">
+            <a href="{% url 'accounts:profile_edit' %}" class="btn-secondary w-full mt-4 text-sm">
               ویرایش اطلاعات
             </a>
           </div>

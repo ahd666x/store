@@ -52,6 +52,25 @@ class Customer(BaseModel):
         verbose_name_plural = "مشتریان"
 
 
+class Address(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses', verbose_name="کاربر")
+    title = models.CharField(max_length=50, verbose_name="عنوان آدرس")
+    recipient = models.CharField(max_length=100, verbose_name="گیرنده")
+    province = models.CharField(max_length=100, blank=True, verbose_name="استان")
+    city = models.CharField(max_length=100, verbose_name="شهر")
+    postal_code = models.CharField(max_length=10, verbose_name="کد پستی")
+    address = models.TextField(verbose_name="آدرس کامل")
+    is_default = models.BooleanField(default=False, verbose_name="آدرس پیش‌فرض")
+
+    class Meta:
+        verbose_name = "آدرس"
+        verbose_name_plural = "آدرس‌ها"
+        ordering = ['-is_default', '-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.city}"
+
+
 class Order(BaseModel):
     ORDER_STATUS = (
         ('draft', 'پیش‌نویس'),
@@ -84,7 +103,8 @@ class Order(BaseModel):
     discount_amount = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name="تخفیف")
     final_amount = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name="مبلغ نهایی")
     discount = models.ForeignKey('discounts.Discount', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="تخفیف")
-    shipping_address = models.TextField(verbose_name="آدرس ارسال")
+    address = models.ForeignKey('orders.Address', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="آدرس انتخاب‌شده")
+    shipping_address = models.TextField(verbose_name="آدرس ارسال نهایی")
     tracking_code = models.CharField(max_length=100, blank=True, verbose_name="کد رهگیری")
     paid_at = PersianDateTimeField(null=True, blank=True, verbose_name="تاریخ پرداخت")
 

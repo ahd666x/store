@@ -91,6 +91,17 @@
                             <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>قدیمی‌ترین</option>
                         </select>
                     </div>
+
+                    {# Color #}
+                    <div>
+                        <label class="form-label">رنگ</label>
+                        <select class="form-select" id="colorFilter">
+                            <option value="">همه رنگ‌ها</option>
+                            {% for color in colors %}
+                                <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>{{ color }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     
                     <button onclick="applyFilters()" class="btn-primary w-full">
                         اعمال فیلترها
@@ -147,6 +158,16 @@
                                 <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>قدیمی‌ترین</option>
                             </select>
                         </div>
+
+                        <div>
+                            <label class="form-label">رنگ</label>
+                            <select class="form-select" id="mobileColorFilter">
+                                <option value="">همه رنگ‌ها</option>
+                                {% for color in colors %}
+                                    <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>{{ color }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                         
                         <button @click="applyMobileFilters()" class="btn-primary w-full">
                             اعمال فیلترها
@@ -196,7 +217,7 @@
                 {% if is_paginated %}
                     <div class="flex justify-center items-center gap-2 mt-10">
                         {% if page_obj.has_previous %}
-                            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}"
                                class="btn-secondary btn-sm">قبلی</a>
                         {% endif %}
 
@@ -205,7 +226,7 @@
                         </span>
 
                         {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
+                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}"
                                class="btn-secondary btn-sm">بعدی</a>
                         {% endif %}
                     </div>
@@ -232,6 +253,7 @@ function applyFilters() {
     const search = document.getElementById('searchInput').value;
     const category = document.getElementById('categoryFilter').value;
     const sort = document.getElementById('sortFilter').value;
+    const color = document.getElementById('colorFilter').value;
     const minPrice = document.getElementById('minPrice').value;
     const maxPrice = document.getElementById('maxPrice').value;
     
@@ -239,6 +261,7 @@ function applyFilters() {
     if (search) url.searchParams.set('q', search);
     if (category) url.searchParams.set('category', category);
     if (sort) url.searchParams.set('sort', sort);
+    if (color) url.searchParams.set('color', color);
     if (minPrice) url.searchParams.set('min_price', minPrice);
     if (maxPrice) url.searchParams.set('max_price', maxPrice);
     
@@ -250,6 +273,7 @@ function applyMobileFilters() {
     const search = document.getElementById('mobileSearchInput').value;
     const category = document.getElementById('mobileCategoryFilter').value;
     const sort = document.getElementById('mobileSortFilter').value;
+    const color = document.getElementById('mobileColorFilter').value;
     const minPrice = document.getElementById('mobileMinPrice').value;
     const maxPrice = document.getElementById('mobileMaxPrice').value;
     
@@ -257,6 +281,7 @@ function applyMobileFilters() {
     if (search) url.searchParams.set('q', search);
     if (category) url.searchParams.set('category', category);
     if (sort) url.searchParams.set('sort', sort);
+    if (color) url.searchParams.set('color', color);
     if (minPrice) url.searchParams.set('min_price', minPrice);
     if (maxPrice) url.searchParams.set('max_price', maxPrice);
     

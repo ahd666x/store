@@ -40,9 +40,20 @@
               {{ form.non_field_errors }}
             </div>
           {% endif %}
-          
+
           <div>
-            <label for="{{ form.shipping_address.id_for_label }}">آدرس ارسال</label>
+            <label class="form-label">آدرس ارسال</label>
+            {% if addresses %}
+              <select name="address_id" class="form-select mb-3">
+                <option value="">— انتخاب از آدرس‌های ذخیره‌شده —</option>
+                {% for addr in addresses %}
+                  <option value="{{ addr.id }}" {% if addr.is_default %}selected{% endif %}>
+                    {{ addr.title }} ({{ addr.city }})
+                    {% if addr.is_default %}— پیش‌فرض{% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            {% endif %}
             {{ form.shipping_address }}
             {% if form.shipping_address.errors %}
               <div class="form-error">{{ form.shipping_address.errors }}</div>
