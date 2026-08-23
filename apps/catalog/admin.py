@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ProductCategory, Color, Material, Product, ProductImage, ProductReview, ProductSection, Piece, Part, ProductBOM
+from .models import ProductCategory, Color, Material, Product, ProductImage, ProductReview, ProductSection, Piece, Part, ProductBOM, ColorMaterialMap
 
 
 @admin.register(Color)
@@ -21,6 +21,13 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+@admin.register(ColorMaterialMap)
+class ColorMaterialMapAdmin(admin.ModelAdmin):
+    list_display = ['color', 'material', 'category']
+    list_filter = ['category']
+    search_fields = ['color__name', 'material__name']
+
+
 class ProductSectionInline(admin.TabularInline):
     model = ProductSection
     extra = 1
@@ -31,6 +38,13 @@ class PieceInline(admin.TabularInline):
     model = Piece
     extra = 1
     fields = ['length', 'width', 'description']
+
+
+class PartInline(admin.TabularInline):
+    model = Part
+    extra = 1
+    fields = ['name', 'quantity', 'material', 'material_override', 'routing_code']
+    readonly_fields = ['material']
 
 
 class ProductImageInline(admin.TabularInline):
@@ -82,13 +96,13 @@ class ProductSectionAdmin(admin.ModelAdmin):
     list_display = ['product', 'name', 'color']
     list_filter = ['product__category', 'color']
     search_fields = ['name', 'product__name']
-    inlines = [PieceInline]
+    inlines = [PieceInline, PartInline]
 
 
 @admin.register(Part)
 class PartAdmin(admin.ModelAdmin):
-    list_display = ['name', 'material', 'length', 'width', 'pname', 'routing_code']
-    list_filter = ['material', 'pname']
+    list_display = ['name', 'material', 'section', 'length', 'width', 'pname', 'routing_code']
+    list_filter = ['material', 'section', 'pname']
     search_fields = ['name', 'f2', 'f3']
 
 

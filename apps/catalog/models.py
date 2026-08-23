@@ -150,6 +150,33 @@ class ProductReview(BaseModel):
         return f"{self.user.username} - {self.product.name} ({self.rating})"
 
 
+class ColorMaterialMap(BaseModel):
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='material_maps', verbose_name="رنگ")
+    material = models.ForeignKey(Material, on_delete=models.PROTECT, related_name='color_maps', verbose_name="متریال پیش‌فرض")
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, null=True, blank=True, related_name='color_material_maps', verbose_name="دسته‌بندی (اختیاری — خالی یعنی برای همه دسته‌ها)")
+
+    class Meta:
+        verbose_name = "نگاشت رنگ به متریال"
+        verbose_name_plural = "نگاشت‌های رنگ به متریال"
+        unique_together = ['color', 'category']
+
+    def __str__(self):
+        scope = self.category.name if self.category else "همه دسته‌ها"
+        return f"{self.color.name} → {self.material.name} ({scope})"
+
+    @classmethod
+    def resolve_material(cls, color, category=None):
+        qs = cls.objects.filter(color=color)
+        if category:
+            specific = qs.filter(category=category).first()
+            if specific:
+                return specific.material
+        general = qs.filter(category__isnull=True).first()
+        if general:
+            return general.material
+        return None
+
+
 class ProductSection(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sections', verbose_name="محصول")
     name = models.CharField(max_length=100, verbose_name="نام قسمت")
@@ -185,6 +212,7 @@ class Piece(BaseModel):
 
 
 class Part(BaseModel):
+    section = models.ForeignKey('catalog.ProductSection', on_delete=models.CASCADE, null=True, blank=True, related_name='parts', verbose_name="جزء محصول (والد)")
     material = models.ForeignKey(Material, on_delete=models.PROTECT, related_name='parts', verbose_name="متریال")
     name = models.CharField(max_length=100, verbose_name="نام قطعه")
     length = models.DecimalField(max_digits=7, decimal_places=1, verbose_name="طول (X)")
@@ -192,6 +220,8 @@ class Part(BaseModel):
     grain = models.CharField(max_length=100, blank=True, verbose_name="دسته")
     pname = models.CharField(max_length=100, verbose_name="نام محصول")
     turn = models.BooleanField(default=False, verbose_name="چرخش")
+    quantity = models.PositiveIntegerField(default=1, verbose_name="تعداد در هر محصول")
+    material_override = models.BooleanField(default=False, verbose_name="متریال به‌صورت دستی تعیین شده (نادیده گرفتن نگاشت خودکار)")
 
     f26 = models.CharField(max_length=100, blank=True, verbose_name="نوار لبه F26")
     f18 = models.CharField(max_length=100, blank=True, verbose_name="نوار لبه F18")
@@ -218,6 +248,18 @@ class Part(BaseModel):
 
     def __str__(self):
         return f"{self.f2 or self.name} ({self.length}x{self.width})"
+
+    def save(self, *args, **kwargs):
+        if self.section_id and not self.material_override:
+            resolved = ColorMaterialMap.resolve_material(self.section.color, self.section.product.category)
+            if resolved:
+                self.material = resolved
+            else:
+                import warnings
+                warnings.warn(
+                    f"Part {self.id or 'new'}: No ColorMaterialMap found for color={self.section.color_id}, category={self.section.product.category_id}. Keeping existing material."
+                )
+        super().save(*args, **kwargs)
 
 
 class ProductBOM(models.Model):

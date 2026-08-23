@@ -3,7 +3,8 @@ from django.dispatch import receiver
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Product, StockAlert
+from .models import Product, StockAlert, ProductSection, ColorMaterialMap
+
 
 @receiver(pre_save, sender=Product)
 def track_stock_change(sender, instance, **kwargs):
@@ -15,6 +16,7 @@ def track_stock_change(sender, instance, **kwargs):
             instance._old_stock = None
     else:
         instance._old_stock = None
+
 
 @receiver(post_save, sender=Product)
 def notify_stock_alerts(sender, instance, created, **kwargs):
@@ -36,3 +38,29 @@ def notify_stock_alerts(sender, instance, created, **kwargs):
                 pass
             alert.is_notified = True
             alert.save(update_fields=['is_notified'])
+
+
+@receiver(pre_save, sender=ProductSection)
+def track_section_color_change(sender, instance, **kwargs):
+    if instance.pk:
+        try:
+            old = ProductSection.objects.get(pk=instance.pk)
+            instance._old_color_id = old.color_id
+        except ProductSection.DoesNotExist:
+            instance._old_color_id = None
+    else:
+        instance._old_color_id = None
+
+
+@receiver(post_save, sender=ProductSection)
+def update_parts_material_on_color_change(sender, instance, created, **kwargs):
+    if created:
+        return
+    old_color_id = getattr(instance, '_old_color_id', None)
+    if old_color_id is not None and old_color_id != instance.color_id:
+        parts = instance.parts.filter(material_override=False)
+        for part in parts:
+            resolved = ColorMaterialMap.resolve_material(instance.color, instance.product.category)
+            if resolved:
+                part.material = resolved
+                part.save(update_fields=['material'])
