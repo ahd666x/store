@@ -108,6 +108,6 @@ class PartAdmin(admin.ModelAdmin):
 
 @admin.register(ProductBOM)
 class ProductBOMAdmin(admin.ModelAdmin):
-    list_display = ['product', 'part', 'quantity', 'allow_material_override', 'size_affected']
-    list_filter = ['product__category', 'allow_material_override', 'size_affected']
+    list_display = ['product', 'part', 'quantity', 'size_affected']
+    list_filter = ['product__category', 'size_affected']
     search_fields = ['product__name', 'part__name']

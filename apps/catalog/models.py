@@ -266,17 +266,6 @@ class ProductBOM(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='bom')
     part = models.ForeignKey(Part, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=1, verbose_name="تعداد در هر محصول")
-
-    color_part = models.CharField(
-        max_length=20,
-        blank=True,
-        null=True,
-        verbose_name="بخش رنگی"
-    )
-
-    allow_material_override = models.BooleanField(default=False, verbose_name="امکان تغییر متریال با رنگ")
-    color_material_map = models.JSONField(default=dict, blank=True, verbose_name="نگاشت رنگ به متریال")
-
     size_affected = models.BooleanField(default=False, verbose_name="تحت تأثیر اندازه")
     size_adjustment_rule = models.CharField(
         max_length=100,
