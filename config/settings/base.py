@@ -110,6 +110,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Site
+SITE_URL = env('SITE_URL', default='http://localhost:8000')
+
 # Payment
 DEFAULT_PAYMENT_GATEWAY = env('DEFAULT_PAYMENT_GATEWAY', default='zarinpal')
 

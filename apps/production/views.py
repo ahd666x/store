@@ -4,10 +4,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from apps.orders.models import ProductionTask
 from apps.production.models import WorkerProfile, Holiday, PaintingProcess
-
-
-def is_production_staff(user):
-    return user.is_staff or user.is_superuser or hasattr(user, 'worker_profile')
+from apps.common.permissions import is_production_staff
 
 
 class ProductionKanbanView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):

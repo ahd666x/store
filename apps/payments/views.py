@@ -55,6 +55,14 @@ def payment_verify(request):
     order = payment.order
 
     if gateway == 'cash_on_delivery':
+        expected_amount = order.final_amount
+        if payment.amount != expected_amount:
+            payment.status = 'failed'
+            payment.save()
+            return render(request, 'payments/payment_error.html', {
+                'error': f'مبلغ پرداخت ({payment.amount}) با مبلغ سفارش ({expected_amount}) مطابقت ندارد.'
+            })
+
         gateway_obj = PaymentGatewayFactory.get('cash_on_delivery')
         result = gateway_obj.verify(request, payment)
         if result.get('success'):
@@ -89,12 +97,6 @@ def payment_verify(request):
 
             return redirect('orders:order_detail', order_id=order.id)
         return render(request, 'payments/payment_error.html', {'error': result.get('error')})
-
-    status = request.GET.get('Status')
-    if status != 'OK':
-        payment.status = 'cancelled'
-        payment.save()
-        return redirect('cart:cart_detail')
 
     expected_amount = order.final_amount
     if payment.amount != expected_amount:

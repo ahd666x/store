@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.utils import timezone
 from apps.cart.models import Cart
-from apps.production.views import is_production_staff
+from apps.production.views import ProductionTask
+from apps.common.permissions import is_production_staff
 from .models import Order, OrderItem, Customer, PackagingUnit, ShipmentLog, Address, ReturnRequest
 from .forms import OrderForm
 from .services import validate_cart_stock, InsufficientStockError, OrderService
