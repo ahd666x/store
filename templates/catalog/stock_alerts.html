@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load jformat %}
+
+{% block title %}اعلان‌های موجودی{% endblock %}
+
+{% block content %}
+<div class="section-container section-padding">
+  <h1 class="text-3xl font-bold text-stone-900 mb-6">اعلان‌های موجودی</h1>
+
+  {% if alerts %}
+    <div class="card overflow-hidden">
+      <div class="divide-y divide-stone-200">
+        {% for alert in alerts %}
+          <div class="p-4 sm:p-6 hover:bg-stone-50 transition-colors duration-150">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-semibold text-stone-900">
+                  {{ alert.product.name }}
+                </h3>
+                <p class="text-sm text-stone-500 mt-1">
+                  تاریخ درخواست: {{ alert.created_at|jformat:"Y/m/d" }}
+                </p>
+                <div class="mt-2">
+                  {% if alert.is_notified %}
+                    <span class="badge-success">موجود شد</span>
+                  {% else %}
+                    <span class="badge-warning">در انتظار</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="text-left flex-shrink-0">
+                <a href="{% url 'catalog:product_detail' alert.product.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">
+                  مشاهده محصول
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center py-16">
+      <div class="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+      </div>
+      <p class="text-stone-500 text-lg mb-4">هنوز اعلان موجودی ثبت نکرده‌اید.</p>
+      <a href="{% url 'catalog:product_list' %}" class="btn-primary">مشاهده محصولات</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

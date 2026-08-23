@@ -131,6 +131,7 @@ class ProductReview(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="کاربر")
     rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)], verbose_name="امتیاز")
     comment = models.TextField(blank=True, verbose_name="نظر")
+    image = models.ImageField(upload_to='reviews/', blank=True, null=True, verbose_name="تصویر نظر")
     is_active = models.BooleanField(default=True, verbose_name="فعال")
 
     class Meta:
@@ -242,3 +243,31 @@ class ProductBOM(models.Model):
 
     def __str__(self):
         return f"{self.product.name}: {self.quantity}x {self.part.name}"
+
+
+class StockAlert(BaseModel):
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='stock_alerts', verbose_name="کاربر")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='stock_alerts', verbose_name="محصول")
+    is_notified = models.BooleanField(default=False, verbose_name="اعلان شده")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
+
+    class Meta:
+        verbose_name = "اعلان موجودی"
+        verbose_name_plural = "اعلان‌های موجودی"
+        unique_together = ['user', 'product']
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"اعلان موجودی {self.product.name} برای {self.user.username}"
+
+
+class ComparisonList(BaseModel):
+    session_key = models.CharField(max_length=40, db_index=True, verbose_name="کلید جلسه")
+    products = models.ManyToManyField(Product, related_name='comparisons', verbose_name="محصولات مقایسه")
+
+    class Meta:
+        verbose_name = "لیست مقایسه"
+        verbose_name_plural = "لیست‌های مقایسه"
+
+    def __str__(self):
+        return f"مقایسه محصولات - {self.session_key}"

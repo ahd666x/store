@@ -1,10 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, View
 from django.db.models import Q, Min, Max, Avg, Count
 from django.db import IntegrityError
 from django.contrib import messages
-from .models import Product, ProductCategory, ProductReview
+from .models import Product, ProductCategory, ProductReview, StockAlert, ComparisonList
 
 
 class ProductListView(ListView):
@@ -118,13 +118,15 @@ class ProductDetailView(DetailView):
             return redirect('catalog:product_detail', slug=product.slug)
         rating = request.POST.get('rating')
         comment = request.POST.get('comment', '').strip()
+        review_image = request.FILES.get('review_image')
         if rating and comment:
             try:
-                ProductReview.objects.create(
+                review = ProductReview.objects.create(
                     product=product,
                     user=request.user,
                     rating=int(rating),
                     comment=comment,
+                    image=review_image,
                 )
                 messages.success(request, 'نظر شما ثبت شد.')
             except IntegrityError:
@@ -158,3 +160,72 @@ class CategoryDetailView(ListView):
         context = super().get_context_data(**kwargs)
         context['category'] = get_object_or_404(ProductCategory, slug=self.kwargs['slug'])
         return context
+
+
+class ComparisonView(ListView):
+    template_name = 'catalog/comparison.html'
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        session_key = self.request.session.session_key
+        if not session_key:
+            self.request.session.create()
+            session_key = self.request.session.session_key
+        comparison = ComparisonList.objects.filter(session_key=session_key).first()
+        if comparison:
+            return comparison.products.prefetch_related('images', 'sections__pieces')
+        return Product.objects.none()
+
+
+class ComparisonAddView(LoginRequiredMixin, View):
+    def post(self, request, product_id, *args, **kwargs):
+        product = get_object_or_404(Product, id=product_id)
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+        comparison, _ = ComparisonList.objects.get_or_create(session_key=session_key)
+        comparison.products.add(product)
+        messages.success(request, 'محصول به لیست مقایسه اضافه شد.')
+        return redirect('catalog:product_detail', slug=product.slug)
+
+
+class ComparisonRemoveView(LoginRequiredMixin, View):
+    def post(self, request, product_id, *args, **kwargs):
+        product = get_object_or_404(Product, id=product_id)
+        session_key = request.session.session_key
+        if session_key:
+            comparison = ComparisonList.objects.filter(session_key=session_key).first()
+            if comparison:
+                comparison.products.remove(product)
+        messages.success(request, 'محصول از لیست مقایسه حذف شد.')
+        return redirect('catalog:comparison')
+
+
+class ComparisonClearView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        session_key = request.session.session_key
+        if session_key:
+            ComparisonList.objects.filter(session_key=session_key).delete()
+        messages.success(request, 'لیست مقایسه پاک شد.')
+        return redirect('catalog:comparison')
+
+
+class StockAlertCreateView(LoginRequiredMixin, View):
+    def post(self, request, product_id, *args, **kwargs):
+        product = get_object_or_404(Product, id=product_id)
+        alert, created = StockAlert.objects.get_or_create(user=request.user, product=product)
+        if created:
+            messages.success(request, 'هنگام موجود شدن این محصول به شما اطلاع داده می‌شود.')
+        else:
+            messages.info(request, 'شما قبلاً برای این محصول درخواست اطلاع داده‌اید.')
+        return redirect('catalog:product_detail', slug=product.slug)
+
+
+class StockAlertListView(LoginRequiredMixin, ListView):
+    model = StockAlert
+    template_name = 'catalog/stock_alerts.html'
+    context_object_name = 'alerts'
+
+    def get_queryset(self):
+        return StockAlert.objects.filter(user=self.request.user).select_related('product')

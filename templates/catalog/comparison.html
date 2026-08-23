@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load jformat %}
+
+{% block title %}مقایسه محصولات{% endblock %}
+
+{% block content %}
+<div class="section-container section-padding">
+  <h1 class="text-3xl font-bold text-stone-900 mb-6">مقایسه محصولات</h1>
+
+  {% if products %}
+    <div class="overflow-x-auto">
+      <table class="table-modern min-w-full">
+        <thead>
+          <tr>
+            <th scope="col">ویژگی</th>
+            {% for product in products %}
+              <th scope="col">{{ product.name }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="font-medium">دسته‌بندی</td>
+            {% for product in products %}
+              <td>{{ product.category.name }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="font-medium">قیمت</td>
+            {% for product in products %}
+              <td>{{ product.price }} تومان</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="font-medium">موجودی</td>
+            {% for product in products %}
+              <td>{{ product.stock }} عدد</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="font-medium">امتیاز</td>
+            {% for product in products %}
+              <td>{{ product.average_rating }} ({{ product.review_count }} نظر)</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="font-medium">رنگ</td>
+            {% for product in products %}
+              <td>{{ product.color|default:"—" }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="font-medium">طول</td>
+            {% for product in products %}
+              <td>{{ product.length|default:"—" }} سانتی‌متر</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="font-medium">عرض</td>
+            {% for product in products %}
+              <td>{{ product.width|default:"—" }} سانتی‌متر</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="font-medium">ارتفاع</td>
+            {% for product in products %}
+              <td>{{ product.height|default:"—" }} سانتی‌متر</td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-8 flex gap-4">
+      <a href="{% url 'catalog:product_list' %}" class="btn-primary">ادامه خرید</a>
+      <form method="post" action="{% url 'catalog:comparison_clear' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-danger">پاک کردن مقایسه</button>
+      </form>
+    </div>
+  {% else %}
+    <div class="text-center py-16">
+      <div class="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"/>
+        </svg>
+      </div>
+      <p class="text-stone-500 text-lg mb-4">هنوز محصولی برای مقایسه انتخاب نکرده‌اید.</p>
+      <a href="{% url 'catalog:product_list' %}" class="btn-primary">مشاهده محصولات</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
