@@ -63,9 +63,10 @@ def cart_add(request, product_id):
     return redirect('catalog:product_list')
 
 
-def cart_remove(request, product_id):
+def cart_remove(request, cart_item_id):
     cart = _get_cart(request)
-    CartService.remove_item(cart, product_id)
+    cart_item = get_object_or_404(CartItem, pk=cart_item_id, cart=cart)
+    cart_item.delete()
     messages.success(request, 'محصول از سبد خرید حذف شد.')
     return redirect('cart:cart_detail')
 

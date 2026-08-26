@@ -170,25 +170,7 @@ class ColorMaterialMap(BaseModel):
         return None
 
 
-class ProductSection(BaseModel):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sections', verbose_name="محصول")
-    name = models.CharField(max_length=100, verbose_name="نام قسمت")
-    color = models.ForeignKey(Color, on_delete=models.PROTECT, verbose_name="رنگ")
-    description = models.TextField(blank=True, verbose_name="توضیحات")
-
-    objects = models.Manager()
-    active_objects = ActiveManager()
-
-    class Meta:
-        verbose_name = "جزء محصول"
-        verbose_name_plural = "اجزای محصول"
-
-    def __str__(self):
-        return f"{self.product.name} - {self.name}"
-
-
 class Part(BaseModel):
-    section = models.ForeignKey('catalog.ProductSection', on_delete=models.CASCADE, null=True, blank=True, related_name='parts', verbose_name="جزء محصول (والد)")
     material = models.ForeignKey(Material, on_delete=models.PROTECT, related_name='parts', verbose_name="متریال")
     name = models.CharField(max_length=100, verbose_name="نام قطعه")
     length = models.DecimalField(max_digits=7, decimal_places=1, verbose_name="طول (X)")
@@ -197,7 +179,6 @@ class Part(BaseModel):
     pname = models.CharField(max_length=100, verbose_name="نام محصول")
     turn = models.BooleanField(default=False, verbose_name="چرخش")
     quantity = models.PositiveIntegerField(default=1, verbose_name="تعداد در هر محصول")
-    material_override = models.BooleanField(default=False, verbose_name="متریال به‌صورت دستی تعیین شده (نادیده گرفتن نگاشت خودکار)")
 
     f26 = models.CharField(max_length=100, blank=True, verbose_name="نوار لبه F26")
     f18 = models.CharField(max_length=100, blank=True, verbose_name="نوار لبه F18")
@@ -224,18 +205,6 @@ class Part(BaseModel):
 
     def __str__(self):
         return f"{self.f2 or self.name} ({self.length}x{self.width})"
-
-    def save(self, *args, **kwargs):
-        if self.section_id and not self.material_override:
-            resolved = ColorMaterialMap.resolve_material(self.section.color, self.section.product.category)
-            if resolved:
-                self.material = resolved
-            else:
-                import warnings
-                warnings.warn(
-                    f"Part {self.id or 'new'}: No ColorMaterialMap found for color={self.section.color_id}, category={self.section.product.category_id}. Keeping existing material."
-                )
-        super().save(*args, **kwargs)
 
 
 class ProductBOM(models.Model):

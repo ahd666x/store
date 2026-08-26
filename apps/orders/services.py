@@ -123,12 +123,12 @@ class OrderService:
                 total_qty = bom_entry.quantity * item.quantity
                 material = part.material
 
-                if part.material_override and part.section_id:
-                    color_code = item_colors.get(part.section.name)
+                if bom_entry.allow_material_override and bom_entry.color_part:
+                    color_code = item_colors.get(bom_entry.color_part)
                     if color_code:
                         color_obj = Color.objects.filter(code=color_code).first()
                         if color_obj:
-                            resolved = ColorMaterialMap.resolve_material(color_obj, part.section.product.category)
+                            resolved = ColorMaterialMap.resolve_material(color_obj, item.product.category)
                             if resolved:
                                 material = resolved
 

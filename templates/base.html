@@ -31,7 +31,13 @@
     
     {# Stylesheets #}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/vazirmatn-fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/product-grid.css' %}">
+    
+    {# Alpine.js #}
+    <script defer src="{% static 'js/vendor/alpinejs.min.js' %}"></script>
+    {# HTMX #}
+    <script src="{% static 'js/vendor/htmx.min.js' %}"></script>
     
     {% block extra_head %}{% endblock %}
 </head>
@@ -57,9 +63,6 @@
     {# Footer #}
     {% include 'includes/footer.html' %}
     
-    {# Alpine.js #}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/htmx.org@1.9.10/dist/htmx.min.js"></script>
     <script>
         document.addEventListener('htmx:configRequest', function(evt) {
             var cookie = document.cookie.split('; ').find(function(row) { return row.startsWith('csrftoken='); });

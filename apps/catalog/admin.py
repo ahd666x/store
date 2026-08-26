@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
-from .models import ProductCategory, Color, Material, Product, ProductImage, ProductReview, ProductSection, Part, ProductBOM, ColorMaterialMap
+from .models import ProductCategory, Color, Material, Product, ProductImage, ProductReview, Part, ProductBOM, ColorMaterialMap
 
 
 @admin.register(Color)
@@ -26,12 +26,6 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 @admin.register(ColorMaterialMap)
 class ColorMaterialMapAdmin(admin.ModelAdmin):
     list_display = ['color', 'material']
-
-
-class ProductSectionInline(admin.TabularInline):
-    model = ProductSection
-    extra = 1
-    fields = ['name', 'color', 'description']
 
 
 class PartInline(admin.TabularInline):
@@ -64,7 +58,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['category', 'is_active', 'created_at']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductSectionInline, ProductImageInline, ProductBOMInline]
+    inlines = [ProductImageInline, ProductBOMInline]
     fieldsets = (
         ('اطلاعات اصلی', {
             'fields': ('category', 'name', 'slug', 'color', 'description', 'base_price', 'price', 'stock', 'is_active')
@@ -94,14 +88,6 @@ class ProductReviewAdmin(admin.ModelAdmin):
     list_display = ['product', 'user', 'rating', 'is_active', 'created_at']
     list_filter = ['rating', 'is_active', 'created_at']
     search_fields = ['product__name', 'user__username', 'comment']
-
-
-@admin.register(ProductSection)
-class ProductSectionAdmin(admin.ModelAdmin):
-    list_display = ['product', 'name', 'color']
-    list_filter = ['product__category', 'color']
-    search_fields = ['name', 'product__name']
-    inlines = [PartInline]
 
 
 @admin.register(Part)
