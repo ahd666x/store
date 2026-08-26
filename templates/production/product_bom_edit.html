@@ -97,6 +97,8 @@
                             <tr>
                                 <th>قطعه (انتخاب)</th>
                                 <th>تعداد</th>
+                                <th>بخش رنگی</th>
+                                <th>تغییر متریال</th>
                                 <th>تأثیر اندازه</th>
                                 <th>قانون تغییر اندازه</th>
                                 <th>حذف</th>
@@ -104,23 +106,26 @@
                         </thead>
                         <tbody id="bom-rows">
                             {% for bom_form in bom_formset %}
-                                {% if bom_form.errors %}
-                                <tr><td colspan="5" class="errorlist">{{ bom_form.errors }}</td></tr>
-                                {% endif %}
-                                <tr>
-                                    {{ bom_form.id }}
-                                    <td>{{ bom_form.part }}</td>
-                                    <td>{{ bom_form.quantity }}</td>
-                                    <td class="text-center">{{ bom_form.size_affected }}</td>
-                                    <td>{{ bom_form.size_adjustment_rule }}</td>
-                                    <td class="text-center">
-                                        {% if bom_form.instance.pk %}
-                                            {{ bom_form.DELETE }}
-                                        {% endif %}
-                                    </td>
-                                </tr>
+                            {% if bom_form.errors %}
+                            <tr><td colspan="7" class="errorlist">{{ bom_form.errors }}</td></tr>
+                            {% endif %}
+                            <tr>
+                                {{ bom_form.id }}
+                                <td>{{ bom_form.part }}</td>
+                                <td>{{ bom_form.quantity }}</td>
+                                <td>{{ bom_form.color_part }}</td>
+                                <td class="text-center">{{ bom_form.allow_material_override }}</td>
+                                <td class="text-center">{{ bom_form.size_affected }}</td>
+                                <td>{{ bom_form.size_adjustment_rule }}</td>
+                                <td class="text-center">
+                                    {% if bom_form.instance.pk %}
+                                        {{ bom_form.DELETE }}
+                                    {% endif %}
+                                </td>
+                                {{ bom_form.color_material_map }}
+                            </tr>
                             {% empty %}
-                                <tr><td colspan="5" class="text-center text-muted">هیچ آیتمی در BOM وجود ندارد.</td></tr>
+                                <tr><td colspan="7" class="text-center text-muted">هیچ آیتمی در BOM وجود ندارد.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -156,9 +161,11 @@ document.getElementById('add-bom-row').addEventListener('click', function() {
         templateRow.innerHTML = `
             <td><select name="bom-${currentCount}-part" class="form-select form-select-sm" id="id_bom-${currentCount}-part"><option value="">---------</option></select></td>
             <td><input type="number" name="bom-${currentCount}-quantity" value="1" class="form-control form-control-sm" id="id_bom-${currentCount}-quantity"></td>
+            <td><select name="bom-${currentCount}-color_part" class="form-select form-select-sm" id="id_bom-${currentCount}-color_part"><option value="">---------</option><option value="بدنه">بدنه</option><option value="درب">درب</option><option value="دستگیره">دستگیره</option><option value="پایه">پایه</option><option value="صفحه">صفحه</option><option value="رینگ">رینگ</option></select></td>
+            <td class="text-center"><input type="checkbox" name="bom-${currentCount}-allow_material_override" id="id_bom-${currentCount}-allow_material_override"></td>
             <td class="text-center"><input type="checkbox" name="bom-${currentCount}-size_affected" id="id_bom-${currentCount}-size_affected"></td>
             <td><input type="text" name="bom-${currentCount}-size_adjustment_rule" class="form-control form-control-sm" id="id_bom-${currentCount}-size_adjustment_rule"></td>
-            <td></td>
+            <td><input type="hidden" name="bom-${currentCount}-color_material_map" id="id_bom-${currentCount}-color_material_map"></td>
         `;
     }
     // به‌روزرسانی name و id با ایندکس جدید

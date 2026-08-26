@@ -591,7 +591,7 @@
                 '<li><a class="dropdown-item btn-edit-worker" href="#" data-worker-id="' + workerData.id + '"><i class="bi bi-pencil me-2"></i>ویرایش</a></li>' +
                 '<li><a class="dropdown-item btn-delete-worker" href="#" data-worker-id="' + workerData.id + '"><i class="bi bi-trash me-2"></i>حذف</a></li>' +
                 '<li><hr class="dropdown-divider"></li>' +
-                '<li><a class="dropdown-item" href="/painting/workers/' + workerData.id + '/excluded-items/"><i class="bi bi-eye me-2"></i>مشاهده ممنوعیت‌ها</a></li>' +
+                '<li><a class="dropdown-item" href="' + "{% url 'painting_worker_excluded_items' 0 %}".replace('/0/', '/' + workerData.id + '/') + '"><i class="bi bi-eye me-2"></i>مشاهده ممنوعیت‌ها</a></li>' +
                 '</ul></div></td>';
 
             tbody.appendChild(tr);

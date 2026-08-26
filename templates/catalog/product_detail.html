@@ -59,10 +59,11 @@
 {% endblock %}
 
 {% block content %}
+<style>[x-cloak]{display:none !important;}</style>
 <div class="section-container section-padding">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12" x-data="{ selectedImage: '{{ product.images.all.0.image.url|default:"" }}', selectedColor: null, sizeGuideOpen: false }">
         {# Product Gallery #}
-        <div x-data="{ selectedImage: '{{ product.images.all.0.image.url|default:"" }}', sizeGuideOpen: false }">
+        <div>
             <div class="aspect-square bg-stone-100 rounded-2xl overflow-hidden mb-4">
                 {% if product.images.all %}
                     <img :src="selectedImage" alt="{{ product.name }}" class="w-full h-full object-cover" loading="lazy">
@@ -349,59 +350,6 @@
             </script>
         </div>
     </div>
-
-    {# Product Sections (Accordion) #}
-    {% if product.sections.all %}
-        <div class="mt-16">
-            <h2 class="text-3xl font-bold text-stone-900 mb-8">اجزای محصول</h2>
-            
-            <div class="space-y-4">
-                {% for section in product.sections.all %}
-                    <div x-data="{ open: {{ forloop.first }} }" class="border border-stone-200 rounded-xl overflow-hidden">
-                        <button @click="open = !open" class="w-full flex items-center justify-between p-6 bg-white hover:bg-stone-50 transition-colors">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center">
-                                    <span class="text-primary-600 font-semibold">{{ forloop.counter }}</span>
-                                </div>
-                                <div class="text-right">
-                                    <h3 class="font-semibold text-stone-900">{{ section.name }}</h3>
-                                    <p class="text-sm text-stone-500">رنگ: {{ section.color.name }}</p>
-                                </div>
-                            </div>
-                            <svg class="w-5 h-5 text-stone-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
-                            </svg>
-                        </button>
-                        
-                        <div x-show="open" x-transition class="border-t border-stone-200">
-                            {% if section.parts.all %}
-                                <div class="p-6">
-                                    <table class="table-modern">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">طول (X)</th>
-                                                <th scope="col">عرض (Y)</th>
-                                                <th scope="col">تحویل به مرحله</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for part in section.parts.all %}
-                                                <tr>
-                                                    <td>{{ part.length }}</td>
-                                                    <td>{{ part.width }}</td>
-                                                    <td>{{ part.routing_code|default:"-" }}</td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
 
     {# Reviews Section #}
     <div class="mt-16">

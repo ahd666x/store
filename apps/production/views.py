@@ -270,10 +270,10 @@ def admin_edit_order_item(request, item_id):
                 updated_item.save()
 
                 item.ordercolor.all().delete()
-                for part_value, _ in Color.PART_CHOICES:
+                for part_value, _ in OrderColor.PART_CHOICES:
                     code = color_form.cleaned_data.get(f'color_{part_value}')
                     if code:
-                        Color.objects.create(part=part_value, code=code, orderitem=item)
+                        OrderColor.objects.create(part=part_value, code=code, orderitem=item)
 
                 messages.success(request, 'آیتم با موفقیت ویرایش شد.')
                 return redirect('production:admin_edit_order', order_id=order.id)
@@ -283,7 +283,7 @@ def admin_edit_order_item(request, item_id):
         item_form = EditOrderItemForm(instance=item)
         color_form = ColorSelectionForm(initial={
             f'color_{part}': existing_colors.get(part, '')
-            for part, _ in Color.PART_CHOICES
+            for part, _ in OrderColor.PART_CHOICES
         })
 
     context = {
@@ -357,10 +357,10 @@ def admin_add_order_item(request, order_id):
                 order_item.unit_price = product.base_price
                 order_item.save()
 
-                for part_value, _ in Color.PART_CHOICES:
+                for part_value, _ in OrderColor.PART_CHOICES:
                     code = color_form.cleaned_data.get(f'color_{part_value}')
                     if code:
-                        Color.objects.create(part=part_value, code=code, orderitem=order_item)
+                        OrderColor.objects.create(part=part_value, code=code, orderitem=order_item)
                 messages.success(request, f'آیتم "{product.name}" اضافه شد.')
                 return redirect('production:admin_edit_order', order_id=order.id)
         else:
@@ -877,11 +877,11 @@ def item_detail(request, pk):
 def scan_qr(request, pk):
     item = get_object_or_404(OrderItem.objects.select_related('order'), pk=pk)
 
-    if not hasattr(request.user, 'workerprofile'):
+    if not hasattr(request.user, 'worker_profile'):
         messages.error(request, "پروفایل کاری ندارید")
         return redirect('item_detail', pk=pk)
 
-    stage = request.user.workerprofile.stage
+    stage = request.user.worker_profile.stage
 
     if ProductionLog.objects.filter(order_item=item, stage=stage).exists():
         messages.warning(request, "قبلاً ثبت شده")
@@ -1198,7 +1198,7 @@ def upload_form(request):
                     for part in color_parts:
                         code = str(row.get(part, 'nan'))
                         if code and code != 'nan':
-                            Color.objects.create(
+                            OrderColor.objects.create(
                                 part=part,
                                 code=code.split('.')[0],
                                 orderitem=order_item
@@ -1296,7 +1296,7 @@ def create_complete_order(request):
                 ]
                 for part, code in colors_data:
                     if code:
-                        Color.objects.create(part=part, code=code, orderitem=order_item)
+                        OrderColor.objects.create(part=part, code=code, orderitem=order_item)
             messages.success(request, f'سفارش #{order.id} کامل ایجاد شد.')
             return redirect('order_list')
     else:
@@ -1310,11 +1310,11 @@ def create_complete_order(request):
 @login_required
 @staff_or_representative_required
 def scan_part(request):
-    if not hasattr(request.user, 'workerprofile'):
+    if not hasattr(request.user, 'worker_profile'):
         messages.error(request, "")
         return redirect('dashboard')
 
-    worker_stage = request.user.workerprofile.stage
+    worker_stage = request.user.worker_profile.stage
     pending_tasks = ProductionTask.objects.filter(
         station_name=worker_stage,
         status='pending'
@@ -1396,11 +1396,11 @@ def scan_part_cnc(request):
         messages.error(request, f"قطعه‌ای با بارکد '{barcode}' یافت نشد.")
         return redirect('scan_part')
 
-    if not hasattr(request.user, 'workerprofile'):
+    if not hasattr(request.user, 'worker_profile'):
         messages.error(request, "پروفایل کاری شما تعریف نشده است.")
         return redirect('dashboard')
 
-    worker_stage = request.user.workerprofile.stage
+    worker_stage = request.user.worker_profile.stage
     if worker_stage != 'cnc':
         messages.error(request, "شما مجاز به اسکن در ایستگاه CNC نیستید.")
         return redirect('dashboard')
@@ -1482,11 +1482,11 @@ def scan_part_dr(request):
         messages.error(request, f"قطعه‌ای با بارکد '{barcode}' یافت نشد.")
         return redirect('scan_part')
 
-    if not hasattr(request.user, 'workerprofile'):
+    if not hasattr(request.user, 'worker_profile'):
         messages.error(request, "پروفایل کاری شما تعریف نشده است.")
         return redirect('dashboard')
 
-    worker_stage = request.user.workerprofile.stage
+    worker_stage = request.user.worker_profile.stage
     if worker_stage != 'dr':
         messages.error(request, "شما مجاز به اسکن در ایستگاه سوراخکاری نیستید.")
         return redirect('dashboard')
@@ -1776,10 +1776,10 @@ def create_order_step2(request, order_id):
                 order_item.unit_price = product.base_price
                 order_item.save()
 
-                for part_value, _ in Color.PART_CHOICES:
+                for part_value, _ in OrderColor.PART_CHOICES:
                     code = color_form.cleaned_data.get(f'color_{part_value}')
                     if code:
-                        Color.objects.create(
+                        OrderColor.objects.create(
                             part=part_value,
                             code=code,
                             orderitem=order_item
@@ -1890,10 +1890,13 @@ def product_bom_edit(request, product_id):
         ProductBOM,
         fields=[
             'part', 'quantity',
+            'color_part', 'allow_material_override', 'color_material_map',
             'size_affected', 'size_adjustment_rule',
         ],
         widgets={
             'size_adjustment_rule': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
+            'color_part': forms.Select(attrs={'class': 'form-select form-select-sm'}),
+            'color_material_map': forms.HiddenInput(),
         },
         extra=0,
         can_delete=True,
@@ -2226,7 +2229,7 @@ def import_data(request):
 @login_required
 def scan_packaging_unit(request, pk):
     unit = get_object_or_404(PackagingUnit, pk=pk)
-    worker_stage = request.user.workerprofile.stage if hasattr(request.user, 'workerprofile') else None
+    worker_stage = request.user.worker_profile.stage if hasattr(request.user, 'worker_profile') else None
     next_url = request.GET.get('next', 'dashboard')
 
     if request.method == 'POST':
@@ -2310,7 +2313,7 @@ def scan_packaging_unit(request, pk):
 @login_required
 def undo_packaging_unit(request, pk):
     unit = get_object_or_404(PackagingUnit, pk=pk)
-    worker_stage = request.user.workerprofile.stage if hasattr(request.user, 'workerprofile') else None
+    worker_stage = request.user.worker_profile.stage if hasattr(request.user, 'worker_profile') else None
 
     if worker_stage not in ['packaging', 'shipping']:
         messages.error(request, 'شما دسترسی لازم برای لغو عملیات را ندارید.')
@@ -2412,10 +2415,10 @@ def customer_create_order_step2(request, order_id):
                 order_item.unit_price = product.base_price
                 order_item.save()
 
-                for part_value, _ in Color.PART_CHOICES:
+                for part_value, _ in OrderColor.PART_CHOICES:
                     code = color_form.cleaned_data.get(f'color_{part_value}')
                     if code:
-                        Color.objects.create(part=part_value, code=code, orderitem=order_item)
+                        OrderColor.objects.create(part=part_value, code=code, orderitem=order_item)
                 messages.success(request, f'{order_item.product.name} به سفارش اضافه شد.')
                 if 'add_another' in request.POST:
                     return redirect('customer_create_order_step2', order_id=order.id)
@@ -2474,10 +2477,10 @@ def customer_edit_order_item(request, item_id):
                 item_form.save()
 
                 item.ordercolor.all().delete()
-                for part_value, _ in Color.PART_CHOICES:
+                for part_value, _ in OrderColor.PART_CHOICES:
                     code = color_form.cleaned_data.get(f'color_{part_value}')
                     if code:
-                        Color.objects.create(part=part_value, code=code, orderitem=item)
+                        OrderColor.objects.create(part=part_value, code=code, orderitem=item)
 
                 messages.success(request, "آیتم با موفقیت ویرایش شد.")
                 return redirect('customer_order_detail', order_id=item.order.id)
@@ -2485,7 +2488,7 @@ def customer_edit_order_item(request, item_id):
         item_form = EditOrderItemForm(instance=item)
         color_form = ColorSelectionForm(initial={
             f'color_{part}': existing_colors.get(part, '')
-            for part, _ in Color.PART_CHOICES
+            for part, _ in OrderColor.PART_CHOICES
         })
 
     return render(request, 'production/customer/edit_order_item.html', {
@@ -2566,10 +2569,10 @@ def customer_add_item(request, order_id):
                 order_item.unit_price = product.base_price
                 order_item.save()
 
-                for part_value, _ in Color.PART_CHOICES:
+                for part_value, _ in OrderColor.PART_CHOICES:
                     code = color_form.cleaned_data.get(f'color_{part_value}')
                     if code:
-                        Color.objects.create(part=part_value, code=code, orderitem=order_item)
+                        OrderColor.objects.create(part=part_value, code=code, orderitem=order_item)
 
                 messages.success(request, f'{product.name} به سفارش اضافه شد.')
                 return redirect('customer_order_detail', order_id=order.id)
@@ -2719,12 +2722,14 @@ def report_shipped(request):
 def product_create(request):
     BOMFormSet = inlineformset_factory(
         Product, ProductBOM,
-        fields=['part', 'quantity', 'size_adjustment_rule'],
+        fields=['part', 'quantity', 'size_adjustment_rule', 'color_part', 'color_material_map'],
         extra=1, can_delete=True,
         widgets={
             'part': forms.HiddenInput(),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'size_adjustment_rule': forms.HiddenInput(attrs={'class': 'size-rule-hidden'}),
+            'color_part': forms.Select(attrs={'class': 'form-select color-part-select'}),
+            'color_material_map': forms.HiddenInput(),
         }
     )
 
@@ -2736,7 +2741,7 @@ def product_create(request):
             with transaction.atomic():
                 product = product_form.save(commit=False)
                 default_colors = {}
-                for part, _ in Color.PART_CHOICES:
+                for part, _ in OrderColor.PART_CHOICES:
                     field_name = f'color_{part}'
                     code = product_form.cleaned_data.get(field_name)
                     if code:
@@ -2774,12 +2779,14 @@ def product_edit(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     BOMFormSet = inlineformset_factory(
         Product, ProductBOM,
-        fields=['part', 'quantity', 'size_adjustment_rule'],
+        fields=['part', 'quantity', 'size_adjustment_rule', 'color_part', 'color_material_map'],
         extra=0, can_delete=True,
         widgets={
             'part': forms.HiddenInput(),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'size_adjustment_rule': forms.HiddenInput(attrs={'class': 'size-rule-hidden'}),
+            'color_part': forms.Select(attrs={'class': 'form-select color-part-select'}),
+            'color_material_map': forms.HiddenInput(),
         }
     )
 
@@ -2791,7 +2798,7 @@ def product_edit(request, product_id):
             with transaction.atomic():
                 product = product_form.save(commit=False)
                 default_colors = {}
-                for part, _ in Color.PART_CHOICES:
+                for part, _ in OrderColor.PART_CHOICES:
                     field_name = f'color_{part}'
                     code = product_form.cleaned_data.get(field_name)
                     if code:

@@ -25,7 +25,7 @@
 
 {% for o in items %}
 <tr>
-    <td> <a href="/item/{{ o.id }}" class="btn btn-primary">{{ o.id }}  </a> 
+    <td> <a href="{% url 'item_detail' o.id %}" class="btn btn-primary">{{ o.id }}  </a> 
     <td>{{ o.order.customer }}</td>
     <td>{{ o.order.created_at }}</td>
     <td>{{ o.product.category }}</td>
