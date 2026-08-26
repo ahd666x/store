@@ -79,8 +79,11 @@ class OrderDetailView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['order'] = get_object_or_404(Order, id=self.kwargs['order_id'], user=self.request.user)
+        order = get_object_or_404(Order, id=self.kwargs['order_id'], user=self.request.user)
+        context['order'] = order
         context['production_staff'] = is_production_staff(self.request.user)
+        status_keys = [s[0] for s in order.ORDER_STATUS]
+        context['current_status_index'] = status_keys.index(order.status) if order.status in status_keys else 0
         return context
 
 

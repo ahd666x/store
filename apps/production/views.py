@@ -91,7 +91,7 @@ def painting_workers_api(request):
 
         workers = WorkerProfile.objects.filter(stage='paint') \
             .select_related('user') \
-            .prefetch_related('excluded_products', 'excluded_items') \
+            .prefetch_related('excluded_products') \
             .annotate(active_tasks=Count('user__assigned_tasks',
                 filter=Q(user__assigned_tasks__station_name='paint',
                         user__assigned_tasks__status__in=['pending', 'waiting'])
@@ -113,11 +113,11 @@ def painting_workers_api(request):
         paginator = Paginator(workers, per_page)
         page_obj = paginator.get_page(page)
 
-        table_html = render_to_string('painting_management/_worker_rows.html', {
+        table_html = render_to_string('production/painting_management/_worker_rows.html', {
             'workers': page_obj,
             'skill_choices': PaintingStage.SKILL_CHOICES,
         })
-        pagination_html = render_to_string('painting_management/_pagination.html', {
+        pagination_html = render_to_string('production/painting_management/_pagination.html', {
             'workers': page_obj,
         })
 
@@ -168,7 +168,7 @@ def painting_worker_detail_api(request, worker_id):
             'skill_priority': worker.skill_priority,
             'is_available': worker.is_available,
             'excluded_products_count': worker.excluded_products.count(),
-            'excluded_items_count': worker.excluded_items.count(),
+            'excluded_items_count': 0,
         })
 
     elif request.method == 'PUT':
@@ -1889,12 +1889,10 @@ def product_bom_edit(request, product_id):
         Product,
         ProductBOM,
         fields=[
-            'part', 'quantity', 'color_part',
-            'allow_material_override', 'color_material_map',
+            'part', 'quantity',
             'size_affected', 'size_adjustment_rule',
         ],
         widgets={
-            'color_material_map': forms.Textarea(attrs={'rows': 2, 'class': 'form-control form-control-sm'}),
             'size_adjustment_rule': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
         },
         extra=0,
@@ -2721,13 +2719,11 @@ def report_shipped(request):
 def product_create(request):
     BOMFormSet = inlineformset_factory(
         Product, ProductBOM,
-        fields=['part', 'quantity', 'color_part', 'color_material_map', 'size_adjustment_rule'],
+        fields=['part', 'quantity', 'size_adjustment_rule'],
         extra=1, can_delete=True,
         widgets={
             'part': forms.HiddenInput(),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'color_part': forms.Select(attrs={'class': 'form-select color-part-select'}),
-            'color_material_map': forms.HiddenInput(),
             'size_adjustment_rule': forms.HiddenInput(attrs={'class': 'size-rule-hidden'}),
         }
     )
@@ -2751,10 +2747,7 @@ def product_create(request):
                 instances = formset.save(commit=False)
                 for bom in instances:
                     bom.product = product
-                    bom.allow_material_override = bool(bom.color_part)
                     bom.size_affected = bool(bom.size_adjustment_rule)
-                    if not bom.color_material_map:
-                        bom.color_material_map = {}
                     bom.save()
                 for obj in formset.deleted_objects:
                     obj.delete()
@@ -2781,13 +2774,11 @@ def product_edit(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     BOMFormSet = inlineformset_factory(
         Product, ProductBOM,
-        fields=['part', 'quantity', 'color_part', 'color_material_map', 'size_adjustment_rule'],
+        fields=['part', 'quantity', 'size_adjustment_rule'],
         extra=0, can_delete=True,
         widgets={
             'part': forms.HiddenInput(),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'color_part': forms.Select(attrs={'class': 'form-select color-part-select'}),
-            'color_material_map': forms.HiddenInput(),
             'size_adjustment_rule': forms.HiddenInput(attrs={'class': 'size-rule-hidden'}),
         }
     )
@@ -2811,10 +2802,7 @@ def product_edit(request, product_id):
                 instances = formset.save(commit=False)
                 for bom in instances:
                     bom.product = product
-                    bom.allow_material_override = bool(bom.color_part)
                     bom.size_affected = bool(bom.size_adjustment_rule)
-                    if not bom.color_material_map:
-                        bom.color_material_map = {}
                     bom.save()
                 for obj in formset.deleted_objects:
                     obj.delete()

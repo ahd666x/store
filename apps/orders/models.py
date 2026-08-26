@@ -142,6 +142,10 @@ class Order(BaseModel):
         self.final_amount = self.total_amount - self.discount_amount
         self.save()
 
+    def generate_tasks(self):
+        from apps.orders.services import OrderService
+        return OrderService.generate_production_tasks(self)
+
 
 class OrderItem(BaseModel):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items', verbose_name="سفارش")

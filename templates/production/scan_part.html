@@ -140,7 +140,8 @@
             return;
         }
         barcode = barcode.replace(/\.cnc$/i, '');
-        window.open(`/cnc/download/${encodeURIComponent(barcode)}/`, '_blank');
+        const cncBase = "{% url 'download_cnc_file' 'PLACEHOLDER' %}";
+        window.open(cncBase.replace('PLACEHOLDER', encodeURIComponent(barcode)), '_blank');
     }
 
     // ارسال AJAX برای اسکن در CNC
@@ -195,7 +196,8 @@
             return;
         }
         barcode = barcode.replace(/\.xml$/i, '');
-        window.open(`/dr/download/${encodeURIComponent(barcode)}/`, '_blank');
+        const drBase = "{% url 'download_dr_file' 'PLACEHOLDER' %}";
+        window.open(drBase.replace('PLACEHOLDER', encodeURIComponent(barcode)), '_blank');
     }
 
     // ارسال AJAX برای اسکن در سوراخکاری

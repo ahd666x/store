@@ -97,9 +97,6 @@
                             <tr>
                                 <th>قطعه (انتخاب)</th>
                                 <th>تعداد</th>
-                                <th>بخش رنگی</th>
-                                <th>تغییر متریال</th>
-                                <!-- <th>نگاشت رنگ (JSON)</th> -->
                                 <th>تأثیر اندازه</th>
                                 <th>قانون تغییر اندازه</th>
                                 <th>حذف</th>
@@ -108,15 +105,12 @@
                         <tbody id="bom-rows">
                             {% for bom_form in bom_formset %}
                                 {% if bom_form.errors %}
-                                <tr><td colspan="8" class="errorlist">{{ bom_form.errors }}</td></tr>
+                                <tr><td colspan="5" class="errorlist">{{ bom_form.errors }}</td></tr>
                                 {% endif %}
                                 <tr>
                                     {{ bom_form.id }}
                                     <td>{{ bom_form.part }}</td>
                                     <td>{{ bom_form.quantity }}</td>
-                                    <td>{{ bom_form.color_part }}</td>
-                                    <td class="text-center">{{ bom_form.allow_material_override }}</td>
-                                    <!-- <td>{{ bom_form.color_material_map }}</td> -->
                                     <td class="text-center">{{ bom_form.size_affected }}</td>
                                     <td>{{ bom_form.size_adjustment_rule }}</td>
                                     <td class="text-center">
@@ -126,7 +120,7 @@
                                     </td>
                                 </tr>
                             {% empty %}
-                                <tr><td colspan="8" class="text-center text-muted">هیچ آیتمی در BOM وجود ندارد.</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted">هیچ آیتمی در BOM وجود ندارد.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -162,9 +156,6 @@ document.getElementById('add-bom-row').addEventListener('click', function() {
         templateRow.innerHTML = `
             <td><select name="bom-${currentCount}-part" class="form-select form-select-sm" id="id_bom-${currentCount}-part"><option value="">---------</option></select></td>
             <td><input type="number" name="bom-${currentCount}-quantity" value="1" class="form-control form-control-sm" id="id_bom-${currentCount}-quantity"></td>
-            <td><input type="text" name="bom-${currentCount}-color_part" class="form-control form-control-sm" id="id_bom-${currentCount}-color_part"></td>
-            <td class="text-center"><input type="checkbox" name="bom-${currentCount}-allow_material_override" id="id_bom-${currentCount}-allow_material_override"></td>
-            <td><textarea name="bom-${currentCount}-color_material_map" rows="2" class="form-control form-control-sm" id="id_bom-${currentCount}-color_material_map"></textarea></td>
             <td class="text-center"><input type="checkbox" name="bom-${currentCount}-size_affected" id="id_bom-${currentCount}-size_affected"></td>
             <td><input type="text" name="bom-${currentCount}-size_adjustment_rule" class="form-control form-control-sm" id="id_bom-${currentCount}-size_adjustment_rule"></td>
             <td></td>

@@ -162,7 +162,8 @@
                 return;
             }
             try {
-                const response = await fetch(`/ajax/load-products/?category=${categoryId}`);
+                const baseUrl = "{% url 'ajax_load_products' %}";
+                const response = await fetch(`${baseUrl}?category=${categoryId}`);
                 const data = await response.json();
                 productSelect.innerHTML = '<option value="">همه محصولات</option>';
                 data.forEach(product => {
@@ -199,7 +200,8 @@
         if (initialCategory) {
             (async () => {
                 try {
-                    const response = await fetch(`/ajax/load-products/?category=${initialCategory}`);
+                    const baseUrl2 = "{% url 'ajax_load_products' %}";
+                    const response = await fetch(`${baseUrl2}?category=${initialCategory}`);
                     const data = await response.json();
                     productSelect.innerHTML = '<option value="">همه محصولات</option>';
                     data.forEach(product => {

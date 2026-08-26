@@ -318,7 +318,8 @@
                 return;
             }
             try {
-                const response = await fetch(`/ajax/load-products/?category=${categoryId}`);
+                const baseUrl = "{% url 'ajax_load_products' %}";
+                const response = await fetch(`${baseUrl}?category=${categoryId}`);
                 const data = await response.json();
                 productSelect.innerHTML = '<option value="">همه</option>';
                 data.forEach(product => {

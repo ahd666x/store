@@ -4,11 +4,11 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from apps.cart.models import Cart, CartItem
-from apps.catalog.models import Part, Product
+from apps.catalog.models import Part, Product, Color, ColorMaterialMap
 from apps.orders.models import Order, OrderItem, Customer, ProductionTask
 from apps.orders.production_utils import (
     compute_size_diff, apply_size_adjustment, update_barcode_size,
-    get_material_for_color, get_painting_process_for_color, get_item_color_assignments,
+    get_painting_process_for_color, get_item_color_assignments,
 )
 
 logger = logging.getLogger(__name__)
@@ -123,12 +123,14 @@ class OrderService:
                 total_qty = bom_entry.quantity * item.quantity
                 material = part.material
 
-                if bom_entry.allow_material_override and bom_entry.color_part:
-                    color_code = item_colors.get(bom_entry.color_part)
+                if part.material_override and part.section_id:
+                    color_code = item_colors.get(part.section.name)
                     if color_code:
-                        new_material = get_material_for_color(color_code, bom_entry.color_material_map)
-                        if new_material:
-                            material = new_material
+                        color_obj = Color.objects.filter(code=color_code).first()
+                        if color_obj:
+                            resolved = ColorMaterialMap.resolve_material(color_obj, part.section.product.category)
+                            if resolved:
+                                material = resolved
 
                 length, width = part.length, part.width
                 if bom_entry.size_affected and bom_entry.size_adjustment_rule and size_diff:

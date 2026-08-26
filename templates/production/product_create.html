@@ -108,7 +108,6 @@
                                     {{ form.part }}
                                 </td>
                                 <td>{{ form.quantity }}</td>
-                                <td>{{ form.color_part }}</td>
                                 <td class="size-rule-cell">
                                     {{ form.size_adjustment_rule }}
                                     <select class="form-select form-select-sm size-rule-preset">
@@ -124,7 +123,6 @@
                                 <td class="text-center">
                                     {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
                                 </td>
-                                {{ form.color_material_map }}
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -267,7 +265,8 @@ $(document).ready(function() {
         const partId = currentRow.data('part-id');
         if (!partId) return;
 
-        $.getJSON(`/ajax/get-part/${partId}/`, function(data) {
+        const baseUrl = "{% url 'ajax_get_part' 0 %}";
+        $.getJSON(baseUrl.replace('/0/', '/' + partId + '/'), function(data) {
             $('#partModalTitle').text('ویرایش قطعه');
             $('#part-submit-btn').text('ذخیره تغییرات');
             editMode = true;
@@ -307,7 +306,7 @@ $(document).ready(function() {
         }
 
         const url = editMode
-            ? `/ajax/edit-part/${editPartId}/`
+            ? "{% url 'ajax_edit_part' 0 %}".replace('/0/', '/' + editPartId + '/')
             : "{% url 'ajax_create_part' %}";
 
         $.ajax({
@@ -393,15 +392,7 @@ $(document).ready(function() {
                 </button>
                 <input type="hidden" name="bom-${index}-part" id="id_bom-${index}-part">
             </td>
-            <td><input type="number" name="bom-${index}-quantity" value="1" min="1" class="form-control" id="id_bom-${index}-quantity"></td>
-            <td><select name="bom-${index}-color_part" class="form-select color-part-select" id="id_bom-${index}-color_part">
-                <option value="" selected="">---------</option>
-                <option value="بدنه">بدنه</option>
-                <option value="درب">درب</option>
-                <option value="دستگیره">دستگیره</option>
-                <option value="پایه">پایه</option>
-                <option value="صفحه">صفحه</option>
-            </select></td>
+            <td><input type="number" name="bom-${index}-quantity" value="1" min="1" class="form-control" id="id_bom-${index}-quantity">            </td>
             <td class="size-rule-cell">
                 <input type="hidden" name="bom-${index}-size_adjustment_rule" class="size-rule-hidden" id="id_bom-${index}-size_adjustment_rule">
                 <select class="form-select form-select-sm size-rule-preset">
@@ -414,7 +405,6 @@ $(document).ready(function() {
                 <input type="text" class="form-control form-control-sm size-rule-custom" style="display:none;" placeholder="فرمول دلخواه">
             </td>
             <td class="text-center"></td>
-            <input type="hidden" name="bom-${index}-color_material_map" id="id_bom-${index}-color_material_map">
         </tr>`;
     }
 
@@ -464,7 +454,6 @@ $(document).ready(function() {
         newRow.find('.size-rule-preset').val('');
         newRow.find('.size-rule-custom').hide().val('');
         newRow.find('.size-rule-hidden').val('');
-        newRow.find('input[name$="-color_material_map"]').val('');
 
         tbody.append(newRow);
         totalForms.val(currentCount + 1);

@@ -22,10 +22,10 @@
       <span class="text-base sm:text-lg font-bold text-primary-600">{{ item.unit_price }} تومان</span>
       <span class="text-stone-400">×</span>
       
-      <form hx-post="{% url 'cart:cart_update' item.product.id %}" hx-target="#cart-row-{{ item.product.id }}" hx-swap="outerHTML" class="flex items-center gap-2">
+      <form method="post" action="{% url 'cart:cart_update' item.product.id %}" hx-target="#cart-row-{{ item.product.id }}" hx-swap="outerHTML" hx-trigger="change" class="flex items-center gap-2">
         {% csrf_token %}
         <button type="button" onclick="this.nextElementSibling.value = Math.max(1, parseInt(this.nextElementSibling.value) - 1); this.form.requestSubmit();" class="w-8 h-8 rounded-lg border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-colors">-</button>
-        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="w-8 text-center border-0 p-0 text-sm font-medium" hx-change="this.form.requestSubmit()">
+        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="w-8 text-center border-0 p-0 text-sm font-medium">
         <button type="button" onclick="this.previousElementSibling.value = Math.min({{ item.product.stock }}, parseInt(this.previousElementSibling.value) + 1); this.form.requestSubmit();" class="w-8 h-8 rounded-lg border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-colors">+</button>
       </form>
     </div>

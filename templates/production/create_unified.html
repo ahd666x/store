@@ -103,7 +103,7 @@ $(document).ready(function() {
         var catId = $(this).val();
         if (catId) {
             $.ajax({
-                url: '/ajax/load-products/',
+                url: "{% url 'ajax_load_products' %}",
                 data: {'category': catId},
                 success: function(data) {
                     var $prod = $('#id_product');
@@ -122,7 +122,8 @@ $(document).ready(function() {
     $('#id_product').on('change', function() {
         var prodId = $(this).val();
         if (prodId) {
-            fetch(`/ajax/load-product-colors/${prodId}/`)
+            const baseUrl = "{% url 'ajax_load_product_colors' 0 %}";
+            fetch(baseUrl.replace('/0/', '/' + prodId + '/'))
                 .then(res => res.json())
                 .then(data => {
                     const allowed = Object.keys(data.defaults);

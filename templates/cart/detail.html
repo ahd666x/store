@@ -76,12 +76,12 @@
           </div>
           
           {% if not cart.discount %}
-            <form method="post" action="{% url 'discounts:apply_discount' %}" class="mb-6" x-data="{ code: '' }">
+            <form method="post" action="{% url 'discounts:apply_discount' %}" class="mb-6" x-data="{ code: '', submitting: false }" @submit="submitting = true">
               {% csrf_token %}
               <label class="form-label">کد تخفیف</label>
               <div class="input-group mt-1">
                 <input type="text" name="code" x-model="code" placeholder="کد تخفیف" aria-label="کد تخفیف" required class="form-input flex-1">
-                <button type="submit" class="btn-secondary" :class="{ 'is-loading': code && code.length > 0 }">
+                <button type="submit" class="btn-secondary" :class="{ 'is-loading': submitting }">
                   اعمال
                 </button>
               </div>

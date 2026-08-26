@@ -51,9 +51,6 @@ class ProductBOMInline(admin.TabularInline):
     fields = [
         'part',
         'quantity',
-        'allow_material_override',
-        'color_part',
-        'color_material_map',
         'size_affected',
         'size_adjustment_rule',
     ]

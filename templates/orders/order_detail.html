@@ -16,17 +16,17 @@
     <div class="card p-6 mb-8">
       <h2 class="text-lg font-semibold text-stone-900 mb-6">پیگیری سفارش</h2>
       <div class="relative">
-        {% with statuses=order.ORDER_STATUS current=order.status %}
+        {% with statuses=order.ORDER_STATUS %}
           <div class="space-y-4">
             {% for value, label in statuses %}
-              {% if value == current or forloop.counter0 <= statuses|length|add:"-1" %}
+              {% if forloop.counter0 <= current_status_index %}
                 <div class="flex items-center gap-4">
                   <div class="flex flex-col items-center">
-                    <div class="w-4 h-4 rounded-full {% if forloop.counter0 <= statuses|length|add:"-1" %}bg-primary-600{% else %}bg-stone-300{% endif %}"></div>
+                    <div class="w-4 h-4 rounded-full {% if forloop.counter0 <= current_status_index %}bg-primary-600{% else %}bg-stone-300{% endif %}"></div>
                     {% if not forloop.last %}<div class="w-0.5 h-8 bg-stone-200"></div>{% endif %}
                   </div>
                   <div class="flex-1">
-                    <p class="text-sm font-medium {% if forloop.counter0 <= statuses|length|add:"-1" %}text-stone-900{% else %}text-stone-400{% endif %}">{{ label }}</p>
+                    <p class="text-sm font-medium {% if forloop.counter0 <= current_status_index %}text-stone-900{% else %}text-stone-400{% endif %}">{{ label }}</p>
                   </div>
                 </div>
               {% endif %}

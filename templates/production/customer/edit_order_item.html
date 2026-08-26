@@ -81,7 +81,7 @@ $(document).ready(function() {
             return;
         }
         $.ajax({
-            url: '/ajax/load-products/',
+            url: "{% url 'ajax_load_products' %}",
             data: {'category': categoryId},
             success: function(data) {
                 var options = '<option value="">---------</option>';

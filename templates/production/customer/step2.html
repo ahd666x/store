@@ -11,7 +11,7 @@ $(document).ready(function() {
             return;
         }
         $.ajax({
-            url: '/ajax/load-products/',
+            url: "{% url 'ajax_load_products' %}",
             data: {'category': categoryId},
             success: function(data) {
                 var options = '<option value="">---------</option>';
@@ -58,7 +58,8 @@ $(document).ready(function() {
     $('#id_product').on('change', function() {
         var productId = $(this).val();
         if (productId) {
-            fetch(`/ajax/load-product-colors/${productId}/`)
+            const baseUrl = "{% url 'ajax_load_product_colors' 0 %}";
+            fetch(baseUrl.replace('/0/', '/' + productId + '/'))
                 .then(response => response.json())
                 .then(data => updateColorFields(data.defaults));
         } else {
@@ -69,7 +70,8 @@ $(document).ready(function() {
     // بارگذاری اولیه
     var initialProduct = $('#id_product').val();
     if (initialProduct) {
-        fetch(`/ajax/load-product-colors/${initialProduct}/`)
+        const baseUrl2 = "{% url 'ajax_load_product_colors' 0 %}";
+        fetch(baseUrl2.replace('/0/', '/' + initialProduct + '/'))
             .then(response => response.json())
             .then(data => updateColorFields(data.defaults));
     }

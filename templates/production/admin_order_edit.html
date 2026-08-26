@@ -275,7 +275,8 @@ $(document).ready(function() {
     $('#id_product').on('change', function() {
         var productId = $(this).val();
         if (productId) {
-            fetch(`/ajax/load-product-colors/${productId}/`)
+            const baseUrl = "{% url 'ajax_load_product_colors' 0 %}";
+            fetch(baseUrl.replace('/0/', '/' + productId + '/'))
                 .then(response => response.json())
                 .then(data => {
                     $('.color-field select').val(''); // ریست
