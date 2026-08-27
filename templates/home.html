@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load jformat recommendations %}
 
 {% block title %}خانه{% endblock %}
-{% block meta_description %}کابینت‌شاپ، فروشگاه آنلاین کابینت‌های مدرن و کلاسیک با بهترین کیفیت و قیمت. ضمانت ۱۰ ساله، تحویل سریع در سراسر کشور.{% endblock %}
+{% comment %} {% block meta_description %}دکارو، فروشگاه آنلاین کابینت‌های مدرن و کلاسیک با بهترین کیفیت و قیمت. ضمانت ۱۰ ساله، تحویل سریع در سراسر کشور.{% endblock %} {% endcomment %}
 
 {% block breadcrumb %}
 {% endblock %}
@@ -52,13 +52,13 @@
     
     <div class="relative section-container section-padding">
         <div class="max-w-4xl mx-auto text-center">
-            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight">
+            {% comment %} <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight">
                 کابینت رویایی شما
                 <span class="block text-secondary-400">اینجاست</span>
-            </h1>
-            <p class="text-lg md:text-xl text-stone-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+            </h1> {% endcomment %}
+            {% comment %} <p class="text-lg md:text-xl text-stone-300 mb-8 max-w-2xl mx-auto leading-relaxed">
                 طراحی منحصربه‌فرد، کیفیت بی‌نظیر و قیمت مناسب. کابینت‌های مدرن و کلاسیک با ضمانت ۱۰ ساله.
-            </p>
+            </p> {% endcomment %}
             <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
                 <a href="{% url 'catalog:product_list' %}" class="btn-primary btn-lg">
                     مشاهده محصولات
@@ -73,7 +73,7 @@
             
             {# Trust Bar #}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                <div class="flex items-center justify-center gap-3 text-stone-200">
+                {% comment %} <div class="flex items-center justify-center gap-3 text-stone-200">
                     <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
                         <svg class="w-5 h-5 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -96,7 +96,7 @@
                         </svg>
                     </div>
                     <span class="text-sm font-medium">ارسال به سراسر کشور</span>
-                </div>
+                </div> {% endcomment %}
             </div>
         </div>
     </div>
@@ -376,7 +376,7 @@
 <section class="section-padding bg-stone-50">
     <div class="section-container">
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">چرا کابینت‌شاپ؟</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">چرا دکارو؟</h2>
             <p class="text-lg text-stone-600">ما تنها کابینت نمی‌فروشیم، تجربه‌ای بسازیم</p>
         </div>
         
@@ -450,3 +450,4 @@
 {% endif %}
 
 {% endblock %}
+

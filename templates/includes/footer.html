@@ -1,6 +1,6 @@
-{% load static %}
+﻿{% load static %}
 
-{# Footer Partial - کابینت‌شاپ #}
+{# Footer Partial - دکارو #}
 <footer class="bg-stone-900 text-stone-300 mt-auto">
     <div class="section-container section-padding">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -15,12 +15,12 @@
                         <path d="M8 6v12"/>
                         <path d="M16 6v12"/>
                     </svg>
-                    <span class="text-xl font-bold text-white">کابینت‌شاپ</span>
+                    <span class="text-xl font-bold text-white">دکارو</span>
                 </div>
-                <p class="text-sm leading-relaxed text-stone-400">
+                {% comment %} <p class="text-sm leading-relaxed text-stone-400">
                     ارائه‌دهنده بهترین کابینت‌های مدرن و کلاسیک با کیفیت بی‌نظیر و قیمت مناسب. 
                     طراحی منحصربه‌فرد، ضمانت ۱۰ ساله و تحویل سریع در سراسر کشور.
-                </p>
+                </p> {% endcomment %}
             </div>
 
             {# Quick Links #}
@@ -64,15 +64,15 @@
                 <ul class="space-y-3">
                     <li class="flex items-center gap-2 text-sm">
                         {% include 'includes/icons.html' with name='phone' size=18 class='w-4 h-4 text-primary-400' %}
-                        <span dir="ltr">021-12345678</span>
+                        <span dir="ltr">011-12345678</span>
                     </li>
                     <li class="flex items-center gap-2 text-sm">
                         {% include 'includes/icons.html' with name='envelope' size=18 class='w-4 h-4 text-primary-400' %}
-                        <span>info@kabinet-shop.ir</span>
+                        <span>info@decaro.ir</span>
                     </li>
                     <li class="flex items-center gap-2 text-sm">
                         {% include 'includes/icons.html' with name='map-pin' size=18 class='w-4 h-4 text-primary-400' %}
-                        <span>تهران، خیابان ولیعصر</span>
+                        <span>بابلسر</span>
                     </li>
                 </ul>
             </div>
@@ -80,9 +80,10 @@
 
         {# Copyright #}
         <div class="border-t border-stone-800 mt-8 pt-6 text-center">
-            <p class="text-sm text-stone-500">
-                © {% now "Y" %} کابینت‌شاپ. تمامی حقوق محفوظ است.
-            </p>
+            {% comment %} <p class="text-sm text-stone-500">
+                © {% now "Y" %} دکارو. تمامی حقوق محفوظ است.
+            </p> {% endcomment %}
         </div>
     </div>
 </footer>
+
