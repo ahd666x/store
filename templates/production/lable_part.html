@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
@@ -39,13 +39,13 @@
             <!-- {% if worker_stage == 'cnc' %}
             <div class="card shadow mt-4">
                 <div class="card-header bg-secondary text-white">
-                    <h6 class="mb-0"><i class="fas fa-download me-2"></i>دانلود مستقیم فایل CNC</h6>
+                    <h6 class="mb-0"><i class="bi\ bi-download me-2"></i>دانلود مستقیم فایل CNC</h6>
                 </div>
                 <div class="card-body">
                     <div class="input-group">
                         <input type="text" id="cnc-download-barcode" class="form-control" placeholder="بارکد قطعه را وارد کنید">
                         <button class="btn btn-outline-primary" type="button" onclick="downloadCNCFile()">
-                            <i class="fas fa-download"></i> دانلود
+                            <i class="bi\ bi-download"></i> دانلود
                         </button>
                     </div>
                     <small class="text-muted d-block mt-2">می‌توانید بدون تکمیل تسک، فایل CNC را دریافت کنید.</small>
@@ -56,13 +56,13 @@
             <!-- {% if worker_stage == 'dr' %}
             <div class="card shadow mt-4">
                 <div class="card-header bg-secondary text-white">
-                    <h6 class="mb-0"><i class="fas fa-download me-2"></i>دانلود مستقیم فایل سوراخکاری (XML)</h6>
+                    <h6 class="mb-0"><i class="bi\ bi-download me-2"></i>دانلود مستقیم فایل سوراخکاری (XML)</h6>
                 </div>
                 <div class="card-body">
                     <div class="input-group">
                         <input type="text" id="dr-download-barcode" class="form-control" placeholder="بارکد قطعه را وارد کنید">
                         <button class="btn btn-outline-primary" type="button" onclick="downloadDRFile()">
-                            <i class="fas fa-download"></i> دانلود
+                            <i class="bi\ bi-download"></i> دانلود
                         </button>
                     </div>
                     <small class="text-muted d-block mt-2">می‌توانید بدون تکمیل تسک، فایل XML را دریافت کنید.</small>
@@ -102,7 +102,7 @@
                                             {% csrf_token %}
                                             <input type="hidden" name="task_id" value="{{ task.id }}">
                                             <button type="submit" class="btn btn-sm btn-outline-success">
-                                                <i class="fas fa-check"></i> انجام شد
+                                                <i class="bi\ bi-check"></i> انجام شد
                                             </button>
                                         </form>
                                     </td>
@@ -110,7 +110,7 @@
                                 {% empty %}
                                 <tr>
                                     <td colspan="5" class="text-center py-4 text-muted">
-                                        <i class="fas fa-check-circle fa-2x mb-2 d-block"></i>
+                                        <i class="bi\ bi-check-circle fa-2x mb-2 d-block"></i>
                                         هیچ کاری در انتظار نیست.
                                     </td>
                                 </tr>
@@ -120,7 +120,7 @@
                     </div>
                 </div>
                 <div class="card-footer text-muted small">
-                    <!-- <i class="fas fa-info-circle"></i> با اسکن بارکد یا کلیک روی دکمه «انجام شد» تسک تکمیل می‌شود. -->
+                    <!-- <i class="bi\ bi-info-circle"></i> با اسکن بارکد یا کلیک روی دکمه «انجام شد» تسک تکمیل می‌شود. -->
                 </div>
             </div>
         </div>

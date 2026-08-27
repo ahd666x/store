@@ -34,7 +34,7 @@
       <div class="mt-6 text-center">
         <p class="text-sm text-stone-600">
           کد را دریافت نکرده‌اید؟
-          <button type="button" class="font-medium text-primary-600 hover:text-primary-800" x-data="{ countdown: 120, disabled: false }" x-init="setInterval(() => { if (countdown > 0) countdown-- else clearInterval() }, 1000)" :disabled="countdown < 120" @click="countdown = 120; $refs.resendMsg.textContent = 'درخواست شما ثبت شد.'">
+          <button type="button" class="font-medium text-primary-600 hover:text-primary-800" x-data="{ countdown: 120, disabled: false }" x-init="setInterval(() => { if (countdown > 0) countdown-- else clearInterval() }, 1000)" :disabled="countdown > 0" @click="countdown = 120; $refs.resendMsg.classList.remove('hidden')">
             ارسال مجدد
             <span x-text="`(${Math.floor(countdown / 60)}:${(countdown % 60).toString().padStart(2, '0')})`" x-show="countdown > 0" class="text-stone-400"></span>
           </button>
