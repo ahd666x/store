@@ -7,6 +7,7 @@ const App = {
         Scanner.init();
         Kanban.init();
         Orders.init();
+        OrderItem.init();
 
         const hasWorkersTable = document.getElementById('workerTableBody');
         if (hasWorkersTable && typeof WORKERS_BASE !== 'undefined') {
