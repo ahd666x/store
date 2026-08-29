@@ -1504,6 +1504,179 @@
   }
 
   /* ==========================================
+      READY LIST
+      ========================================== */
+  .ready-row.row-warning { background: #fff8e6; }
+  .status-chip {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 20px;
+    white-space: nowrap;
+    display: inline-block;
+  }
+  .status-chip.ok { background: #d1f5e0; color: #0f7b41; }
+  .status-chip.warn { background: #fdecc8; color: #8a5a00; }
+  .status-chip.has-tasks { background: #e5e9ff; color: #3140b8; }
+
+  .toolbar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+  .toolbar-top .filters {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    position: relative;
+    max-width: 280px;
+  }
+  .search-box .form-control {
+    padding-right: 2.8rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+    height: 44px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+  .search-box .form-control:focus {
+    background: #fff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  .search-box .search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.1rem;
+    pointer-events: none;
+  }
+  .search-box .btn-clear {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    padding: 0;
+    font-size: 1.1rem;
+    display: none;
+    cursor: pointer;
+  }
+  .search-box .btn-clear:hover {
+    color: #475569;
+  }
+  .search-box .btn-clear.show {
+    display: block;
+  }
+  .filter-select {
+    min-width: 160px;
+    max-width: 200px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    padding: 0 12px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .filter-select:focus {
+    background: #fff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    outline: none;
+  }
+  .btn-reset {
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #475569;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+  .btn-reset:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+  }
+
+  #scheduleBar {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -6px 20px rgba(0,0,0,0.06);
+    padding: 0.9rem 1.2rem;
+    margin: 0 -1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  #scheduleBar .summary {
+    font-size: 0.85rem;
+    color: #475569;
+  }
+  #scheduleBar .summary b {
+    color: #0f172a;
+  }
+  #warningsBox {
+    font-size: 0.78rem;
+    color: #8a5a00;
+    max-width: 380px;
+    word-break: break-word;
+  }
+  #warningsBox.error {
+    color: #b91c1c;
+  }
+  #warningsBox.success {
+    color: #0f7b41;
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.6s linear infinite;
+    margin-right: 0.5rem;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .btn:disabled .loading-spinner {
+    display: inline-block;
+  }
+
+  @media (max-width: 768px) {
+    .toolbar-top { flex-direction: column; align-items: stretch; }
+    .toolbar-top .filters { flex-direction: column; align-items: stretch; }
+    .search-box { max-width: none; }
+    .filter-select { max-width: none; }
+  }
+
+  /* ==========================================
       BORDERS
       ========================================== */
   .border-top { border-top-width: 1px; }
