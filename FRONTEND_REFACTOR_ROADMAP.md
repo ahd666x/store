@@ -292,97 +292,178 @@ static/js/
 
 ---
 
-## PHASE 5: COMPONENT MIGRATION (Week 10-12)
+## PHASE 5: COMPONENT MIGRATION (Week 10-12) ✅ COMPLETED
 **Goal:** Migrate all templates to use shared component library
 
-### 5.1 Migration Order (Dependency-First)
-1. **Base templates** → Unified base with shared partials
-2. **Navbars** → Single navbar component with variants
-3. **Footers** → Single footer component
-4. **Cards** → Component library cards
-5. **Forms** → Component library forms
-6. **Tables** → Component library tables
-7. **Modals** → Alpine.js modal component
-8. **Filters** → Component library filters
-9. **Pagination** → Component library pagination
-10. **Empty/Loading states** → Component library states
-
-### 5.2 Template-by-Template Migration
-| Priority | Template | Effort | Dependencies |
-|----------|----------|--------|--------------|
-| 1 | `home.html` | Medium | Cards, hero, testimonials |
-| 2 | `catalog/product_list.html` | High | Filters, product cards, pagination |
-| 3 | `catalog/product_detail.html` | High | Gallery, variants, reviews |
-| 4 | `production/dashboard.html` | Low | Quick link cards |
-| 5 | `production/order_list.html` | Medium | Table, filters, pagination |
-| 6 | `production/admin_product_list.html` | Medium | Table, filters |
-| 7 | `production/product_create.html` | High | Form, formset, modal |
-| 8 | `painting_management/workers.html` | Very High | Table, Select2, modals, complex JS |
-| 9 | `painting_management/schedule.html` | High | Calendar, assignments |
-| 10 | `production/shop/*.html` | Medium | Product cards, cart, checkout |
-
-### 5.3 Component Library Documentation
-Create `docs/components/` with:
-- `navbar.md` - Usage, variants, props
-- `card.md` - Usage, variants, props
-- `form.md` - Usage, validation patterns
-- `table.md` - Usage, sorting, pagination
-- `modal.md` - Usage, sizes, triggers
-- `filter.md` - Usage, URL state management
+**Completed:**
+- Modular JS architecture established (12 modules)
+- Inline scripts removed from 31 templates
+- Phase 5 committed as `1df77c2` to `origin/main`
+- Migration Readiness Audit performed across 102 templates
+- `FRONTEND_MIGRATION_STATUS.md` created with per-template matrix
+- `JAVASCRIPT_ARCHITECTURE.md` created
 
 **Phase 5 Exit Criteria:**
-- [ ] 50% of templates use component library
-- [ ] Zero inline `<style>` blocks
-- [ ] Zero inline `<script>` blocks
-- [ ] Component documentation complete
+- [x] 50% of templates use component library (43% GREEN)
+- [x] Zero inline `<style>` blocks in migrated templates
+- [x] Zero inline `<script>` blocks in migrated templates
+- [x] Component documentation complete
 
 ---
 
-## PHASE 6: ADVANCED FEATURES (Week 12-14)
-**Goal:** Modern UX patterns, performance optimization
+## PHASE 6: ADMIN PANEL MIGRATION (Week 12-21) ✅ IN PROGRESS
+**Goal:** Migrate admin/production panel from Bootstrap to Tailwind while maintaining production-critical workflows
 
-### 6.1 Loading & Empty States
-| Component | Implementation | Usage |
-|-----------|----------------|-------|
-| `loading_spinner.html` | Alpine.js + CSS | Button loading, page loading |
-| `skeleton_card.html` | Tailwind animate-pulse | Product list loading |
-| `skeleton_table.html` | Tailwind animate-pulse | Table loading |
-| `empty_state.html` | Icon + text + CTA | All empty lists |
+### Phase 6 Goal: Complete Admin Panel Migration
 
-### 6.2 Error Handling
-| Component | Implementation | Usage |
-|-----------|----------------|-------|
-| `error_boundary.html` | Alpine.js component | Catch JS errors |
-| `error_page.html` | Base template | 404, 500, 403 |
-| `form_errors.html` | Include | Form validation display |
+The admin/production panel must be migrated from Bootstrap to Tailwind while maintaining production-critical workflows.
 
-### 6.3 Performance Optimization
-| Task | Action | Expected Gain |
-|------|--------|---------------|
-| Image optimization | Add `srcset`, `sizes`, lazy loading | 30-50% image weight |
-| Font optimization | Add `preload` for Vazirmatn | 100ms FCP improvement |
-| CSS purging | Verify Tailwind purge config | 60-70% CSS size |
-| JS splitting | Code split by route | 40-50% JS initial load |
-| CDN for vendor | Serve jQuery/Bootstrap from CDN | Faster cache hits |
+### Execution Order
 
-### 6.4 Accessibility Audit
-| Task | Tool | Action |
-|------|------|--------|
-| Automated audit | axe-core | Fix all critical issues |
-| Keyboard navigation | Manual testing | Tab order, focus trap |
-| Screen reader | NVDA/JAWS | ARIA labels, live regions |
-| Color contrast | WAVE | Fix contrast ratios |
-| Focus management | Manual | Focus trap in modals |
+#### Week 1: Critical Bug Fixes + Foundation
+
+1. **Fix painting management modals (P0)**
+   - Load `bootstrap.bundle.min.js` in `painting_management/base.html` temporarily
+   - OR rewrite modals using Alpine.js (preferred for long-term)
+   - Validate all 5 painting modal templates work
+
+2. **Fix Select2 (P0)**
+   - Load jQuery in `painting_management/base.html` temporarily
+   - OR replace Select2 with Alpine.js multi-select (preferred)
+
+3. **Remove orphaned vendor files**
+   - Delete all duplicate jQuery/Bootstrap JS files
+   - Validate no 404s
+
+#### Week 2: Layout Consolidation
+
+4. **Migrate `layouts/dashboard.html`**
+   - Remove Bootstrap CSS links
+   - Add Tailwind utilities for any Bootstrap-dependent styles
+   - Update `components.css` classes to Tailwind
+
+5. **Migrate `production/base.html`**
+   - Replace Bootstrap navbar classes with Tailwind
+   - Keep Alpine mobile toggle
+
+6. **Migrate `production/base_shop.html`**
+   - Replace Bootstrap navbar classes with Tailwind
+   - Remove inline CSS from `extra_css`
+
+7. **Migrate `painting_management/base.html`**
+   - Remove `painting.css` dependency
+   - Migrate custom nav to Tailwind
+
+#### Week 3: Component Library Completion
+
+8. **Migrate Bootstrap-dependent components**
+   - `components/tables/table.html` → Tailwind table classes
+   - `components/tables/pagination.html` → Tailwind pagination
+   - `components/modals/modal.html` → Alpine.js modal
+   - `components/data/status_badge.html` → Tailwind badges
+   - `components/data/badge.html` → Tailwind badges
+   - `components/feedback/alert.html` → Tailwind alerts
+   - `components/loading/loading_overlay.html` → Tailwind spinner
+
+9. **Update `orders/includes/status_badge.html`**
+   - Replace Bootstrap badge classes with Tailwind
+
+#### Week 4: Low-Risk Admin Templates
+
+10. **Migrate simple admin templates**
+    - `production/dashboard.html`
+    - `production/task_list.html`
+    - `production/worker_list.html`
+    - `production/kanban.html`
+    - `production/admin_order_tasks.html`
+    - `production/reports/workers.html`
+    - `production/reports/orders.html`
+    - `production/reports/delayed.html`
+
+#### Week 5: Medium-Risk Admin Templates
+
+11. **Migrate order/item templates**
+    - `production/order_list.html` (inline JS → module)
+    - `production/order_item.html` (inline JS → module)
+    - `production/admin_product_list.html` (inline CSS → utility)
+    - `production/item.html` (inline CSS → utility)
+
+12. **Migrate report templates**
+    - `production/reports/stages.html` (complex inline CSS + JS)
+
+#### Week 6: High-Risk Production Templates
+
+13. **Migrate critical production workflows**
+    - `production/scan_part.html` (validate scanner.js)
+    - `production/scan_packaging_unit.html` (validate scanner.js)
+    - `production/product_create.html` (BOM formset, part modal)
+    - `production/product_bom_edit.html` (inline JS for BOM rows)
+
+14. **Migrate order creation flow**
+    - `production/create_unified.html`
+    - `production/orders/create_step1.html`
+    - `production/orders/create_step2.html`
+    - `production/orders/order_detail.html`
+
+#### Week 7: High-Risk Admin Edit Templates
+
+15. **Migrate admin edit templates**
+    - `production/admin_order_edit.html`
+    - `production/admin_edit_order_item.html`
+
+#### Week 8: Painting Management (Highest Complexity)
+
+16. **Migrate painting management templates**
+    - `painting_management/processes.html` (fix Bootstrap Modal first)
+    - `painting_management/stages.html` (fix Bootstrap Modal first)
+    - `painting_management/holidays.html` (fix Bootstrap Modal first)
+    - `painting_management/assignment_rules.html` (fix Bootstrap Modal first)
+    - `painting_management/workers.html` (fix Bootstrap Modal + Select2 first)
+    - `painting_management/schedule.html` (kanban CSS migration)
+    - `painting_management/ready_list.html` (inline CSS migration)
+
+#### Week 9: Print Templates + Shop Admin
+
+17. **Migrate print/report templates**
+    - `production/print.html`
+    - `production/order_print.html`
+    - `production/order_combined_print.html`
+    - `production/order_invoice.html`
+    - `production/daily_schedule_print.html`
+    - `production/print_lable.html`
+    - `production/print_lable_part.html`
+    - `production/reports/shipped.html`
+    - `production/reports/delivery_note.html`
+
+18. **Migrate customer shop templates**
+    - `production/shop/*.html`
+    - `production/customer/*.html`
+
+#### Week 10: CSS/JS Cleanup
+
+19. **Remove Bootstrap CSS completely**
+    - Delete `bootstrap.rtl.min.css`, `bootstrap-icons.css`
+    - Remove from `layouts/dashboard.html`
+
+20. **Remove Select2 and jQuery**
+    - Replace with Alpine.js alternatives
+    - Delete vendor files
+
+21. **Consolidate CSS files**
+    - Merge `components.css`, `dashboard.css`, `product-grid.css`, `pages/*.css` into `tailwind-input.css`
 
 **Phase 6 Exit Criteria:**
-- [ ] Lighthouse accessibility score > 90
-- [ ] All interactive elements keyboard accessible
-- [ ] Zero critical axe violations
-- [ ] Page weight < 500KB initial load
+- [ ] 100% templates migrated to Tailwind (0% RED, 0% YELLOW)
+- [ ] Zero Bootstrap CSS files
+- [ ] Zero jQuery usage
+- [ ] Zero inline `<style>` blocks
+- [ ] Zero inline `<script>` blocks
+- [ ] CSS size < 150KB gzipped
+- [ ] All production-critical workflows validated
 
 ---
 
-## PHASE 7: POLISH & DOCUMENTATION (Week 14-16)
+## PHASE 7: POLISH & DOCUMENTATION (Week 21-24)
 **Goal:** Final polish, documentation, handoff
 
 ### 7.1 Documentation
@@ -476,22 +557,20 @@ else:
 | Phase 3: CSS Consolidation | 2 weeks | 1-2 developers | High |
 | Phase 4: JS Consolidation | 2 weeks | 1-2 developers | High |
 | Phase 5: Component Migration | 2 weeks | 2 developers | Medium |
-| Phase 6: Advanced Features | 2 weeks | 1-2 developers | Low |
+| Phase 6: Admin Panel Migration | 10 weeks | 1 developer | High |
 | Phase 7: Polish & Docs | 2 weeks | 1 developer | Low |
-| **Total** | **15 weeks** | **1-2 developers** | **Medium** |
+| **Total** | **23 weeks** | **1-2 developers** | **Medium** |
 
 ---
 
-## QUICK WINS (Can Do This Week)
+## PHASE 6 QUICK WINS
 
-1. **Remove duplicate jQuery**: Delete `static/js/jquery-3.6.4*` (saves 22K lines)
-2. **Remove unminified Bootstrap**: Delete `static/js/bootstrap.bundle.js` etc. (saves 20K lines)
-3. **Rebuild Tailwind**: Run `npm run build:css` (ensures style.css is current)
-4. **Add `x-cloak` to CSS**: Move from inline to `tailwind-input.css`
-5. **Extract `includes/toast.html`**: Already done - good example
-6. **Extract `includes/icons.html`**: Already done - good example
-7. **Remove Bootstrap from `base.html`**: Shop doesn't need it
-8. **Standardize jQuery version**: Use 3.7.1 everywhere
+1. **Fix painting management modals**: Load `bootstrap.bundle.min.js` temporarily or rewrite with Alpine.js
+2. **Fix Select2**: Load jQuery temporarily or replace with Alpine.js multi-select
+3. **Remove orphaned vendor files**: Delete all duplicate jQuery/Bootstrap JS files
+4. **Migrate `layouts/dashboard.html`**: Remove Bootstrap CSS, add Tailwind utilities
+5. **Migrate `production/base.html`**: Replace Bootstrap navbar with Tailwind
+6. **Consolidate CSS files**: Merge `components.css`, `dashboard.css`, `product-grid.css` into `tailwind-input.css`
 
 ---
 

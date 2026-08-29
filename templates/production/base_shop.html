@@ -2,39 +2,27 @@
 {% load static %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg shop-navbar" x-data="{ open: false }">
-    <div class="container">
+<nav class="shop-navbar" x-data="{ open: false }">
+    <div class="flex justify-between items-center">
         <a class="navbar-brand fw-bold text-primary" href="{% url 'customer_order_list' %}">
             <i class="bi bi-box-seam me-2"></i>سلوی چوب
         </a>
-        <button class="navbar-toggler" type="button" @click="open = !open" aria-controls="shopNavbar" aria-expanded="false" aria-label="تغییر ناوبری">
+        <button class="navbar-toggler lg:hidden" type="button" @click="open = !open" aria-controls="shopNavbar" aria-expanded="false" aria-label="تغییر ناوبری">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="shopNavbar" x-show="open" @click.away="open = false">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            </ul>
-            <ul class="navbar-nav ms-auto">
+        <div class="lg:flex items-center gap-4" x-show="open" @click.away="open = false">
+            <ul class="flex gap-4">
                 {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customer_shipments' %}">ارسال‌ ها </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customer_order_list' %}">سفارش‌های من</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customer_create_order_step1' %}">ثبت سفارش جدید</a>
-                    </li>
-                    <li class="nav-item">
-                        <span class="nav-link text-muted">{{ user.username }}</span>
-                    </li>
-                    <form action="{% url 'accounts:logout' %}" method="post" style="display: inline;">
+                    <li><a class="nav-link" href="{% url 'customer_shipments' %}">ارسال‌ ها </a></li>
+                    <li><a class="nav-link" href="{% url 'customer_order_list' %}">سفارش‌های من</a></li>
+                    <li><a class="nav-link" href="{% url 'customer_create_order_step1' %}">ثبت سفارش جدید</a></li>
+                    <li><span class="nav-link text-muted">{{ user.username }}</span></li>
+                    <form action="{% url 'accounts:logout' %}" method="post" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-link nav-link text-danger">خروج</button>
                     </form>
                 {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">ورود / ثبت‌نام</a>
-                    </li>
+                    <li><a class="nav-link" href="{% url 'login' %}">ورود / ثبت‌نام</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -44,7 +32,7 @@
 
 {% block footer %}
 <footer class="shop-footer mt-auto">
-    <div class="container text-center">
+    <div class="text-center">
     </div>
 </footer>
 {% endblock %}

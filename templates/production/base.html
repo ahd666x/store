@@ -2,46 +2,46 @@
 {% load static %}
 
 {% block navbar %}
-<nav class="navbar navbar-expand-lg navbar-custom" x-data="{ open: false }">
-    <div class="container-fluid">
+<nav class="navbar-custom" x-data="{ open: false }">
+    <div class="flex flex-wrap justify-between items-center">
         <a class="navbar-brand" href="{% url 'dashboard' %}">
             <i ></i>سلوی چوب
         </a>
-        <button class="navbar-toggler" type="button" @click="open = !open" aria-controls="mainNavbar" aria-expanded="false" aria-label="تغییر ناوبری">
+        <button class="navbar-toggler lg:hidden" type="button" @click="open = !open" aria-controls="mainNavbar" aria-expanded="false" aria-label="تغییر ناوبری">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="mainNavbar" x-show="open" @click.away="open = false">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                {% comment %} <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2 me-1"></i> داشبورد</a></li> {% endcomment %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'order_list' %}"><i class="bi bi-cart-check me-1"></i> سفارشات</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'order_item_list' %}"><i class="bi bi-boxes me-1"></i> آیتم‌ها</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'scan_part' %}"><i class="bi bi-upc-scan me-1"></i> اسکن</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'admin_product_list' %}"><i class="bi bi-grid me-1"></i> محصولات</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'painting_schedule' %}"><i class="bi bi-brush me-1"></i> نقاشی</a></li>
+        <div class="lg:flex items-center gap-4" x-show="open" @click.away="open = false">
+            <ul class="flex flex-wrap gap-1">
+                {% comment %} <li><a class="nav-link" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2 me-1"></i> داشبورد</a></li> {% endcomment %}
+                <li><a class="nav-link" href="{% url 'order_list' %}"><i class="bi bi-cart-check me-1"></i> سفارشات</a></li>
+                <li><a class="nav-link" href="{% url 'order_item_list' %}"><i class="bi bi-boxes me-1"></i> آیتم‌ها</a></li>
+                <li><a class="nav-link" href="{% url 'scan_part' %}"><i class="bi bi-upc-scan me-1"></i> اسکن</a></li>
+                <li><a class="nav-link" href="{% url 'admin_product_list' %}"><i class="bi bi-grid me-1"></i> محصولات</a></li>
+                <li><a class="nav-link" href="{% url 'painting_schedule' %}"><i class="bi bi-brush me-1"></i> نقاشی</a></li>
             </ul>
 
-            <ul class="navbar-nav ms-auto align-items-lg-center">
+            <ul class="flex items-center gap-3">
                 {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <span class="user-badge d-inline-block mb-2 mb-lg-0 me-lg-3">
+                    <li>
+                        <span class="user-badge">
                             <i class="bi bi-person-circle me-1"></i>{{ user.username }}
                         </span>
                     </li>
                     {% if user.is_staff %}
-                    <li class="nav-item">
-                        <a href="{% url 'admin:index' %}" class="btn btn-sm btn-outline-secondary me-2 mb-2 mb-lg-0">پنل ادمین</a>
+                    <li>
+                        <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary btn-sm">پنل ادمین</a>
                     </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <form action="{% url 'accounts:logout' %}" method="post" class="m-0">
+                    <li>
+                        <form action="{% url 'accounts:logout' %}" method="post" class="inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-box-arrow-left"></i> خروج</button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-left"></i> خروج</button>
                         </form>
                     </li>
                 {% else %}
-                    <li class="nav-item">
-                        <a href="{% url 'login' %}" class="btn btn-sm btn-primary">ورود</a>
+                    <li>
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-sm">ورود</a>
                     </li>
                 {% endif %}
             </ul>

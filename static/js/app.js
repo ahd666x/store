@@ -6,6 +6,7 @@ const App = {
         Catalog.initClickableRows();
         Scanner.init();
         Kanban.init();
+        Orders.init();
 
         const hasWorkersTable = document.getElementById('workerTableBody');
         if (hasWorkersTable && typeof WORKERS_BASE !== 'undefined') {
