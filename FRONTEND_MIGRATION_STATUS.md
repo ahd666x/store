@@ -1,657 +1,525 @@
 # FRONTEND_MIGRATION_STATUS
-## سلوی چوب (Selvi Wood) - Migration Readiness Audit
+## سلوی چوب (Selvi Wood) — Migration Readiness Audit
 
-**Audit Date:** 2026-08-29  
+**Audit Date:** 2026-08-30  
 **Repository:** https://github.com/ahd666x/store  
-**Phases Completed:** 0-5  
-**Phase:** 6 Execution (Week 1: Critical Bug Fixes + Foundation)  
+**Phases Completed:** 0–5  
+**Next Phase:** 6 (Admin Panel Migration) — **not started**  
+**Method:** Full repository scan of `templates/`, `static/css/`, `static/js/`. Page status is evaluated **per template**, not inferred from parent layout alone.
 
 ---
 
 ## 1. EXECUTIVE SUMMARY
 
-Phases 0-5 have modernized the storefront (shop) templates to a fully Tailwind + Alpine.js + HTMX architecture. However, the admin/production panel remains on a **hybrid Bootstrap + Tailwind** architecture with significant inline CSS and JS debt.
+Phases 0–5 established the modern storefront stack (Tailwind + Alpine.js + HTMX), extracted most inline scripts into JS modules, and created a shared component library. **The admin/production panel, customer B2B portal, painting management module, and print/report views remain on Bootstrap markup** loaded through `layouts/dashboard.html`.
 
 ### Key Metrics
 
-| Metric | Current | Target |
-|--------|---------|--------|
-| Total templates | 102 | - |
-| GREEN (migrated) | 44 (43%) | 100% |
-| YELLOW (partial) | 38 (37%) | 0% |
-| RED (legacy) | 20 (20%) | 0% |
-| Bootstrap CSS loaded | 1 layout (`dashboard.html`) | 0 |
-| Bootstrap JS loaded | 0 templates | 0 |
-| jQuery loaded | 0 templates | 0 |
-| Select2 loaded | 1 template (broken without jQuery) | 0 |
-| Inline CSS blocks | ~15 templates | 0 |
-| Inline JS blocks | ~20 templates | 0 |
-| CSS files | 9 | 5-7 |
-| JS modules | 13 (+ 6 vendor) | 5-7 |
+| Metric | Current | Phase 6 Target |
+|--------|---------|----------------|
+| Total HTML templates | **143** | 143 |
+| **GREEN** (migrated) | **42** (29%) | 143 |
+| **YELLOW** (partial) | **88** (62%) | 0 |
+| **RED** (legacy) | **13** (9%) | 0 |
+| Layouts using Bootstrap CSS | 1 (`dashboard.html`) | 0 |
+| Layouts loading jQuery | 1 (`dashboard.html`) | 0 |
+| Layouts loading Bootstrap JS | 1 (`dashboard.html`) | 0 |
+| Templates loading Select2 | 1 (`workers.html`) | 0 |
+| Inline `<style>` blocks | **15** templates | 0 |
+| Inline `<script>` blocks (non-vendor) | **18** templates | 0 |
+| Templates using `style=` attributes | **33** templates | 0 |
+| App CSS files (excl. vendor) | 7 | 2–3 |
+| App JS modules | 19 | consolidated |
+| Pages using `components/` includes | **6** page templates | 90%+ |
 
-### Critical Finding
+### Critical Findings (vs. prior audit)
 
-**Bootstrap JS is NOT loaded anywhere**, yet 4 painting management templates use `bootstrap.Modal()` and `data-bs-toggle` attributes. These modals are **non-functional**. Additionally, Select2 is loaded in `workers.html` but jQuery is not loaded anywhere, making Select2 **non-functional**.
+| Finding | Prior audit (2026-08-29) | Current state (2026-08-30) |
+|---------|--------------------------|----------------------------|
+| Bootstrap JS loaded | "NOWHERE — modals broken" | **Loaded in `layouts/dashboard.html`** (+ duplicated in `painting_management/base.html`) |
+| jQuery loaded | "NOWHERE — Select2 broken" | **Loaded in `layouts/dashboard.html`** (+ duplicated in painting base) |
+| Painting modals | Broken | **Functional via Bootstrap JS**, still legacy and must be migrated to Alpine |
+| Duplicate vendor JS at repo root | Present | **Removed** — only `static/js/vendor/` copies remain |
+| `style.css` | Referenced | **Present** at `static/css/style.css` (Tailwind build output) |
+
+### What remains to migrate
+
+1. **`layouts/dashboard.html`** — remove Bootstrap CSS, jQuery, Bootstrap JS; load Tailwind `style.css` instead.
+2. **58 page templates** inheriting dashboard chain — replace Bootstrap grid/forms/tables/modals with Tailwind + Alpine.
+3. **6 Bootstrap-dependent components** — table, pagination, modal, confirm_modal, alert, loading_overlay.
+4. **13 RED print/standalone templates** — extract inline CSS to `print.css`, adopt `layouts/print.html`.
+5. **Global `app.js` boot** — loads Scanner, Kanban, Orders, Select2 init on every dashboard page.
+6. **7 legacy CSS files** — consolidate into `tailwind-input.css` after page migration.
+7. **Painting module** — highest complexity (Bootstrap modals, Select2, kanban CSS, 5 dedicated JS modules).
 
 ---
 
-## 2. CURRENT STATE ANALYSIS
+## 2. TECHNOLOGY ADOPTION
 
 ### 2.1 Layouts
 
-| Layout | Path | Status | Tech Stack |
-|--------|------|--------|------------|
-| Store | `layouts/store.html` | **GREEN** | Tailwind, Alpine.js, HTMX, no Bootstrap, no jQuery |
-| Dashboard | `layouts/dashboard.html` | **YELLOW** | Bootstrap CSS (`bootstrap.rtl.min.css`, `bootstrap-icons.css`), Alpine.js, app.js |
-| Print | `layouts/print.html` | **GREEN** | Minimal, no dependencies |
+| Layout | Path | Current Stack | Target | Status |
+|--------|------|---------------|--------|--------|
+| Store | `layouts/store.html` | Tailwind (`style.css`), Alpine, HTMX, `components.css`, `product-grid.css` | Same (consolidate CSS) | **GREEN** |
+| Dashboard | `layouts/dashboard.html` | Bootstrap RTL CSS, Bootstrap Icons, `dashboard.css`, `components.css`, jQuery, Bootstrap JS, Alpine, global `app.js` | Tailwind + Alpine + lazy JS | **YELLOW** |
+| Print | `layouts/print.html` | Minimal HTML shell, no CSS framework | + shared `print.css` | **GREEN** |
 
 ### 2.2 Base Templates
 
-| Base | Extends | Status | Notes |
-|------|---------|--------|-------|
-| `base.html` | `layouts/store.html` | **GREEN** | Pass-through |
-| `production/base.html` | `layouts/dashboard.html` | **YELLOW** | Bootstrap navbar classes, Alpine mobile toggle |
-| `production/base_shop.html` | `layouts/dashboard.html` | **YELLOW** | Bootstrap navbar classes, inline CSS in extra_css |
-| `painting_management/base.html` | `layouts/dashboard.html` | **YELLOW** | Loads `painting.css`, custom header nav |
+| Base | Extends | Bootstrap in markup | Alpine | Status |
+|------|---------|---------------------|--------|--------|
+| `base.html` | `layouts/store.html` | No | Via layout | **GREEN** |
+| `production/base.html` | `layouts/dashboard.html` | Yes (`btn-*`, `bi-*`, navbar) | Mobile nav toggle | **YELLOW** |
+| `production/base_shop.html` | `layouts/dashboard.html` | Yes (`btn-*`, `shop-navbar`) | Mobile nav toggle | **YELLOW** |
+| `production/painting_management/base.html` | `layouts/dashboard.html` | Via layout + `painting.css` | No | **YELLOW** |
 
-### 2.3 Technology Usage Summary
+### 2.3 Technology Matrix
 
-| Technology | Vendor Files | Loaded In Templates | Used By |
-|------------|-------------|---------------------|---------|
-| Tailwind CSS | `style.css` (compiled, 1248 lines) | All storefront + admin | All templates |
-| Alpine.js | `vendor/alpinejs.min.js` | `store.html`, `dashboard.html` | Mobile menus, dropdowns, toasts, tabs |
-| HTMX | `vendor/htmx.min.js` | `store.html` | Cart actions, partial updates |
-| Bootstrap CSS | `vendor/bootstrap.rtl.min.css` | `dashboard.html` only | Admin panel |
-| Bootstrap Icons | `vendor/bootstrap-icons.css` | `dashboard.html` only | Admin panel icons |
-| Bootstrap JS | `vendor/bootstrap.bundle.min.js` | **NOWHERE** | **BROKEN** - painting modals |
-| jQuery | `vendor/jquery-3.7.1.min.js` | **NOWHERE** | **BROKEN** - Select2 init in app.js |
-| Select2 | `vendor/select2.min.js` | `workers.html` only | Worker exclusion modals |
-| Custom CSS | `components.css` (136 lines), `dashboard.css` (23 lines), `product-grid.css` (16 lines), `pages/painting.css` | Various | Component overrides, painting pages |
+| Technology | Static Assets | Loaded From | Used By | Remove After |
+|------------|---------------|-------------|---------|--------------|
+| **Tailwind CSS** | `style.css`, `tailwind-input.css` | `layouts/store.html`, 2 standalone pages | Storefront (42 templates) | Never |
+| **Alpine.js** | `vendor/alpinejs.min.js`, `alpine-bootstrap.js` | Store + dashboard layouts | Nav toggles, toasts, tabs, alerts | Never |
+| **HTMX** | `vendor/htmx.min.js` | `layouts/store.html` | Cart add/update, partial swaps | Never |
+| **Bootstrap CSS** | `vendor/bootstrap.rtl.min.css`, `bootstrap-icons.css` | `layouts/dashboard.html` | 58 dashboard-chain pages | Phase 6 Week 10 |
+| **Bootstrap JS** | `vendor/bootstrap.bundle.min.js` | `layouts/dashboard.html`, painting base (dup) | Modals in painting, BOM, workers | Phase 6 Week 8 |
+| **jQuery** | `vendor/jquery-3.7.1.min.js` | `layouts/dashboard.html`, painting base (dup) | Select2 in `app.js` + `workers.js` | Phase 6 Week 8 |
+| **Select2** | `vendor/select2.min.js` + CSS themes | `workers.html` | Worker exclusion AJAX multi-select | Phase 6 Week 8 |
+| **Legacy CSS** | `components.css`, `dashboard.css`, `product-grid.css`, `pages/*.css` | Various | Admin nav, painting, shipped report | Phase 6 Week 10 |
 
----
+### 2.4 Inline Code Debt
 
-## 3. PER-TEMPLATE MIGRATION MATRIX
-
-### 3.1 Storefront Templates (extends `base.html` → `layouts/store.html`)
-
-| Template | Layout | Bootstrap | jQuery | Inline CSS | Inline JS | Components Used | Status | Complexity | Risk |
-|----------|--------|-----------|--------|------------|-----------|-----------------|--------|------------|------|
-| `home.html` | store | None | None | None | None | product_card, empty_state | **GREEN** | Low | Low |
-| `catalog/product_list.html` | store | None | None | None | None | product_card, empty_state | **GREEN** | Low | Low |
-| `catalog/product_detail.html` | store | None | None | ~10 lines | None | breadcrumb | **GREEN** | Low | Low |
-| `catalog/category_list.html` | store | None | None | None | None | product_card | **GREEN** | Low | Low |
-| `catalog/category_detail.html` | store | None | None | None | None | product_card | **GREEN** | Low | Low |
-| `catalog/stock_alerts.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `catalog/comparison.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `cart/detail.html` | store | None | None | None | None | empty_state | **GREEN** | Low | Low |
-| `accounts/login.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/register.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/otp_verify.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/otp_request.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/profile.html` | store | None | None | None | None | status_badge | **GREEN** | Low | Low |
-| `accounts/profile_edit.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/wishlist.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/password_reset.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/password_reset_done.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/password_reset_complete.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `accounts/password_reset_confirm.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `orders/order_list.html` | store | None | None | None | None | status_badge | **GREEN** | Low | Low |
-| `orders/order_detail.html` | store | None | None | None | None | status_badge, order_items | **GREEN** | Low | Low |
-| `orders/order_form.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `orders/order_confirm.html` | store | None | None | None | None | order_items | **GREEN** | Low | Low |
-| `orders/return_request_list.html` | store | None | None | None | None | return_status_badge | **GREEN** | Low | Low |
-| `orders/return_request_form.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `orders/return_request_detail.html` | store | None | None | None | None | return_status_badge | **GREEN** | Low | Low |
-| `payments/payment_create.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `payments/payment_error.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `discounts/discount_list.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `discounts/discount_form.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-| `communications/notification_list.html` | store | None | None | None | None | - | **GREEN** | Low | Low |
-
-### 3.2 Production Admin Templates (extends `production/base.html` → `layouts/dashboard.html`)
-
-| Template | Bootstrap CSS | jQuery | Inline CSS | Inline JS | Bootstrap JS Needed? | Status | Complexity | Risk |
-|----------|--------------|--------|------------|-----------|---------------------|--------|------------|------|
-| `production/dashboard.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/order_list.html` | Yes | None | None | Yes | No | **YELLOW** | Medium | Low |
-| `production/order_item.html` | Yes | None | None | Yes | No | **YELLOW** | Medium | Low |
-| `production/admin_product_list.html` | Yes | None | Yes | None | No | **YELLOW** | Low | Low |
-| `production/product_create.html` | Yes | None | Yes | None | Yes (Bootstrap Modal) | **YELLOW** | Medium | Medium |
-| `production/product_bom_edit.html` | Yes | None | Yes | Yes | No | **YELLOW** | Medium | Low |
-| `production/admin_order_edit.html` | Yes | None | Yes | None | No | **YELLOW** | Medium | Low |
-| `production/admin_edit_order_item.html` | Yes | None | None | Yes | No | **YELLOW** | Medium | Low |
-| `production/admin_order_tasks.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/task_list.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/worker_list.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/kanban.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/item.html` | Yes | None | Yes | None | No | **YELLOW** | Medium | Low |
-| `production/scan_part.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/scan_packaging_unit.html` | Yes | None | Yes | None | No | **YELLOW** | Medium | Low |
-| `production/create_unified.html` | Yes | None | None | Yes | No | **YELLOW** | Medium | Low |
-| `production/orders/create_step1.html` | Yes | None | None | Yes | No | **YELLOW** | Medium | Low |
-| `production/orders/create_step2.html` | Yes | None | Yes | Yes | No | **YELLOW** | Medium | Low |
-| `production/orders/order_detail.html` | Yes | None | Yes | None | No | **YELLOW** | Medium | Low |
-| `production/orders/add_item.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/orders/add_colors.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/import_data.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/upload.html` | No | None | None | None | No | **RED** | Low | Low |
-| `production/test.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/create_order.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/create_complete.html` | Yes | None | Yes | None | No | **YELLOW** | Medium | Low |
-| `production/set_plate.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/select_shipment.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/reports/stages.html` | Yes | None | Yes | Yes | No | **YELLOW** | High | Low |
-| `production/reports/workers.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/reports/orders.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `production/reports/delayed.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-
-### 3.3 Production Customer Shop Templates (extends `base_shop.html` → `layouts/dashboard.html`)
-
-| Template | Bootstrap CSS | jQuery | Inline CSS | Inline JS | Status | Complexity | Risk |
-|----------|--------------|--------|------------|-----------|--------|------------|------|
-| `production/shop/product_list.html` | Yes | None | Yes | None | **YELLOW** | Medium | Low |
-| `production/shop/product_detail.html` | Yes | None | Yes | Yes | **YELLOW** | Medium | Low |
-| `production/shop/cart.html` | Yes | None | Yes | None | **YELLOW** | Medium | Low |
-| `production/shop/checkout.html` | Yes | None | Yes | None | **YELLOW** | Medium | Low |
-| `production/shop/order_tracking.html` | Yes | None | Yes | None | **YELLOW** | Medium | Low |
-| `production/shop/order_history.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-
-### 3.4 Production Customer Order Templates (extends `base_shop.html`)
-
-| Template | Bootstrap CSS | jQuery | Inline CSS | Inline JS | Status | Complexity | Risk |
-|----------|--------------|--------|------------|-----------|--------|------------|------|
-| `production/customer/step1.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `production/customer/step2.html` | Yes | None | None | Yes | **YELLOW** | Low | Low |
-| `production/customer/order_list.html` | Yes | None | Yes | None | **YELLOW** | Medium | Low |
-| `production/customer/order_detail.html` | Yes | None | Yes | Yes | **YELLOW** | Medium | Low |
-| `production/customer/edit_order_item.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `production/customer/shipments.html` | Yes | None | Yes | None | **YELLOW** | Medium | Low |
-| `production/customer/shipment_detail.html` | Yes | None | Yes | None | **YELLOW** | Medium | Low |
-
-### 3.5 Painting Management Templates (extends `painting_management/base.html`)
-
-| Template | Bootstrap CSS | jQuery | Inline CSS | Inline JS | Bootstrap JS | Status | Complexity | Risk |
-|----------|--------------|--------|------------|-----------|--------------|--------|------------|------|
-| `painting_management/dashboard.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-| `painting_management/processes.html` | Yes | None | None | Yes | **Yes (BROKEN)** | **YELLOW** | Medium | **HIGH** |
-| `painting_management/stages.html` | Yes | None | None | Yes | **Yes (BROKEN)** | **YELLOW** | Medium | **HIGH** |
-| `painting_management/workers.html` | Yes | None | Yes | Yes | **Yes (BROKEN)** | **YELLOW** | Very High | **HIGH** |
-| `painting_management/schedule.html` | Yes | None | Yes | None | No | **YELLOW** | High | Low |
-| `painting_management/ready_list.html` | Yes | None | Yes | Yes | No | **YELLOW** | High | Low |
-| `painting_management/assignment_rules.html` | Yes | None | None | Yes | **Yes (BROKEN)** | **YELLOW** | Medium | **HIGH** |
-| `painting_management/holidays.html` | Yes | None | None | Yes | Yes | **YELLOW** | Medium | **HIGH** |
-| `painting_management/_nav.html` | Yes | None | None | None | No | **YELLOW** | Low | Low |
-
-### 3.6 Print / Report Templates
-
-| Template | Bootstrap | jQuery | Inline CSS | Inline JS | Status | Complexity | Risk |
-|----------|-----------|--------|------------|-----------|--------|------------|------|
-| `production/print.html` | No | None | Yes | None | **RED** | Low | Low |
-| `production/order_print.html` | No | None | Yes | None | **RED** | Low | Low |
-| `production/order_combined_print.html` | No | None | Yes | None | **RED** | Medium | Low |
-| `production/order_invoice.html` | No | None | Yes | None | **RED** | Low | Low |
-| `production/daily_schedule_print.html` | No | None | Yes | Yes | **RED** | Medium | Low |
-| `production/print_lable.html` | No | None | Yes | None | **RED** | Low | Low |
-| `production/print_lable_part.html` | No | None | Yes | None | **RED** | Low | Low |
-| `production/reports/shipped.html` | No | None | None | None | **RED** | Low | Low |
-| `production/reports/delivery_note.html` | No | None | Yes | None | **RED** | Low | Low |
-| `production/lable_part.html` | Yes | None | Yes | None | **RED** | Medium | Low |
-
-### 3.7 Component Templates
-
-| Component | Bootstrap | jQuery | Inline CSS | Inline JS | Status | Complexity | Risk |
-|-----------|-----------|--------|------------|-----------|--------|------------|------|
-| `components/tables/table.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `components/tables/pagination.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `components/cards/card.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/cards/stat_card.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/cards/quick_link_card.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/forms/form_field.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/forms/input.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/forms/select.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/forms/textarea.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/forms/search.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/forms/checkbox.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/modals/modal.html` | Yes | None | None | None | **YELLOW** | Medium | Low |
-| `components/modals/confirm_modal.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `components/data/status_badge.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `components/data/badge.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `components/data/price.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/data/date.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/feedback/alert.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `components/feedback/empty_state.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/loading/loading_overlay.html` | Yes | None | None | None | **YELLOW** | Low | Low |
-| `components/navigation/header.html` | No | None | None | None | **GREEN** | Low | Low |
-| `components/navigation/breadcrumb.html` | No | None | None | None | **GREEN** | Low | Low |
+| Type | Count | Notable Templates |
+|------|-------|-------------------|
+| `<style>` blocks | 15 | `reports/stages.html`, `order_combined_print.html`, `daily_schedule_print.html`, all print templates |
+| `<script>` blocks (inline) | 18 | `order_list.html`, `product_create.html`, `admin_order_edit.html`, `create_unified.html`, `workers.html` |
+| `style=` attributes | 33 | Print templates, `item.html`, `admin_order_tasks.html`, customer/shop pages |
 
 ---
 
-## 4. COMPONENT DEPENDENCY ANALYSIS
+## 3. COMPLETE MIGRATION MATRIX
 
-### 4.1 Components Still Depending on Bootstrap
+**Legend**
 
-These components use Bootstrap CSS classes and need Tailwind equivalents:
-
-| Component | Bootstrap Classes Used | Tailwind Equivalent Available? |
-|-----------|----------------------|-------------------------------|
-| `components/tables/table.html` | `table`, `table-hover`, `table-dark` | Yes (`table-modern`) |
-| `components/tables/pagination.html` | `pagination`, `page-item`, `page-link` | Partial |
-| `components/modals/modal.html` | `modal`, `modal-dialog`, `modal-content`, `modal-header`, `modal-body`, `modal-footer`, `btn-close` | Partial (needs Alpine modal) |
-| `components/modals/confirm_modal.html` | Same as above | Partial |
-| `components/data/status_badge.html` | `badge`, `badge-success`, `badge-info`, `badge-warning`, `badge-danger` | Yes (`badge` in tailwind-input.css) |
-| `components/data/badge.html` | `badge`, `badge-sm`, `badge-lg` | Yes |
-| `components/feedback/alert.html` | `alert`, `alert-success`, `alert-danger`, `alert-warning`, `alert-info`, `alert-dismissible` | Partial |
-| `components/loading/loading_overlay.html` | `spinner-border` | Partial (needs custom CSS) |
-
-### 4.2 Components Fully Migrated
-
-These components use only Tailwind utilities:
-
-| Component | Notes |
-|-----------|-------|
-| `components/cards/card.html` | Tailwind only |
-| `components/cards/stat_card.html` | Tailwind only |
-| `components/cards/quick_link_card.html` | Tailwind only |
-| `components/forms/form_field.html` | Tailwind only |
-| `components/forms/input.html` | Tailwind only |
-| `components/forms/select.html` | Tailwind only |
-| `components/forms/textarea.html` | Tailwind only |
-| `components/forms/search.html` | Tailwind only |
-| `components/forms/checkbox.html` | Tailwind only |
-| `components/data/price.html` | Tailwind only |
-| `components/data/date.html` | Tailwind only |
-| `components/feedback/empty_state.html` | Tailwind only |
-| `components/navigation/header.html` | Tailwind + Alpine |
-| `components/navigation/breadcrumb.html` | Tailwind only |
+- **Current layout:** immediate `{% extends %}` target; full chain shown where relevant.
+- **Target layout:** intended end-state layout for Phase 6.
+- **Status:** evaluated on **this file's markup**, not parent layout alone.
+- **Complexity / Risk:** migration effort / production impact.
 
 ---
 
-## 5. CSS FILES CLEANUP TARGETS
+### 3.1 Layouts & Base Templates (7)
 
-### 5.1 Current CSS Files
-
-| File | Lines | Purpose | Target |
-|------|-------|---------|--------|
-| `static/css/style.css` | 1 | Compiled Tailwind output | **KEEP** - single source of truth |
-| `static/css/tailwind-input.css` | 1248 | Tailwind source + @layer components | **KEEP** - rebuild target |
-| `static/css/components.css` | 136 | Shared component overrides | **CONSOLIDATE** into tailwind-input.css |
-| `static/css/dashboard.css` | 23 | Dashboard quick-link-card | **CONSOLIDATE** into tailwind-input.css |
-| `static/css/product-grid.css` | 16 | Product grid utilities | **CONSOLIDATE** into tailwind-input.css |
-| `static/css/vendor/bootstrap.rtl.min.css` | - | Bootstrap RTL | **REMOVE** after admin migration |
-| `static/css/vendor/bootstrap-icons.css` | - | Bootstrap Icons | **REMOVE** after admin migration |
-| `static/css/vendor/select2.min.css` | - | Select2 | **REMOVE** after Select2 removal |
-| `static/css/vendor/select2-bootstrap-5-theme.min.css` | - | Select2 theme | **REMOVE** after Select2 removal |
-| `static/css/vazirmatn-fonts.css` | - | Font faces | **KEEP** |
-| `static/css/pages/painting.css` | - | Painting page styles | **CONSOLIDATE** into tailwind-input.css |
-| `static/css/pages/shipped.css` | - | Shipped report styles | **CONSOLIDATE** into tailwind-input.css |
-
-### 5.2 CSS Cleanup Priority
-
-1. **High Priority:** `components.css` (136 lines) - Contains `.navbar-custom`, `.product-card`, `.clickable-row`, `.form-section`, `.shop-navbar`, `.shop-footer`. These are used by admin templates.
-2. **Medium Priority:** `dashboard.css` (23 lines) - `.quick-link-card` used by dashboard.
-3. **Low Priority:** `product-grid.css` (16 lines) - Grid utilities.
-4. **After Admin Migration:** Remove `bootstrap.rtl.min.css`, `bootstrap-icons.css`, `select2*.css`.
+| Path | Current Layout | Target Layout | Bootstrap | jQuery | Inline CSS | Inline JS | Components Available | Components Used | Status | Complexity | Risk |
+|------|----------------|---------------|-----------|--------|------------|-----------|---------------------|-------------------|--------|------------|------|
+| `layouts/store.html` | — | — | No | No | x-cloak only | HTMX CSRF (6 lines) | All store components | header, footer, toast | **GREEN** | Low | Low |
+| `layouts/dashboard.html` | — | — | **CSS+JS** | **Yes** | No | No | Partial | — | **YELLOW** | High | High |
+| `layouts/print.html` | — | — | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `base.html` | `layouts/store.html` | same | No | No | No | No | All | — | **GREEN** | Low | Low |
+| `production/base.html` | `layouts/dashboard.html` | Tailwind dashboard | **Classes** | Inherited | No | No | quick_link_card | — | **YELLOW** | Medium | Medium |
+| `production/base_shop.html` | `layouts/dashboard.html` | Tailwind dashboard | **Classes** | Inherited | No | No | — | — | **YELLOW** | Medium | Low |
+| `production/painting_management/base.html` | `layouts/dashboard.html` | Tailwind dashboard | Inherited + `painting.css` | **Dup load** | No | No | — | — | **YELLOW** | Medium | Medium |
 
 ---
 
-## 6. JS MODULES STATUS
+### 3.2 Storefront Pages — `base.html` → `layouts/store.html` (30)
 
-### 6.1 Modular JS (Phase 5 Created)
+| Path | Current Layout | Target Layout | Bootstrap | jQuery | Inline CSS | Inline JS | Components Available | Components Used | Status | Complexity | Risk |
+|------|----------------|---------------|-----------|--------|------------|-----------|---------------------|-------------------|--------|------------|------|
+| `home.html` | `layouts/store.html` | same | No | No | No | No | empty_state, product_card | empty_state | **GREEN** | Low | Low |
+| `catalog/product_list.html` | `layouts/store.html` | same | No | No | No | No | empty_state, product_card | empty_state | **GREEN** | Low | Low |
+| `catalog/product_detail.html` | `base.html` | same | No | No | **Yes** | No | breadcrumb | — | **YELLOW** | Low | Low |
+| `catalog/category_list.html` | `base.html` | same | No | No | No | No | product_card | — | **GREEN** | Low | Low |
+| `catalog/category_detail.html` | `base.html` | same | No | No | No | No | product_card | — | **GREEN** | Low | Low |
+| `catalog/stock_alerts.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `catalog/comparison.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `cart/detail.html` | `base.html` | same | No | No | No | No | empty_state | empty_state | **GREEN** | Low | **High** |
+| `accounts/login.html` | `base.html` | same | No | No | No | No | form components | — | **GREEN** | Low | Low |
+| `accounts/register.html` | `base.html` | same | No | No | No | No | form components | — | **GREEN** | Low | Low |
+| `accounts/otp_request.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `accounts/otp_verify.html` | `base.html` | same | No | No | No | Alpine | — | — | **GREEN** | Low | Low |
+| `accounts/profile.html` | `base.html` | same | No | No | No | Alpine | status_badge | — | **GREEN** | Low | Low |
+| `accounts/profile_edit.html` | `base.html` | same | No | No | No | No | form components | — | **GREEN** | Low | Low |
+| `accounts/wishlist.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `accounts/password_reset.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `accounts/password_reset_done.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `accounts/password_reset_complete.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `accounts/password_reset_confirm.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `orders/order_list.html` | `base.html` | same | No | No | No | No | status_badge | status_badge include | **GREEN** | Low | Medium |
+| `orders/order_detail.html` | `base.html` | same | No | No | No | No | status_badge, order_items | includes | **GREEN** | Low | Medium |
+| `orders/order_form.html` | `base.html` | same | No | No | No | No | form components | — | **GREEN** | Low | Low |
+| `orders/order_confirm.html` | `base.html` | same | No | No | No | No | order_items | include | **GREEN** | Low | **High** |
+| `orders/return_request_list.html` | `base.html` | same | No | No | No | No | return_status_badge | include | **GREEN** | Low | Low |
+| `orders/return_request_form.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `orders/return_request_detail.html` | `base.html` | same | No | No | No | No | return_status_badge | include | **GREEN** | Low | Low |
+| `payments/payment_create.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | **High** |
+| `payments/payment_error.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Medium |
+| `discounts/discount_list.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `discounts/discount_form.html` | `base.html` | same | No | No | No | No | form components | — | **GREEN** | Low | Low |
+| `communications/notification_list.html` | `base.html` | same | No | No | No | No | — | — | **GREEN** | Low | Low |
 
-| Module | Lines | Purpose | Used By | Status |
-|--------|-------|---------|---------|--------|
-| `static/js/app.js` | 94 | Main entry point, initializes all modules | All pages via base templates | **GLOBAL** - needs lazy loading |
-| `static/js/core/csrf.js` | 30 | CSRF token utilities | app.js | Good |
-| `static/js/components/toast.js` | 34 | Toast notifications | app.js | Good |
-| `static/js/components/loading.js` | 18 | Loading overlays | app.js | Good |
-| `static/js/store/cart.js` | 34 | Cart interactions | cart-actions.html | Good |
-| `static/js/store/catalog.js` | 95 | Price calc, filters, clickable rows | app.js | Good |
-| `static/js/forms/cascade.js` | 44 | Cascading selects | app.js | Good |
-| `static/js/forms/colors.js` | 54 | Color field filtering | app.js | Good |
-| `static/js/production/scanner.js` | 103 | Barcode scanning | scan_part.html | Good |
-| `static/js/production/kanban.js` | 152 | Kanban board drag-drop | schedule.html | Good |
-| `static/js/production/workers.js` | 90 | Worker CRUD, exclusion modals | workers.html | Good |
-| `static/js/production/bom.js` | 243 | BOM management | product_create.html | Good |
+---
 
-### 6.2 Vendor JS Files
+### 3.3 Store Includes & Partials (10)
 
-| File | Size | Used By | Status |
-|------|------|---------|--------|
-| `vendor/alpinejs.min.js` | - | All layouts | **KEEP** |
-| `vendor/htmx.min.js` | - | store.html | **KEEP** |
-| `vendor/select2.min.js` | - | workers.html | **BROKEN** - no jQuery loaded |
-| `vendor/jquery-3.7.1.min.js` | - | **NOWHERE** | **ORPHANED** |
-| `vendor/bootstrap.bundle.min.js` | - | **NOWHERE** | **ORPHANED** |
+| Path | Current Layout | Target Layout | Bootstrap | jQuery | Inline CSS | Inline JS | Components Available | Components Used | Status | Complexity | Risk |
+|------|----------------|---------------|-----------|--------|------------|-----------|---------------------|-------------------|--------|------------|------|
+| `includes/header.html` | include | — | No | No | No | No | — | Alpine nav | **GREEN** | Low | Low |
+| `includes/footer.html` | include | — | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `includes/toast.html` | include | — | No | No | No | Alpine | — | — | **GREEN** | Low | Low |
+| `includes/cart-actions.html` | include | — | No | No | No | HTMX | — | — | **GREEN** | Low | **High** |
+| `includes/icons.html` | include | — | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `catalog/includes/product_card.html` | include | — | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `cart/includes/cart_item_row.html` | include | — | No | No | No | HTMX | — | — | **GREEN** | Low | **High** |
+| `orders/includes/order_items.html` | include | — | No | No | No | No | — | — | **GREEN** | Low | Low |
+| `orders/includes/status_badge.html` | include | — | No | No | No | No | badge | — | **GREEN** | Low | Low |
+| `orders/includes/return_status_badge.html` | include | — | No | No | No | No | badge | — | **GREEN** | Low | Low |
 
-### 6.3 Legacy JS Files (to be removed)
+---
 
-| File | Status | Action |
-|------|--------|--------|
-| `static/js/jquery-3.6.4.js` | Duplicate | Delete |
-| `static/js/jquery-3.6.4.slim.js` | Duplicate | Delete |
-| `static/js/jquery-3.6.4.min.js` | Duplicate | Delete |
-| `static/js/jquery-3.6.4.slim.min.js` | Duplicate | Delete |
-| `static/js/jquery-3.6.4-vsdoc.js` | Duplicate | Delete |
-| `static/js/jquery-3.6.4.min.map` | Source map | Delete |
-| `static/js/jquery-3.6.4.slim.min.map` | Source map | Delete |
-| `static/js/bootstrap.js` | Duplicate | Delete |
-| `static/js/bootstrap.min.js` | Duplicate | Delete |
-| `static/js/bootstrap.js.map` | Source map | Delete |
-| `static/js/bootstrap.min.js.map` | Source map | Delete |
-| `static/js/bootstrap.esm.js` | Duplicate | Delete |
-| `static/js/bootstrap.esm.min.js` | Duplicate | Delete |
-| `static/js/bootstrap.esm.js.map` | Source map | Delete |
-| `static/js/bootstrap.esm.min.js.map` | Source map | Delete |
-| `static/js/bootstrap.bundle.js` | Duplicate | Delete |
-| `static/js/bootstrap.bundle.min.js` | Duplicate | Delete |
-| `static/js/bootstrap.bundle.js.map` | Source map | Delete |
-| `static/js/bootstrap.bundle.min.js.map` | Source map | Delete |
+### 3.4 Production Admin — `production/base.html` → `layouts/dashboard.html` (34)
+
+| Path | Current Layout | Target Layout | Bootstrap | jQuery | Inline CSS | Inline JS | Components Available | Components Used | Status | Complexity | Risk |
+|------|----------------|---------------|-----------|--------|------------|-----------|---------------------|-------------------|--------|------------|------|
+| `production/dashboard.html` | dashboard chain | Tailwind dashboard | **Yes** | Inherited | No | No | quick_link_card | **9× quick_link_card** | **YELLOW** | Low | Low |
+| `production/order_list.html` | dashboard chain | same | **Yes** | Inherited | No | **Yes** | table, pagination | — | **YELLOW** | Medium | **High** |
+| `production/order_item.html` | dashboard chain | same | **Yes** | Inherited | No | module only | table | — | **YELLOW** | Medium | **High** |
+| `production/admin_product_list.html` | dashboard chain | same | **Yes** | Inherited | No | No | table | — | **YELLOW** | Low | Low |
+| `production/product_create.html` | dashboard chain | same | **Yes** | Inherited | **Yes** | **Yes** | modal, form_field | bom.js | **YELLOW** | High | **High** |
+| `production/product_bom_edit.html` | dashboard chain | same | **Yes** | Inherited | No | **Yes** | — | bom patterns | **YELLOW** | Medium | Medium |
+| `production/admin_order_edit.html` | dashboard chain | same | **Yes** | Inherited | style attr | **Yes** | form_field | — | **YELLOW** | High | **High** |
+| `production/admin_edit_order_item.html` | dashboard chain | same | **Yes** | Inherited | No | **Yes** | — | order_item.js | **YELLOW** | Medium | **High** |
+| `production/admin_order_tasks.html` | dashboard chain | same | **Yes** | Inherited | style attr | No | — | — | **YELLOW** | Low | Medium |
+| `production/admin_tasks_management.html` | dashboard chain | same | **Yes** | Inherited | style attr | **Yes** | — | Alpine tabs | **YELLOW** | Medium | Medium |
+| `production/task_list.html` | dashboard chain | same | **Yes** | Inherited | No | No | table | — | **YELLOW** | Low | Low |
+| `production/worker_list.html` | dashboard chain | same | **Yes** | Inherited | No | No | table | — | **YELLOW** | Low | Low |
+| `production/kanban.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | kanban.js via app | **YELLOW** | Medium | Medium |
+| `production/item.html` | dashboard chain | same | **Yes** | Inherited | style attr | No | — | — | **YELLOW** | Medium | **High** |
+| `production/scan_part.html` | dashboard chain | same | **Yes** | Inherited | style attr | module | — | scanner.js | **YELLOW** | Medium | **High** |
+| `production/scan_packaging_unit.html` | dashboard chain | same | **Yes** | Inherited | No | module | — | scanner.js | **YELLOW** | Medium | **High** |
+| `production/create_unified.html` | dashboard chain | same | **Yes** | Inherited | No | **Yes** | form_field | cascade via app | **YELLOW** | High | **High** |
+| `production/orders/create_step1.html` | dashboard chain | same | **Yes** | Inherited | No | **Yes** | form_field | **form_field×3** | **YELLOW** | Medium | **High** |
+| `production/orders/create_step2.html` | dashboard chain | same | **Yes** | Inherited | **Yes** | **Yes** | — | colors via app | **YELLOW** | Medium | **High** |
+| `production/orders/order_detail.html` | dashboard chain | same | **Yes** | Inherited | **Yes** | No | status_badge | — | **YELLOW** | Medium | **High** |
+| `production/orders/add_item.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Medium |
+| `production/orders/add_colors.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Medium |
+| `production/import_data.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Low |
+| `production/upload.html` | **none** | dashboard or store | No | No | style attr | No | — | — | **RED** | Low | Low |
+| `production/test.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Low |
+| `production/create_order.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Medium |
+| `production/create_complete.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Low |
+| `production/set_plate.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Medium |
+| `production/select_shipment.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Medium |
+| `production/lable_part.html` | dashboard chain | same | **Yes** | Inherited | style attr | No | — | — | **YELLOW** | Medium | Medium |
+| `production/painting_process_list.html` | dashboard chain | same | **Yes** | Inherited | No | No | table | — | **YELLOW** | Low | Low |
+| `production/holiday_list.html` | dashboard chain | same | **Yes** | Inherited | No | No | table | — | **YELLOW** | Low | Low |
+| `production/report.html` | dashboard chain | same | **Yes** | Inherited | style attr | No | — | — | **YELLOW** | Low | Low |
+| `production/assign_painting.html` | painting base | painting base | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Medium |
+
+**Admin reports (extend `production/base.html`):**
+
+| Path | Bootstrap | Inline CSS | Inline JS | Status | Complexity | Risk |
+|------|-----------|------------|-----------|--------|------------|------|
+| `production/reports/stages.html` | Yes | **Yes** | **Yes (×2)** | **YELLOW** | **High** | Medium |
+| `production/reports/workers.html` | Yes | No | No | **YELLOW** | Low | Low |
+| `production/reports/orders.html` | Yes | No | No | **YELLOW** | Low | Low |
+| `production/reports/delayed.html` | Yes | No | No | **YELLOW** | Low | Low |
+
+---
+
+### 3.5 Customer B2B Portal — `base_shop.html` → `layouts/dashboard.html` (13)
+
+| Path | Current Layout | Target Layout | Bootstrap | jQuery | Inline CSS | Inline JS | Components Available | Components Used | Status | Complexity | Risk |
+|------|----------------|---------------|-----------|--------|------------|-----------|---------------------|-------------------|--------|------------|------|
+| `production/shop/product_list.html` | dashboard chain | `layouts/store.html` or Tailwind dashboard | **Yes** | Inherited | style attr | No | product_card | — | **YELLOW** | Medium | Low |
+| `production/shop/product_detail.html` | dashboard chain | same | **Yes** | Inherited | style attr | **Yes** | — | — | **YELLOW** | Medium | Low |
+| `production/shop/cart.html` | dashboard chain | same | **Yes** | Inherited | style attr | No | — | — | **YELLOW** | Medium | Medium |
+| `production/shop/checkout.html` | dashboard chain | same | **Yes** | Inherited | style attr | No | — | — | **YELLOW** | Medium | **High** |
+| `production/shop/order_tracking.html` | dashboard chain | same | **Yes** | Inherited | style attr | No | — | — | **YELLOW** | Medium | Low |
+| `production/shop/order_history.html` | dashboard chain | same | **Yes** | Inherited | style attr | No | — | — | **YELLOW** | Low | Low |
+| `production/customer/step1.html` | dashboard chain | same | **Yes** | Inherited | No | No | form_field | — | **YELLOW** | Low | **High** |
+| `production/customer/step2.html` | dashboard chain | same | **Yes** | Inherited | No | **Yes** | — | — | **YELLOW** | Low | **High** |
+| `production/customer/order_list.html` | dashboard chain | same | **Yes** | Inherited | No | No | table | — | **YELLOW** | Medium | Medium |
+| `production/customer/order_detail.html` | dashboard chain | same | **Yes** | Inherited | **Yes** | **Yes (×2)** | — | — | **YELLOW** | Medium | **High** |
+| `production/customer/edit_order_item.html` | dashboard chain | same | **Yes** | Inherited | **Yes** | **Yes** | — | — | **YELLOW** | Medium | Medium |
+| `production/customer/shipments.html` | dashboard chain | same | **Yes** | Inherited | No | No | table | — | **YELLOW** | Medium | Medium |
+| `production/customer/shipment_detail.html` | dashboard chain | same | **Yes** | Inherited | No | No | — | — | **YELLOW** | Low | Medium |
+
+---
+
+### 3.6 Painting Management — `painting_management/base.html` (13)
+
+| Path | Bootstrap | jQuery | Select2 | Inline CSS | Inline JS | Bootstrap JS in JS modules | Status | Complexity | Risk |
+|------|-----------|--------|---------|------------|-----------|---------------------------|--------|------------|------|
+| `painting_management/dashboard.html` | Yes | Inherited | No | No | No | No | **YELLOW** | Low | Low |
+| `painting_management/processes.html` | Yes | Inherited | No | No | module | **Yes** | **YELLOW** | Medium | **High** |
+| `painting_management/stages.html` | Yes | Inherited | No | No | module | **Yes** | **YELLOW** | Medium | **High** |
+| `painting_management/workers.html` | Yes | Inherited | **Yes** | style attr | **Yes** | **Yes** | **YELLOW** | **Very High** | **High** |
+| `painting_management/schedule.html` | Yes | Inherited | No | style attr | module | kanban.js | **YELLOW** | **High** | **High** |
+| `painting_management/ready_list.html` | Yes | Inherited | No | style attr | module | ready_list.js | **YELLOW** | **High** | Medium |
+| `painting_management/assignment_rules.html` | Yes | Inherited | No | No | module | **Yes** | **YELLOW** | Medium | **High** |
+| `painting_management/holidays.html` | Yes | Inherited | No | No | module | **Yes** | **YELLOW** | Medium | **High** |
+| `painting_management/worker_excluded_items.html` | Yes | Inherited | No | No | No | No | **YELLOW** | Low | Low |
+| `painting_management/_nav.html` | Yes | — | No | No | No | No | **YELLOW** | Low | Low |
+| `painting_management/_pagination.html` | Yes | — | No | No | No | No | **YELLOW** | Low | Low |
+| `painting_management/_worker_rows.html` | Yes | — | No | No | No | No | **YELLOW** | Low | Low |
+
+---
+
+### 3.7 Print & Standalone Report Templates (10)
+
+| Path | Current Layout | Target Layout | Bootstrap | Inline CSS | Inline JS | Status | Complexity | Risk |
+|------|----------------|---------------|-----------|------------|-----------|--------|------------|------|
+| `production/print.html` | `layouts/print.html` | same + `print.css` | No | **Yes** | No | **RED** | Low | Low |
+| `production/order_print.html` | `layouts/print.html` | same + `print.css` | No | **Yes** | No | **RED** | Low | Low |
+| `production/order_invoice.html` | `layouts/print.html` | same + `print.css` | No | **Yes** | style attr | **RED** | Low | Low |
+| `production/print_lable.html` | **none** | `layouts/print.html` | No | **Yes** | No | **RED** | Low | Low |
+| `production/print_lable_part.html` | **none** | `layouts/print.html` | No | **Yes** | No | **RED** | Low | Low |
+| `production/order_combined_print.html` | **none** | `layouts/print.html` | No | **Yes (350+ lines)** | No | **RED** | **High** | Low |
+| `production/daily_schedule_print.html` | **none** | `layouts/print.html` | No | **Yes** | **Yes** | **RED** | Medium | Low |
+| `production/reports/delivery_note.html` | **none** | `layouts/print.html` | No | **Yes** | No | **RED** | Low | Low |
+| `production/reports/shipped.html` | **none** | Tailwind dashboard | Partial Tailwind | style attr | No | **YELLOW** | Low | Low |
+| `production/registration/login.html` | **none** | `layouts/store.html` | Icons only | No | No | **YELLOW** | Low | Low |
+
+---
+
+### 3.8 Component Library — `templates/components/` (23)
+
+| Path | Bootstrap | jQuery | Inline CSS/JS | Status | Migration Action |
+|------|-----------|--------|---------------|--------|------------------|
+| `components/cards/card.html` | No | No | No | **GREEN** | Keep |
+| `components/cards/stat_card.html` | No | No | No | **GREEN** | Keep |
+| `components/cards/quick_link_card.html` | No | No | No | **GREEN** | Keep |
+| `components/forms/form_field.html` | No | No | No | **GREEN** | Keep |
+| `components/forms/input.html` | No | No | No | **GREEN** | Keep |
+| `components/forms/select.html` | No | No | No | **GREEN** | Keep |
+| `components/forms/textarea.html` | No | No | No | **GREEN** | Keep |
+| `components/forms/search.html` | No | No | No | **GREEN** | Keep |
+| `components/forms/checkbox.html` | No | No | No | **GREEN** | Keep |
+| `components/data/price.html` | No | No | No | **GREEN** | Keep |
+| `components/data/date.html` | No | No | No | **GREEN** | Keep |
+| `components/data/status_badge.html` | No | No | No | **GREEN** | Keep (Tailwind badges) |
+| `components/data/badge.html` | No | No | No | **GREEN** | Keep |
+| `components/feedback/empty_state.html` | No | No | No | **GREEN** | Keep |
+| `components/navigation/header.html` | No | No | Alpine | **GREEN** | Keep |
+| `components/navigation/breadcrumb.html` | No | No | No | **GREEN** | Keep |
+| `components/tables/table.html` | **Yes** | No | No | **YELLOW** | → `table-modern` |
+| `components/tables/pagination.html` | **Yes** | No | No | **YELLOW** | Tailwind pagination |
+| `components/tables/table_actions.html` | Partial | No | No | **YELLOW** | Tailwind buttons |
+| `components/modals/modal.html` | **Yes** | No | No | **YELLOW** | Alpine modal |
+| `components/modals/confirm_modal.html` | **Yes** | No | No | **YELLOW** | Alpine confirm |
+| `components/feedback/alert.html` | **Yes** | No | Alpine option | **YELLOW** | Tailwind alert |
+| `components/loading/loading_overlay.html` | **Yes** | No | style attr | **YELLOW** | Tailwind spinner |
+
+---
+
+## 4. COMPONENTS STILL DEPENDING ON BOOTSTRAP
+
+| Component / Area | Bootstrap Dependency | Blocks Migration Of |
+|------------------|---------------------|---------------------|
+| `components/tables/table.html` | `table`, `table-hover`, `table-dark` | All admin list pages |
+| `components/tables/pagination.html` | `pagination`, `page-item`, `page-link` | Paginated admin lists |
+| `components/modals/modal.html` | `modal`, `modal-dialog`, `btn-close`, `data-bs-dismiss` | BOM part modal, confirm flows |
+| `components/modals/confirm_modal.html` | wraps Bootstrap modal | Delete confirmations |
+| `components/feedback/alert.html` | `alert`, `alert-*`, `alert-dismissible` | Flash message patterns |
+| `components/loading/loading_overlay.html` | `spinner-border` | Async operations |
+| `layouts/dashboard.html` flash messages | `alert`, `btn-close` | All dashboard pages |
+| `static/js/production/bom.js` | `bootstrap.Modal` | `product_create.html` |
+| `static/js/production/workers.js` | `bootstrap.Modal`, Select2 | `workers.html` |
+| `static/js/production/painting/*.js` (4 files) | `bootstrap.Modal` | processes, stages, holidays, assignment_rules |
+| `static/js/app.js` | Select2 + jQuery | Worker exclusion selects |
+
+---
+
+## 5. CSS FILES — KEEP vs. REMOVE
+
+| File | Lines (approx.) | Status | Action |
+|------|-----------------|--------|--------|
+| `static/css/style.css` | compiled | **KEEP** | Tailwind output |
+| `static/css/tailwind-input.css` | 1248+ | **KEEP** | Source of truth |
+| `static/css/vazirmatn-fonts.css` | — | **KEEP** | Fonts |
+| `static/css/components.css` | 136 | **REMOVE LATER** | Admin/shop shared overrides → merge into Tailwind `@layer` |
+| `static/css/dashboard.css` | 23 | **REMOVE LATER** | `.quick-link-card` → Tailwind |
+| `static/css/product-grid.css` | 16 | **REMOVE LATER** | Grid utilities → Tailwind |
+| `static/css/pages/painting.css` | — | **REMOVE LATER** | Painting nav/kanban → Tailwind |
+| `static/css/pages/shipped.css` | — | **REMOVE LATER** | Shipped report → Tailwind |
+| `static/css/vendor/bootstrap.rtl.min.css` | vendor | **REMOVE** | After dashboard migration |
+| `static/css/vendor/bootstrap-icons.css` | vendor | **REMOVE** | Replace with Heroicons/SVG or Tailwind icons |
+| `static/css/vendor/select2.min.css` | vendor | **REMOVE** | After Select2 replacement |
+| `static/css/vendor/select2-bootstrap-5-theme.min.css` | vendor | **REMOVE** | After Select2 replacement |
+
+---
+
+## 6. JS MODULES — GLOBAL vs. MODULAR
+
+### 6.1 Global entry (loaded on every dashboard page)
+
+| Module | Path | Issue |
+|--------|------|-------|
+| `app.js` | `static/js/app.js` | Non-module script; initializes Cart, Catalog, Scanner, Kanban, Orders, Select2 on **all** dashboard pages |
+| `alpine-bootstrap.js` | `static/js/alpine-bootstrap.js` | Alpine data components for legacy Bootstrap patterns |
+
+**Store layout** loads `app.js` as `type="module"` — inconsistent with dashboard.
+
+### 6.2 Feature modules (page-specific, should be lazy-loaded)
+
+| Module | Used By | Bootstrap/jQuery |
+|--------|---------|------------------|
+| `production/scanner.js` | scan_part, scan_packaging_unit | No |
+| `production/kanban.js` | schedule.html | No |
+| `production/bom.js` | product_create | **bootstrap.Modal** |
+| `production/workers.js` | workers.html | **bootstrap.Modal**, **Select2** |
+| `production/orders.js` | order_list (inline boot) | No |
+| `production/order_item.js` | order_item, admin_edit_order_item | No |
+| `production/painting/processes.js` | processes.html | **bootstrap.Modal** |
+| `production/painting/stages.js` | stages.html | **bootstrap.Modal** |
+| `production/painting/holidays.js` | holidays.html | **bootstrap.Modal** |
+| `production/painting/assignment_rules.js` | assignment_rules.html | **bootstrap.Modal** |
+| `production/painting/ready_list.js` | ready_list.html | No |
+| `store/cart.js` | store layout | HTMX |
+| `store/catalog.js` | store layout | No |
+| `forms/cascade.js`, `forms/colors.js` | order creation flows | No |
+
+### 6.3 Vendor JS (remove after Phase 6)
+
+| File | Loaded From | Replace With |
+|------|-------------|--------------|
+| `vendor/jquery-3.7.1.min.js` | dashboard + painting base | Remove |
+| `vendor/bootstrap.bundle.min.js` | dashboard + painting base | Alpine modals |
+| `vendor/select2.min.js` | workers.html | Alpine combobox or native `<select multiple>` + fetch |
 
 ---
 
 ## 7. PAGES REQUIRING SPECIAL CARE
 
-### 7.1 Production-Critical Workflows
+### 7.1 Production-critical workflows
 
-These pages handle active business workflows and must maintain 100% uptime:
+| Page | Workflow | Why Special |
+|------|----------|-------------|
+| `production/scan_part.html` | Barcode scan → task completion | Factory floor; cannot break autofocus/scanner |
+| `production/scan_packaging_unit.html` | Packaging scan | Same as above |
+| `production/order_list.html` | Batch ops, export, task generation | Inline JS + high traffic |
+| `production/admin_order_edit.html` | Order/item editing | Complex forms, cascade selects |
+| `production/product_create.html` | Product + BOM formset + modal | Bootstrap modal + bom.js |
+| `production/painting_management/schedule.html` | Daily kanban scheduling | Drag-drop + custom CSS |
+| `production/painting_management/workers.html` | Worker CRUD + exclusions | Select2 + 4 modals |
+| `production/orders/create_step1/2.html` | Order creation funnel | Cascade + color fields |
+| `cart/detail.html` | Store checkout | HTMX cart (already GREEN) |
+| `production/shop/checkout.html` | B2B checkout | Payment-adjacent |
 
-| Page | Workflow | Risk Level | Notes |
-|------|----------|------------|-------|
-| `production/scan_part.html` | Barcode scanning, task completion | **HIGH** | Core production workflow |
-| `production/scan_packaging_unit.html` | Packaging/shipping | **HIGH** | Uses scanner.js, plate input |
-| `production/painting_management/schedule.html` | Daily painting schedule | **HIGH** | Kanban drag-drop, complex JS |
-| `production/painting_management/workers.html` | Worker management | **HIGH** | Broken modals, Select2 broken |
-| `production/order_list.html` | Order management | **HIGH** | Batch export, task generation |
-| `production/admin_order_edit.html` | Order editing | **HIGH** | Item management, cascade selects |
-| `production/product_create.html` | Product/BOM creation | **HIGH** | Formset, modals |
-| `production/kanban.html` | Production kanban | **MEDIUM** | Visual workflow board |
-| `production/item.html` | Item detail, packaging/shipping status | **HIGH** | QR codes, print links |
-| `cart/detail.html` | Cart checkout | **HIGH** | Payment flow |
+### 7.2 Highest migration complexity
 
-### 7.2 High-Complexity Migrations
-
-| Page | Complexity | Reason |
-|------|------------|--------|
-| `painting_management/workers.html` | **Very High** | Select2, Bootstrap modals, Bootstrap dropdowns, inline CSS, complex JS |
-| `painting_management/schedule.html` | **High** | Kanban CSS (180+ lines), drag-drop, worker columns |
-| `painting_management/ready_list.html` | **High** | Inline CSS (176 lines), complex filter logic, inline JS |
-| `production/product_create.html` | **High** | BOM formset, part modal, size rule presets, inline CSS |
-| `production/create_unified.html` | **High** | Cascade selects, color fields, customer selection |
-| `production/admin_order_edit.html` | **High** | Multiple inline sections, item management |
-| `production/order_combined_print.html` | **Medium** | Massive inline CSS (350 lines), print-specific |
+1. `painting_management/workers.html` — Select2 + Bootstrap modals + inline JS + 11 `btn-*` patterns  
+2. `painting_management/schedule.html` — kanban layout CSS in `painting.css` + drag-drop  
+3. `painting_management/ready_list.html` — filters + inline styles  
+4. `production/reports/stages.html` — inline CSS + dual inline scripts  
+5. `production/order_combined_print.html` — 350+ lines print CSS  
+6. `production/admin_order_edit.html` — largest admin edit surface  
+7. `production/product_create.html` — BOM formset + Bootstrap modal  
 
 ---
 
-## 8. CRITICAL BUGS IDENTIFIED
+## 8. SUMMARY STATISTICS
 
-### 8.1 Broken Painting Management Modals
+| Status | Templates | % |
+|--------|-----------|---|
+| **GREEN** | 42 | 29% |
+| **YELLOW** | 88 | 62% |
+| **RED** | 13 | 9% |
+| **Total** | **143** | 100% |
 
-**Affected Templates:**
-- `painting_management/workers.html`
-- `painting_management/stages.html`
-- `painting_management/processes.html`
-- `painting_management/assignment_rules.html`
-- `painting_management/holidays.html`
+| Layout Chain | Page Templates | Dominant Status |
+|--------------|----------------|-----------------|
+| `layouts/store.html` | 30 storefront | GREEN (29), YELLOW (1) |
+| `layouts/dashboard.html` | 58 admin/customer/painting | YELLOW |
+| `layouts/print.html` | 3 | RED (inline CSS) |
+| Standalone / no layout | 10 | RED (8), YELLOW (2) |
+| Includes & components | 42 | GREEN (31), YELLOW (11) |
 
-**Issue:** These templates use Bootstrap modal patterns (`data-bs-toggle="modal"`, `new bootstrap.Modal()`) but Bootstrap JS (`bootstrap.bundle.min.js`) is NOT loaded in any template.
-
-**Impact:** All modals in painting management are non-functional. Worker creation/editing, stage management, process management, assignment rules, and holiday management are all broken.
-
-**Fix Required:** Either load Bootstrap JS in `painting_management/base.html` temporarily or rewrite modals using Alpine.js (preferred for long-term).
-
-### 8.2 Broken Select2 in Workers Page
-
-**Affected Templates:**
-- `painting_management/workers.html`
-
-**Issue:** Select2 (`select2.min.js`) is loaded but jQuery (`jquery-3.7.1.min.js`) is NOT loaded anywhere in templates. Select2 requires jQuery.
-
-**Impact:** Worker exclusion modals (product/item exclusions) do not work.
-
-**Fix Required:** Either load jQuery before Select2 temporarily or replace Select2 with a vanilla JS alternative (preferred).
-
-### 8.3 Orphaned Vendor Files
-
-**Files:**
-- `static/js/jquery-3.6.4*.js` (6 files + 2 maps)
-- `static/js/jquery-3.6.4-vsdoc.js`
-- `static/js/bootstrap*.js` (12 files)
-- `static/js/jquery-3.6.4.slim.min.map`
-
-**Issue:** These duplicate files exist alongside the vendor versions but are not referenced by any template.
-
-**Action:** Delete all orphaned files.
+| Adoption | Store Layout | Dashboard Layout |
+|----------|--------------|------------------|
+| Tailwind (`style.css`) | **Yes** | **No** (Bootstrap CSS) |
+| Alpine.js | **Yes** | Partial (nav, alerts) |
+| HTMX | **Yes** | **No** |
+| Component library | 4 pages | 2 pages (dashboard, create_step1) |
 
 ---
 
 ## 9. RECOMMENDED PHASE 6 EXECUTION ORDER
 
-### Phase 6 Goal: Complete Admin Panel Migration
+**Goal:** Migrate admin/production panel to Tailwind + Alpine while preserving production-critical workflows. Fix functional regressions first, then layout, then components, then pages by risk.
 
-The admin/production panel must be migrated from Bootstrap to Tailwind while maintaining production-critical workflows.
+### Week 1 — Foundation & functional baseline
 
-### Execution Order
+1. **Validate vendor load order** on painting pages (jQuery → Bootstrap → Select2 → feature modules). Remove duplicate jQuery/Bootstrap from `painting_management/base.html` once confirmed dashboard layout loads them.
+2. **Migrate `layouts/dashboard.html`** to Tailwind: swap Bootstrap CSS for `style.css`; keep jQuery/Bootstrap JS temporarily behind a feature flag or conditional block.
+3. **Extract inline HTMX CSRF script** from `layouts/store.html` into `static/js/core/csrf.js` (store already loads module — align patterns).
+4. **Migrate `production/upload.html`** to extend `production/base.html` (quick RED → YELLOW win).
 
-#### Week 1: Critical Bug Fixes + Foundation
+### Week 2 — Base nav & shared CSS
 
-1. **Fix painting management modals (P0)**
-   - Load `bootstrap.bundle.min.js` in `painting_management/base.html` temporarily
-   - OR rewrite modals using Alpine.js (preferred for long-term)
-   - Validate all 5 painting modal templates work
+5. **`production/base.html`** — replace Bootstrap navbar/buttons with Tailwind + Alpine (keep URLs/permissions identical).
+6. **`production/base_shop.html`** — same treatment for customer portal nav.
+7. **`production/painting_management/base.html`** — migrate header nav from `painting.css` to Tailwind utilities.
+8. Begin merging **`components.css`** / **`dashboard.css`** into `tailwind-input.css`.
 
-2. **Fix Select2 (P0)**
-   - Load jQuery in `painting_management/base.html` temporarily
-   - OR replace Select2 with Alpine.js multi-select (preferred)
+### Week 3 — Component library (unblocks bulk page migration)
 
-3. **Remove orphaned vendor files**
-   - Delete all duplicate jQuery/Bootstrap JS files
-   - Validate no 404s
+9. Migrate **`components/tables/table.html`**, **`pagination.html`**, **`table_actions.html`**.
+10. Migrate **`components/modals/modal.html`** + **`confirm_modal.html`** to Alpine (update `alpine-bootstrap.js`).
+11. Migrate **`components/feedback/alert.html`**, **`loading/loading_overlay.html`**, dashboard flash messages.
+12. Update **`static/js/production/bom.js`** and painting JS modules to use Alpine modals instead of `bootstrap.Modal`.
 
-#### Week 2: Layout Consolidation
+### Week 4 — Low-risk admin pages
 
-4. **Migrate `layouts/dashboard.html`**
-   - Remove Bootstrap CSS links
-   - Add Tailwind utilities for any Bootstrap-dependent styles
-   - Update `components.css` classes to Tailwind
+13. `production/dashboard.html`, `task_list.html`, `worker_list.html`, `kanban.html`, `admin_order_tasks.html`
+14. `production/reports/workers.html`, `reports/orders.html`, `reports/delayed.html`
+15. `production/import_data.html`, `test.html`, `create_order.html`, `create_complete.html`, `set_plate.html`, `select_shipment.html`
 
-5. **Migrate `production/base.html`**
-   - Replace Bootstrap navbar classes with Tailwind
-   - Keep Alpine mobile toggle
+### Week 5 — Medium-risk admin pages
 
-6. **Migrate `production/base_shop.html`**
-   - Replace Bootstrap navbar classes with Tailwind
-   - Remove inline CSS from `extra_css`
+16. `production/order_list.html` — remove inline script; wire `orders.js` via `extra_js`
+17. `production/order_item.html`, `admin_product_list.html`, `item.html`, `lable_part.html`
+18. `production/reports/stages.html` — extract inline CSS/JS to static files first
 
-7. **Migrate `painting_management/base.html`**
-   - Remove `painting.css` dependency
-   - Migrate custom nav to Tailwind
+### Week 6 — High-risk production workflows
 
-#### Week 3: Component Library Completion
+19. `production/scan_part.html`, `scan_packaging_unit.html` — visual migration only; **do not alter scanner.js behavior**
+20. `production/product_create.html`, `product_bom_edit.html`
+21. Order creation: `create_unified.html`, `orders/create_step1.html`, `orders/create_step2.html`, `orders/order_detail.html`
 
-8. **Migrate Bootstrap-dependent components**
-   - `components/tables/table.html` → Tailwind table classes
-   - `components/tables/pagination.html` → Tailwind pagination
-   - `components/modals/modal.html` → Alpine.js modal
-   - `components/data/status_badge.html` → Tailwind badges
-   - `components/data/badge.html` → Tailwind badges
-   - `components/feedback/alert.html` → Tailwind alerts
-   - `components/loading/loading_overlay.html` → Tailwind spinner
+### Week 7 — Admin edit flows
 
-9. **Update `orders/includes/status_badge.html`**
-   - Replace Bootstrap badge classes with Tailwind
+22. `production/admin_order_edit.html`, `admin_edit_order_item.html`, `admin_tasks_management.html`
 
-#### Week 4: Low-Risk Admin Templates
+### Week 8 — Painting management (highest complexity)
 
-10. **Migrate simple admin templates**
-    - `production/dashboard.html`
-    - `production/task_list.html`
-    - `production/worker_list.html`
-    - `production/kanban.html`
-    - `production/admin_order_tasks.html`
-    - `production/reports/workers.html`
-    - `production/reports/orders.html`
-    - `production/reports/delayed.html`
+23. Replace Select2 in **`workers.html`** with Alpine multi-select + fetch API
+24. Migrate **`processes.html`**, **`stages.html`**, **`holidays.html`**, **`assignment_rules.html`** modals to Alpine
+25. Migrate **`workers.html`**, **`schedule.html`**, **`ready_list.html`**, remaining painting partials
+26. Remove jQuery, Bootstrap JS, Select2 vendor files
 
-#### Week 5: Medium-Risk Admin Templates
+### Week 9 — Customer portal & print
 
-11. **Migrate order/item templates**
-    - `production/order_list.html` (inline JS → module)
-    - `production/order_item.html` (inline JS → module)
-    - `production/admin_product_list.html` (inline CSS → utility)
-    - `production/item.html` (inline CSS → utility)
+27. Migrate **`production/shop/*.html`** (6) and **`production/customer/*.html`** (7)
+28. Migrate print templates: extract inline CSS to **`static/css/print.css`**, adopt **`layouts/print.html`**
+29. Migrate **`production/reports/shipped.html`**, **`registration/login.html`**
 
-12. **Migrate report templates**
-    - `production/reports/stages.html` (complex inline CSS + JS)
+### Week 10 — Cleanup & validation
 
-#### Week 6: High-Risk Production Templates
+30. Remove **`bootstrap.rtl.min.css`**, **`bootstrap-icons.css`**, **`select2*.css`**
+31. Delete **`components.css`**, **`dashboard.css`**, **`product-grid.css`**, **`pages/painting.css`**, **`pages/shipped.css`** after merge
+32. Split **`app.js`** into lazy-loaded modules; load only per-page bundles
+33. Manual QA on production-critical workflows (scan, order create, painting schedule, workers, checkout)
+34. Run `npm run build:css`; verify gzipped CSS target (< 150KB)
 
-13. **Migrate critical production workflows**
-    - `production/scan_part.html` (validate scanner.js)
-    - `production/scan_packaging_unit.html` (validate scanner.js)
-    - `production/product_create.html` (BOM formset, part modal)
-    - `production/product_bom_edit.html` (inline JS for BOM rows)
+### Phase 6 Exit Criteria
 
-14. **Migrate order creation flow**
-    - `production/create_unified.html`
-    - `production/orders/create_step1.html`
-    - `production/orders/create_step2.html`
-    - `production/orders/order_detail.html`
-
-#### Week 7: High-Risk Admin Edit Templates
-
-15. **Migrate admin edit templates**
-    - `production/admin_order_edit.html`
-    - `production/admin_edit_order_item.html`
-
-#### Week 8: Painting Management (Highest Complexity)
-
-16. **Migrate painting management templates**
-    - `painting_management/processes.html` (fix Bootstrap Modal first)
-    - `painting_management/stages.html` (fix Bootstrap Modal first)
-    - `painting_management/holidays.html` (fix Bootstrap Modal first)
-    - `painting_management/assignment_rules.html` (fix Bootstrap Modal first)
-    - `painting_management/workers.html` (fix Bootstrap Modal + Select2 first)
-    - `painting_management/schedule.html` (kanban CSS migration)
-    - `painting_management/ready_list.html` (inline CSS migration)
-
-#### Week 9: Print Templates + Shop Admin
-
-17. **Migrate print/report templates**
-    - `production/print.html`
-    - `production/order_print.html`
-    - `production/order_combined_print.html`
-    - `production/order_invoice.html`
-    - `production/daily_schedule_print.html`
-    - `production/print_lable.html`
-    - `production/print_lable_part.html`
-    - `production/reports/shipped.html`
-    - `production/reports/delivery_note.html`
-
-18. **Migrate customer shop templates**
-    - `production/shop/*.html`
-    - `production/customer/*.html`
-
-#### Week 10: CSS/JS Cleanup
-
-19. **Remove Bootstrap CSS completely**
-    - Delete `bootstrap.rtl.min.css`, `bootstrap-icons.css`
-    - Remove from `layouts/dashboard.html`
-
-20. **Remove Select2 and jQuery**
-    - Replace with Alpine.js alternatives
-    - Delete vendor files
-
-21. **Consolidate CSS files**
-    - Merge `components.css`, `dashboard.css`, `product-grid.css`, `pages/*.css` into `tailwind-input.css`
+- [ ] 0% RED, 0% YELLOW templates  
+- [ ] Zero Bootstrap CSS/JS and jQuery in templates or static vendor  
+- [ ] Zero inline `<style>` / `<script>` blocks (except JSON-LD)  
+- [ ] All pages use Tailwind design tokens from `tailwind-input.css`  
+- [ ] Production-critical workflows manually validated  
 
 ---
 
-## 10. SUMMARY STATISTICS
-
-### Template Count by Status
-
-| Status | Count | Percentage |
-|--------|-------|------------|
-| GREEN | 44 | 43% |
-| YELLOW | 38 | 37% |
-| RED | 20 | 20% |
-| **Total** | **102** | **100%** |
-
-### Template Count by Layout
-
-| Layout | Count | Status |
-|--------|-------|--------|
-| `layouts/store.html` | 44 | Mostly GREEN |
-| `layouts/dashboard.html` | 38 | All YELLOW |
-| `layouts/print.html` | 3 | All RED |
-| No layout | 17 | Mixed RED/YELLOW |
-
-### Inline Code Debt
-
-| Type | Count | Total Lines |
-|------|-------|-------------|
-| Inline CSS blocks | ~15 templates | ~800+ lines |
-| Inline JS blocks | ~20 templates | ~600+ lines |
-
-### Bootstrap Dependency
-
-| Dependency | Templates Affected |
-|------------|-------------------|
-| Bootstrap CSS | 1 layout (`dashboard.html`) → 58 templates |
-| Bootstrap JS | **0 loaded** → 5 templates broken |
-| Bootstrap Icons | 1 layout → 58 templates |
-
-### jQuery Dependency
-
-| Dependency | Templates Affected | Status |
-|------------|-------------------|--------|
-| jQuery core | **0 loaded** | Orphaned |
-| Select2 | 1 template | Broken (no jQuery) |
-
----
-
-## 11. RISK ASSESSMENT
-
-### High-Risk Areas
-
-1. **Painting Management Module** - BROKEN modals, Select2 broken, highest complexity
-2. **Production Scanning** - Core business workflow, must not break
-3. **Order Management** - High traffic, complex inline JS
-4. **Product Creation/BOM** - Complex formsets, modals
-
-### Medium-Risk Areas
-
-1. **Customer Shop Templates** - Bootstrap → Tailwind migration
-2. **Report Templates** - Print-specific, many inline styles
-3. **Admin Edit Flows** - Cascade selects, color fields
-
-### Low-Risk Areas
-
-1. **Storefront Templates** - Already fully migrated
-2. **Account Templates** - Simple forms, no complex JS
-3. **Component Library** - Mostly migrated
-
----
-
-## 12. RESOURCE ESTIMATE
-
-### Phase 6 Timeline: 10 Weeks (1 developer)
-
-| Week | Focus | Templates | Effort |
-|------|-------|-----------|--------|
-| 1 | Critical bugs + foundation | 5 painting templates | 5 days |
-| 2 | Layout consolidation | 3 layouts | 3 days |
-| 3 | Component library | 7 components | 4 days |
-| 4 | Low-risk admin | 8 templates | 4 days |
-| 5 | Medium-risk admin | 4 templates | 5 days |
-| 6 | High-risk production | 4 templates | 5 days |
-| 7 | Admin edit flows | 2 templates | 3 days |
-| 8 | Painting management | 7 templates | 5 days |
-| 9 | Print + customer shop | 12 templates | 5 days |
-| 10 | CSS/JS cleanup + validation | All | 3 days |
-
-**Total:** ~42 days of work
-
----
-
-*Audit generated by Kilo Frontend Audit - Phase 6 Planning*
+*Audit performed 2026-08-30 against commit working tree. No application code was modified during this audit.*

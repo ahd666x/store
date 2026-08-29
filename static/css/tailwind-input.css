@@ -1259,6 +1259,16 @@
   }
 
   /* ==========================================
+      PRODUCT CREATE / BOM
+      ========================================== */
+  .bom-table th, .bom-table td { vertical-align: middle; }
+  .part-cell { display: flex; align-items: center; gap: 5px; }
+  .part-name { font-size: 0.9rem; }
+  .form-control-sm, .form-select-sm { font-size: 0.8rem; }
+  .table th, .table td { vertical-align: middle; }
+  .errorlist { color: #dc3545; list-style: none; padding: 0; margin: 0; }
+
+  /* ==========================================
       NAVBAR
       ========================================== */
   .navbar-custom {
@@ -2044,8 +2054,327 @@
   }
 
   /* ==========================================
-      BORDERS
+      SHOP PRODUCT DETAIL
       ========================================== */
+  .product-gallery {
+    border-radius: 20px;
+    overflow: hidden;
+    background: #f8f9fa;
+  }
+  .product-info {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+  }
+  .color-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+  }
+  .color-option {
+    border: 1px solid #dee2e6;
+    border-radius: 40px;
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .color-option.selected {
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+  }
+  .btn-add-cart {
+    background: #0d6efd;
+    color: white;
+    border-radius: 50px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s;
+  }
+  .btn-add-cart:hover {
+    background: #0b5ed7;
+    transform: scale(1.02);
+  }
+
+  /* ==========================================
+      SHOP CART
+      ========================================== */
+  .cart-item {
+    border-radius: 16px;
+    background: #fff;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+  .cart-summary {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 1.8rem;
+    position: sticky;
+    top: 20px;
+  }
+  .btn-checkout {
+    background: #198754;
+    color: white;
+    border-radius: 40px;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .btn-checkout:hover {
+    background: #157347;
+    color: white;
+  }
+
+  /* ==========================================
+      SHOP CHECKOUT
+      ========================================== */
+  .checkout-form {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+  }
+  .order-summary-side {
+    background: #f8f9fa;
+    border-radius: 20px;
+    padding: 1.8rem;
+  }
+  .btn-place-order {
+    background: #198754;
+    color: white;
+    border-radius: 40px;
+    padding: 1rem;
+    font-weight: 600;
+  }
+
+  /* ==========================================
+      SHOP ORDER TRACKING
+      ========================================== */
+  .tracking-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .order-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #198754;
+    letter-spacing: 2px;
+  }
+  .status-badge-large {
+    font-size: 1.1rem;
+    padding: 0.5rem 1.5rem;
+    border-radius: 40px;
+  }
+
+  /* ==========================================
+       CUSTOMER ORDER LIST
+       ========================================== */
+  .order-table th, .order-table td {
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .order-table thead th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+  }
+  .clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+  .clickable-row:hover {
+    background-color: #f1f3f5;
+  }
+  .packaging-status {
+    font-size: 0.85rem;
+    color: #495057;
+    line-height: 1.6;
+  }
+  .packaging-status span {
+    white-space: nowrap;
+  }
+  .no-packaging {
+    color: #adb5bd;
+    font-style: italic;
+  }
+  .completed-text {
+    color: #198754;
+    font-weight: 500;
+  }
+
+  /* ==========================================
+       CUSTOMER SHIPMENTS
+       ========================================== */
+  .shipment-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border-right: 5px solid #0d6efd;
+  }
+  .shipment-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+    transform: translateY(-2px);
+  }
+  .shipment-card .badge-date {
+    background: #e9ecef;
+    color: #495057;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 30px;
+  }
+  .shipment-card .badge-plate {
+    background: #0d6efd;
+    color: #fff;
+    font-size: 0.95rem;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-weight: 600;
+  }
+  .shipment-card .items-count {
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+  .shipment-card .total-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #198754;
+  }
+  .shipment-card .arrow-icon {
+    font-size: 1.4rem;
+    color: #adb5bd;
+    transition: 0.2s;
+  }
+  .shipment-card:hover .arrow-icon {
+    color: #0d6efd;
+    transform: translateX(-4px);
+  }
+  .empty-state {
+    text-align: center;
+    padding: 3rem 0;
+  }
+.empty-state i {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+  }
+
+  /* ==========================================
+       CUSTOMER SHIPMENT DETAIL
+       ========================================== */
+  @media print {
+    .no-print { display: none !important; }
+    .print-container { padding: 0 !important; margin: 0 !important; }
+    .print-container .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+    body { background: white !important; }
+    .signature-section div { border-bottom: 2px solid #000 !important; }
+  }
+  .detail-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .detail-card .header-info {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f1f3f5;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .detail-card .header-info .title {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .detail-card .header-info .plate-badge {
+    background: #0d6efd;
+    color: #fff;
+    padding: 0.4rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .detail-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .detail-table td, .detail-table th {
+    vertical-align: middle;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .detail-table .total-row {
+    background: #f1f3f5;
+    font-weight: 700;
+  }
+  .signature-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 2px dashed #dee2e6;
+  }
+  .signature-section div {
+    text-align: center;
+    width: 45%;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid #adb5bd;
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+  .info-label {
+    font-weight: 600;
+    color: #495057;
+  }
+  .info-value {
+    color: #212529;
+  }
+
+  /* ==========================================
+       CUSTOMER ORDER DETAIL
+       ========================================== */
+  .section-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .item-row:hover { background-color: #f8f9fa; }
+  .btn-action {
+    margin: 0 2px;
+  }
+
+  /* ==========================================
+       CUSTOMER EDIT ORDER ITEM
+       ========================================== */
+  .edit-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+  }
+
+  /* ==========================================
+       BORDERS
+       ========================================== */
   .border-top { border-top-width: 1px; }
   .border-end { border-right-width: 1px; }
   .border-bottom { border-bottom-width: 1px; }

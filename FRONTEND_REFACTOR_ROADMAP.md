@@ -2,7 +2,7 @@
 ## سلوی چوب (Selvi Wood) - Migration Plan
 
 **Target State:** Unified Tailwind CSS architecture, shared component library, no jQuery/Bootstrap dependency  
-**Current State:** Dual system (Shop: Tailwind+Alpine+HTMX, Admin: Bootstrap+jQuery), 40+ inline styles, 40+ inline scripts  
+**Current State:** Dual system (Shop: Tailwind+Alpine+HTMX, Admin: Bootstrap+jQuery via `layouts/dashboard.html`), 15 inline `<style>` blocks, 18 inline `<script>` blocks (see `FRONTEND_MIGRATION_STATUS.md`)  
 **Estimated Duration:** 12-16 weeks (part-time), or 6-8 weeks (full-time)
 
 ---
@@ -311,8 +311,15 @@ static/js/
 
 ---
 
-## PHASE 6: ADMIN PANEL MIGRATION (Week 12-21) ✅ IN PROGRESS
+## PHASE 6: ADMIN PANEL MIGRATION (Week 12-21) — NOT STARTED
 **Goal:** Migrate admin/production panel from Bootstrap to Tailwind while maintaining production-critical workflows
+
+**Pre-flight audit:** 2026-08-30 — see `FRONTEND_MIGRATION_STATUS.md` for full matrix (143 templates: 42 GREEN, 88 YELLOW, 13 RED).
+
+**Current baseline (post Phase 5):**
+- `layouts/dashboard.html` already loads Bootstrap CSS, jQuery 3.7.1, and Bootstrap Bundle JS (painting modals are functional but legacy)
+- Duplicate root-level jQuery/Bootstrap JS files have been removed; only `static/js/vendor/` copies remain
+- Storefront (30 templates) is GREEN; admin/customer/painting (58 templates) is YELLOW; print/standalone (13 templates) is RED
 
 ### Phase 6 Goal: Complete Admin Panel Migration
 
@@ -320,20 +327,15 @@ The admin/production panel must be migrated from Bootstrap to Tailwind while mai
 
 ### Execution Order
 
-#### Week 1: Critical Bug Fixes + Foundation
+#### Week 1: Foundation & Load Order
 
-1. **Fix painting management modals (P0)**
-   - Load `bootstrap.bundle.min.js` in `painting_management/base.html` temporarily
-   - OR rewrite modals using Alpine.js (preferred for long-term)
-   - Validate all 5 painting modal templates work
+1. **Validate script load order** on painting pages (jQuery → Bootstrap → Select2 → feature modules). Remove duplicate vendor tags from `painting_management/base.html` once dashboard layout order is confirmed.
 
-2. **Fix Select2 (P0)**
-   - Load jQuery in `painting_management/base.html` temporarily
-   - OR replace Select2 with Alpine.js multi-select (preferred)
+2. **Begin `layouts/dashboard.html` migration** — add Tailwind `style.css`; plan temporary dual-CSS period before removing Bootstrap CSS.
 
-3. **Remove orphaned vendor files**
-   - Delete all duplicate jQuery/Bootstrap JS files
-   - Validate no 404s
+3. **Quick win:** migrate `production/upload.html` (RED standalone) to extend `production/base.html`.
+
+4. **Remove orphaned vendor files** — confirm no references to deleted root-level jQuery/Bootstrap copies remain.
 
 #### Week 2: Layout Consolidation
 
@@ -565,12 +567,12 @@ else:
 
 ## PHASE 6 QUICK WINS
 
-1. **Fix painting management modals**: Load `bootstrap.bundle.min.js` temporarily or rewrite with Alpine.js
-2. **Fix Select2**: Load jQuery temporarily or replace with Alpine.js multi-select
-3. **Remove orphaned vendor files**: Delete all duplicate jQuery/Bootstrap JS files
-4. **Migrate `layouts/dashboard.html`**: Remove Bootstrap CSS, add Tailwind utilities
-5. **Migrate `production/base.html`**: Replace Bootstrap navbar with Tailwind
-6. **Consolidate CSS files**: Merge `components.css`, `dashboard.css`, `product-grid.css` into `tailwind-input.css`
+1. **Migrate `production/upload.html`**: RED standalone → extend `production/base.html`
+2. **Remove duplicate vendor loads** from `painting_management/base.html` (dashboard layout already loads jQuery + Bootstrap JS)
+3. **Migrate `layouts/dashboard.html`**: Swap Bootstrap CSS for Tailwind `style.css` (keep legacy JS temporarily)
+4. **Migrate `production/base.html` navbar**: Replace Bootstrap classes with Tailwind + Alpine
+5. **Migrate 6 Bootstrap components**: table, pagination, modal, alert, loading_overlay, confirm_modal
+6. **Consolidate CSS files**: Merge `components.css`, `dashboard.css`, `product-grid.css`, `pages/*.css` into `tailwind-input.css`
 
 ---
 
@@ -591,18 +593,17 @@ else:
 
 ## SUCCESS METRICS
 
-| Metric | Current | Target |
-|--------|---------|--------|
-| CSS files | 25+ | 5-7 |
-| JS files | 15+ | 5-7 |
-| Inline styles | 40+ | 0 |
-| Inline scripts | 40+ | 0 |
-| Base templates | 4 | 2 (shop, admin) |
-| CSS size (gzipped) | ~500KB+ | < 150KB |
-| JS size (gzipped) | ~300KB+ | < 100KB |
-| jQuery usage | 100% of templates | 0% |
-| Bootstrap usage | 80% of templates | 0% |
-| Component library coverage | 0% | 90% |
+| Metric | Current (2026-08-30) | Target |
+|--------|----------------------|--------|
+| CSS files (app) | 7 + 4 vendor | 2-3 |
+| JS modules (app) | 19 + 4 vendor | 5-7 |
+| Inline `<style>` blocks | 15 templates | 0 |
+| Inline `<script>` blocks | 18 templates | 0 |
+| Base templates | 4 (+ 3 layouts) | 2 layouts (store, dashboard) |
+| Templates GREEN/YELLOW/RED | 29% / 62% / 9% | 100% GREEN |
+| jQuery loaded | `layouts/dashboard.html` only | 0 |
+| Bootstrap CSS loaded | `layouts/dashboard.html` only | 0 |
+| Component library page adoption | 6 pages | 90%+ |
 | Lighthouse Performance | Unknown | > 80 |
 | Lighthouse Accessibility | Unknown | > 90 |
 
