@@ -1469,6 +1469,41 @@
   }
 
   /* ==========================================
+      ASSIGNMENT RULES
+      ========================================== */
+  .rule-card {
+    border-right: 4px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* ==========================================
+      WORKERS TABLE
+      ========================================== */
+  .worker-table th { white-space: nowrap; font-size: 0.85rem; }
+  .worker-table td { vertical-align: middle; font-size: 0.9rem; }
+  .skill-badge { font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px; margin: 1px 2px; }
+  .action-dropdown .dropdown-toggle::after { display: none; }
+  .action-dropdown .dropdown-toggle { background: transparent; border: none; padding: 0 8px; font-size: 1.2rem; color: #6c757d; }
+  .action-dropdown .dropdown-toggle:hover { color: #0d6efd; }
+  .filter-section { background: #f8f9fa; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; }
+  .toast-container { position: fixed; top: 20px; left: 20px; z-index: 1055; }
+  .cost-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.8rem; padding: 0.5rem 0; }
+  .cost-grid .form-group { display: flex; align-items: center; gap: 0.5rem; background: #f8f9fa; padding: 0.3rem 0.8rem; border-radius: 8px; }
+  .cost-grid .form-group label { margin: 0; font-weight: 500; font-size: 0.9rem; min-width: 60px; }
+  .cost-grid .form-group input { width: 70px; text-align: center; }
+  .skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem; padding: 0.5rem 0; }
+  .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 9999; display: none; justify-content: center; align-items: center; }
+  .loading-overlay.show { display: flex; }
+  select:disabled { opacity: 0.6; cursor: not-allowed; background-color: #e9ecef; }
+  .product-option-category { font-size: 0.8rem; color: #6c757d; }
+  .product-option-name { font-weight: 500; }
+  @media (max-width: 768px) {
+    .cost-grid { grid-template-columns: 1fr; }
+    .skill-grid { grid-template-columns: 1fr 1fr; }
+    .worker-table td, .worker-table th { font-size: 0.8rem; padding: 0.3rem; }
+  }
+
+  /* ==========================================
       BORDERS
       ========================================== */
   .border-top { border-top-width: 1px; }
