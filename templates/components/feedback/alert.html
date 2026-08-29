@@ -1,0 +1,33 @@
+{% comment %} Alert Component - دکارو {% endcomment %}
+{% comment %} Purpose: Display alert/notification messages for storefront {% endcomment %}
+{% comment %} Variables: type (success/danger/warning/info), message, dismissible (default: false) {% endcomment %}
+
+{% if type == 'success' %}
+    <div class="alert alert-success {% if dismissible %}alert-dismissible fade show{% endif %}" role="alert">
+        {% if dismissible %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% endif %}
+        {{ message|safe }}
+    </div>
+{% elif type == 'danger' %}
+    <div class="alert alert-danger {% if dismissible %}alert-dismissible fade show{% endif %}" role="alert">
+        {% if dismissible %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% endif %}
+        {{ message|safe }}
+    </div>
+{% elif type == 'warning' %}
+    <div class="alert alert-warning {% if dismissible %}alert-dismissible fade show{% endif %}" role="alert">
+        {% if dismissible %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% endif %}
+        {{ message|safe }}
+    </div>
+{% else %}
+    <div class="alert alert-info {% if dismissible %}alert-dismissible fade show{% endif %}" role="alert">
+        {% if dismissible %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        {% endif %}
+        {{ message|safe }}
+    </div>
+{% endif %}

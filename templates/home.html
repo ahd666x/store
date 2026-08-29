@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+﻿{% extends 'layouts/store.html' %}
 {% load jformat recommendations %}
 
 {% block title %}خانه{% endblock %}
@@ -231,17 +231,8 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="text-center py-16">
-                <div class="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                </div>
-                <p class="text-stone-500 text-lg mb-4">هنوز محصولی اضافه نشده است.</p>
-                <a href="{% url 'catalog:product_list' %}" class="btn-primary">
-                    مشاهده همه محصولات
-                </a>
-            </div>
+            {% url 'catalog:product_list' as product_list_url %}
+            {% include 'components/feedback/empty_state.html' with icon_svg='<svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>' message='هنوز محصولی اضافه نشده است.' action_url=product_list_url action_text='مشاهده همه محصولات' %}
         {% endif %}
     </div>
 </section>

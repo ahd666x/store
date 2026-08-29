@@ -1,0 +1,13 @@
+{% comment %} Loading Overlay Component - دکارو {% endcomment %}
+{% comment %} Purpose: Loading spinner overlay {% endcomment %}
+{% comment %} Variables: show (default: true), size (default: 3rem), message {% endcomment %}
+
+{% if show|default:true %}
+<div class="loading-overlay">
+    <div class="spinner-border text-primary" style="width: {{ size|default:'3rem' }}; height: {{ size|default:'3rem' }};" role="status">
+        {% if message %}
+        <span class="visually-hidden">{{ message }}</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

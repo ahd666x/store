@@ -1,0 +1,15 @@
+{% comment %} Checkbox Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable checkbox with label {% endcomment %}
+{% comment %} Variables: name, id, label, checked, disabled, class {% endcomment %}
+
+<div class="flex items-center">
+    <input 
+        type="checkbox" 
+        name="{{ name }}" 
+        id="{{ id|default:name }}" 
+        {% if checked %}checked{% endif %}
+        {% if disabled %}disabled{% endif %}
+        class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-stone-300 rounded {{ class|default:'' }}"
+    >
+    <label for="{{ id|default:name }}" class="mr-2 block text-sm text-stone-700">{{ label }}</label>
+</div>

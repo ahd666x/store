@@ -1,0 +1,10 @@
+{% comment %} Stat Card Component - دکارو (Dashboard) {% endcomment %}
+{% comment %} Purpose: Dashboard statistic card with icon, title, and value {% endcomment %}
+{% comment %} Variables: title, value, subtitle, icon, color (default: primary), href {% endcomment %}
+
+<a href="{{ href|default:'#' }}" class="quick-link-card d-block h-100 text-decoration-none">
+    <div class="quick-link-icon"><i class="bi bi-{{ icon|default:'graph-up' }}"></i></div>
+    <h6 class="fw-bold">{{ title }}</h6>
+    <p class="mb-0">{{ value }}</p>
+    {% if subtitle %}<small class="text-muted">{{ subtitle }}</small>{% endif %}
+</a>

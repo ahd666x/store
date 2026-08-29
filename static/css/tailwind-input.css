@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 /* ========================================
-   DESIGN SYSTEM - دکارو
+   DESIGN SYSTEM - سلوی چوب
+   Foundation layer for Tailwind + Bootstrap
+   backward-compatible component classes.
    ======================================== */
 
 /* ----------------------------------------
@@ -58,42 +60,119 @@
   ::selection {
     @apply bg-primary-100 text-primary-900;
   }
+
+  /* Print base */
+  @media print {
+    body {
+      background: #fff;
+      color: #000;
+    }
+    a {
+      text-decoration: none;
+      color: #000;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
 }
 
 /* ----------------------------------------
    COMPONENTS LAYER
    ---------------------------------------- */
 @layer components {
-  /* ===== Buttons ===== */
+
+  /* ==========================================
+     BUTTONS
+     ========================================== */
   .btn {
-    @apply inline-flex items-center justify-center px-5 py-2.5 border border-transparent
-           text-sm font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2
-           focus:ring-offset-2 transition-all duration-200 ease-in-out
+    @apply inline-flex items-center justify-center px-5 py-2.5
+           text-sm font-medium rounded-lg shadow-sm
+           focus:outline-none focus:ring-2 focus:ring-offset-2
+           transition-all duration-200 ease-in-out
            disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    gap: 0.5rem;
   }
   .btn:active {
     @apply transform scale-95;
   }
+  .btn:focus {
+    @apply ring-2 ring-offset-2;
+  }
+
+  /* Primary */
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500
-           active:bg-primary-800;
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 active:bg-primary-800;
   }
+  .btn-outline-primary {
+    @apply btn bg-transparent text-primary-600 border-primary-600 hover:bg-primary-50 focus:ring-primary-500 active:bg-primary-100;
+  }
+
+  /* Secondary */
   .btn-secondary {
-    @apply btn bg-white text-stone-700 border-stone-300 hover:bg-stone-50 focus:ring-primary-500
-           active:bg-stone-100;
+    @apply btn bg-white text-stone-700 border-stone-300 hover:bg-stone-50 focus:ring-primary-500 active:bg-stone-100;
   }
-  .btn-danger {
-    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500
-           active:bg-red-800;
+  .btn-outline-secondary {
+    @apply btn bg-transparent text-stone-600 border-stone-300 hover:bg-stone-50 focus:ring-primary-500 active:bg-stone-100;
   }
+
+  /* Success */
   .btn-success {
-    @apply btn bg-success-600 text-white hover:bg-success-700 focus:ring-success-500
-           active:bg-success-800;
+    @apply btn bg-success-600 text-white hover:bg-success-700 focus:ring-success-500 active:bg-success-800;
   }
-  .btn-ghost {
-    @apply btn bg-transparent text-stone-600 hover:bg-stone-100 focus:ring-stone-500
-           shadow-none;
+  .btn-outline-success {
+    @apply btn bg-transparent text-success-600 border-success-600 hover:bg-success-50 focus:ring-success-500 active:bg-success-100;
   }
+
+  /* Danger */
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 active:bg-red-800;
+  }
+  .btn-outline-danger {
+    @apply btn bg-transparent text-red-600 border-red-600 hover:bg-red-50 focus:ring-red-500 active:bg-red-100;
+  }
+
+  /* Warning */
+  .btn-warning {
+    @apply btn bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500 active:bg-warning-800;
+  }
+  .btn-outline-warning {
+    @apply btn bg-transparent text-warning-600 border-warning-600 hover:bg-warning-50 focus:ring-warning-500 active:bg-warning-100;
+  }
+
+  /* Info */
+  .btn-info {
+    @apply btn bg-info-600 text-white hover:bg-info-700 focus:ring-info-500 active:bg-info-800;
+  }
+  .btn-outline-info {
+    @apply btn bg-transparent text-info-600 border-info-600 hover:bg-info-50 focus:ring-info-500 active:bg-info-100;
+  }
+
+  /* Dark */
+  .btn-dark {
+    @apply btn bg-stone-800 text-white hover:bg-stone-900 focus:ring-stone-500 active:bg-black;
+  }
+  .btn-outline-dark {
+    @apply btn bg-transparent text-stone-800 border-stone-800 hover:bg-stone-50 focus:ring-stone-500 active:bg-stone-100;
+  }
+
+  /* Light */
+  .btn-light {
+    @apply btn bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200 focus:ring-stone-500 active:bg-stone-300;
+  }
+  .btn-outline-light {
+    @apply btn bg-transparent text-stone-600 border-stone-200 hover:bg-stone-50 focus:ring-stone-500 active:bg-stone-100;
+  }
+
+  /* Link */
+  .btn-link {
+    @apply btn bg-transparent text-primary-600 border-transparent shadow-none hover:text-primary-800 hover:bg-primary-50 focus:ring-primary-500 active:text-primary-900;
+  }
+
+  /* Sizes */
   .btn-sm {
     @apply px-3 py-1.5 text-xs;
   }
@@ -116,7 +195,9 @@
     to { transform: rotate(360deg); }
   }
 
-  /* ===== Cards ===== */
+  /* ==========================================
+     CARDS
+     ========================================== */
   .card {
     @apply bg-white rounded-xl border border-stone-200 shadow-elevation-1;
   }
@@ -127,7 +208,40 @@
     @apply bg-white rounded-xl border border-stone-200 shadow-elevation-2;
   }
 
-  /* ===== Forms ===== */
+  /* Bootstrap card compatibility */
+  .card-header {
+    @apply px-4 py-3 border-b border-stone-200 font-semibold text-stone-900;
+  }
+  .card-body {
+    @apply p-4;
+  }
+  .card-footer {
+    @apply px-4 py-3 border-t border-stone-200 bg-stone-50;
+  }
+  .card-title {
+    @apply text-lg font-semibold text-stone-900 mb-1;
+  }
+  .card-text {
+    @apply text-sm text-stone-600;
+  }
+  .card-img-top {
+    @apply w-full object-cover rounded-t-xl;
+  }
+
+  /* Shadow utilities (Bootstrap-compatible) */
+  .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+  .shadow {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+  .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+
+  /* ==========================================
+     FORMS
+     ========================================== */
   .form-input {
     @apply mt-1 block w-full rounded-lg border-stone-300 shadow-sm
            focus:border-primary-500 focus:ring-primary-500 sm:text-sm
@@ -150,6 +264,17 @@
     background-repeat: no-repeat;
     background-position: left 0.75rem center;
     padding-left: 2.5rem;
+  }
+
+  /* Bootstrap form-control compatibility */
+  .form-control {
+    @apply form-input;
+  }
+  .form-control-sm {
+    @apply px-2 py-1 text-xs rounded;
+  }
+  .form-control-lg {
+    @apply px-4 py-3 text-base rounded-lg;
   }
 
   /* Native form element styling */
@@ -177,7 +302,32 @@
     @apply form-error list-disc list-inside;
   }
 
-  /* ===== Badges ===== */
+  /* Input group */
+  .input-group {
+    @apply flex rounded-lg shadow-sm;
+  }
+  .input-group .form-input {
+    @apply rounded-r-lg border-l-0;
+  }
+  .input-group .btn {
+    @apply rounded-l-lg border-l border-stone-300 whitespace-nowrap;
+  }
+  .input-group .form-input:focus {
+    @apply z-10;
+  }
+  .input-group-text {
+    @apply inline-flex items-center px-3 py-2 text-sm text-stone-600 bg-stone-50 border border-stone-300 rounded-r-lg border-l-0;
+  }
+  .input-group-sm .form-input {
+    @apply form-control-sm;
+  }
+  .input-group-lg .form-input {
+    @apply form-control-lg;
+  }
+
+  /* ==========================================
+     BADGES
+     ========================================== */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
@@ -197,52 +347,72 @@
     @apply badge bg-stone-100 text-stone-800;
   }
 
-  /* ===== Input Group ===== */
-  .input-group {
-    @apply flex rounded-lg shadow-sm;
+  /* Bootstrap badge compatibility */
+  .bg-success {
+    @apply bg-success-100 text-success-800;
   }
-  .input-group .form-input {
-    @apply rounded-r-lg border-l-0;
+  .bg-warning {
+    @apply bg-warning-100 text-warning-800;
   }
-  .input-group .btn {
-    @apply rounded-l-lg border-l border-stone-300 whitespace-nowrap;
+  .bg-danger {
+    @apply bg-danger-100 text-danger-800;
   }
-  .input-group .form-input:focus {
-    @apply z-10;
+  .bg-info {
+    @apply bg-info-100 text-info-800;
   }
-
-  /* ===== Chips ===== */
-  .chip {
-    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border transition-colors duration-200;
+  .bg-secondary {
+    @apply bg-stone-100 text-stone-800;
   }
-  .chip-active {
-    @apply bg-stone-900 text-white border-stone-900;
+  .bg-light {
+    @apply bg-stone-50 text-stone-700;
   }
-  .chip-inactive {
-    @apply bg-white text-stone-600 border-stone-300 hover:bg-stone-50 hover:border-stone-400;
+  .bg-dark {
+    @apply bg-stone-800 text-white;
   }
-
-  /* ===== Skeleton Loading ===== */
-  .skeleton {
-    @apply animate-pulse bg-stone-200 rounded;
+  .text-dark {
+    @apply text-stone-800;
   }
-  .skeleton-text {
-    @apply skeleton h-4 rounded w-full mb-2;
-  }
-  .skeleton-text:last-child {
-    @apply mb-0;
-  }
-  .skeleton-title {
-    @apply skeleton h-6 rounded w-3/4 mb-3;
-  }
-  .skeleton-image {
-    @apply skeleton w-full aspect-[4/3] rounded-lg mb-4;
-  }
-  .skeleton-avatar {
-    @apply skeleton w-10 h-10 rounded-full;
+  .bg-opacity-10 {
+    opacity: 0.1;
   }
 
-  /* ===== Table Modern ===== */
+  /* ==========================================
+     ALERTS
+     ========================================== */
+  .alert {
+    @apply p-4 rounded-lg border;
+  }
+  .alert-success {
+    @apply alert bg-success-50 border-success-200 text-success-800;
+  }
+  .alert-warning {
+    @apply alert bg-warning-50 border-warning-200 text-warning-800;
+  }
+  .alert-danger {
+    @apply alert bg-danger-50 border-danger-200 text-danger-800;
+  }
+  .alert-info {
+    @apply alert bg-info-50 border-info-200 text-info-800;
+  }
+  .alert-light {
+    @apply alert bg-stone-50 border-stone-200 text-stone-800;
+  }
+  .alert-dark {
+    @apply alert bg-stone-800 border-stone-700 text-white;
+  }
+  .alert-dismissible {
+    @apply pr-8;
+  }
+  .alert-heading {
+    @apply text-lg font-semibold mb-2;
+  }
+
+  /* ==========================================
+     TABLES
+     ========================================== */
+  .table {
+    @apply min-w-full divide-y divide-stone-200 text-sm;
+  }
   .table-modern {
     @apply min-w-full divide-y divide-stone-200;
   }
@@ -262,24 +432,87 @@
     @apply border-b-0;
   }
 
-  /* ===== Alerts ===== */
-  .alert {
-    @apply p-4 rounded-lg border;
+  /* Bootstrap table compatibility */
+  .table-hover tbody tr:hover {
+    @apply bg-stone-50;
   }
-  .alert-success {
-    @apply alert bg-success-50 border-success-200 text-success-800;
+  .table-bordered {
+    @apply border border-stone-200;
   }
-  .alert-warning {
-    @apply alert bg-warning-50 border-warning-200 text-warning-800;
+  .table-bordered th,
+  .table-bordered td {
+    @apply border border-stone-200;
   }
-  .alert-danger {
-    @apply alert bg-danger-50 border-danger-200 text-danger-800;
+  .table-striped tbody tr:nth-of-type(odd) {
+    @apply bg-stone-50;
   }
-  .alert-info {
-    @apply alert bg-info-50 border-info-200 text-info-800;
+  .table-sm th,
+  .table-sm td {
+    @apply px-2 py-1;
+  }
+  .thead-light th {
+    @apply bg-stone-50 text-stone-600;
+  }
+  .thead-dark th {
+    @apply bg-stone-800 text-white;
+  }
+  .table-success tr {
+    @apply bg-success-50;
+  }
+  .table-warning tr {
+    @apply bg-warning-50;
+  }
+  .table-danger tr {
+    @apply bg-danger-50;
+  }
+  .table-info tr {
+    @apply bg-info-50;
+  }
+  .table-active tr {
+    @apply bg-stone-100;
+  }
+  .table-responsive {
+    @apply block w-full overflow-x-auto;
   }
 
-  /* ===== Section Containers ===== */
+  /* ==========================================
+     CHIPS / FILTERS
+     ========================================== */
+  .chip {
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border transition-colors duration-200;
+  }
+  .chip-active {
+    @apply bg-stone-900 text-white border-stone-900;
+  }
+  .chip-inactive {
+    @apply bg-white text-stone-600 border-stone-300 hover:bg-stone-50 hover:border-stone-400;
+  }
+
+  /* ==========================================
+     SKELETON LOADING
+     ========================================== */
+  .skeleton {
+    @apply animate-pulse bg-stone-200 rounded;
+  }
+  .skeleton-text {
+    @apply skeleton h-4 rounded w-full mb-2;
+  }
+  .skeleton-text:last-child {
+    @apply mb-0;
+  }
+  .skeleton-title {
+    @apply skeleton h-6 rounded w-3/4 mb-3;
+  }
+  .skeleton-image {
+    @apply skeleton w-full aspect-[4/3] rounded-lg mb-4;
+  }
+  .skeleton-avatar {
+    @apply skeleton w-10 h-10 rounded-full;
+  }
+
+  /* ==========================================
+     SECTION CONTAINERS
+     ========================================== */
   .section-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
@@ -287,21 +520,89 @@
     @apply py-12 md:py-16;
   }
 
-  /* ===== Image Placeholder ===== */
+  /* ==========================================
+     IMAGE PLACEHOLDER
+     ========================================== */
   .img-placeholder {
     @apply w-full h-48 bg-stone-100 flex items-center justify-center text-stone-400;
   }
-}
 
-/* ========================================
-   UTILITIES LAYER
-   ======================================== */
-@layer utilities {
+  /* ==========================================
+     RTL UTILITIES
+     ========================================== */
+  .me-1 { margin-inline-end: 0.25rem; }
+  .me-2 { margin-inline-end: 0.5rem; }
+  .me-3 { margin-inline-end: 0.75rem; }
+  .me-4 { margin-inline-end: 1rem; }
+  .ms-1 { margin-inline-start: 0.25rem; }
+  .ms-2 { margin-inline-start: 0.5rem; }
+  .ms-3 { margin-inline-start: 0.75rem; }
+  .ms-4 { margin-inline-start: 1rem; }
+  .pe-1 { padding-inline-end: 0.25rem; }
+  .pe-2 { padding-inline-end: 0.5rem; }
+  .pe-3 { padding-inline-end: 0.75rem; }
+  .pe-4 { padding-inline-end: 1rem; }
+  .ps-1 { padding-inline-start: 0.25rem; }
+  .ps-2 { padding-inline-start: 0.5rem; }
+  .ps-3 { padding-inline-start: 0.75rem; }
+  .ps-4 { padding-inline-start: 1rem; }
+  .border-s { border-inline-start: 1px solid; }
+  .border-e { border-inline-end: 1px solid; }
+  .rounded-s { border-start-start-radius: 0.25rem; border-end-start-radius: 0.25rem; }
+  .rounded-e { border-start-end-radius: 0.25rem; border-end-end-radius: 0.25rem; }
+
+  /* ==========================================
+     PRINT UTILITIES
+     ========================================== */
+  .print-only {
+    @apply hidden;
+  }
+  @media print {
+    .print-only {
+      @apply block;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
+
+  /* ==========================================
+     EMPTY STATES
+     ========================================== */
+  .empty-state {
+    @apply text-center py-16;
+  }
+  .empty-state-icon {
+    @apply w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6;
+  }
+  .empty-state-title {
+    @apply text-stone-900 text-lg font-semibold mb-2;
+  }
+  .empty-state-description {
+    @apply text-stone-500 mb-4;
+  }
+
+  /* ==========================================
+     LOADING SPINNER
+     ========================================== */
+  .spinner {
+    @apply inline-block w-5 h-5 border-2 border-stone-200 border-t-primary-600 rounded-full;
+    animation: spin 0.8s linear infinite;
+  }
+  .spinner-lg {
+    @apply w-8 h-8 border-4;
+  }
+  .spinner-sm {
+    @apply w-4 h-4 border;
+  }
+
+  /* ==========================================
+     MISC UTILITIES
+     ========================================== */
   .text-balance {
     text-wrap: balance;
   }
 
-  /* Scrollbar styling */
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: theme('colors.stone.300') transparent;
@@ -317,7 +618,6 @@
     border-radius: 3px;
   }
 
-  /* Truncate with line-clamp fallback */
   .line-clamp-1 {
     display: -webkit-box;
     -webkit-line-clamp: 1;
@@ -337,4 +637,3 @@
     overflow: hidden;
   }
 }
-

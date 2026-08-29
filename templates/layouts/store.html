@@ -1,0 +1,80 @@
+{% load static %}
+{% load jformat %}
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    {# SEO Meta Tags #}
+    <title>{% block title %}دکارو{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}دکارو، فروشگاه آنلاین کابینت‌های مدرن و کلاسیک با بهترین کیفیت و قیمت. ضمانت ۱۰ ساله، تحویل سریع در سراسر کشور.{% endblock %}">
+    <meta name="keywords" content="کابینت, کابینت آشپزخانه, کابینت مدرن, کابینت کلاسیک, خرید کابینت, قیمت کابینت">
+    <meta name="author" content="دکارو">
+    
+    {# Open Graph #}
+    <meta property="og:title" content="{% block og_title %}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}فروشگاه آنلاین کابینت{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'images/og-default.png' %}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:locale" content="fa_IR">
+    
+    {# Twitter Card #}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}فروشگاه آنلاین کابینت{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% static 'images/og-default.png' %}{% endblock %}">
+    
+    {# Favicon #}
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    
+    {# Stylesheets #}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vazirmatn-fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/product-grid.css' %}">
+    <style>[x-cloak]{display:none!important}</style>
+    
+    {# Alpine.js #}
+    <script defer src="{% static 'js/vendor/alpinejs.min.js' %}"></script>
+    {# HTMX #}
+    <script src="{% static 'js/vendor/htmx.min.js' %}"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-stone-50 text-stone-900 min-h-screen flex flex-col">
+    
+    {# Header #}
+    {% include 'includes/header.html' %}
+    
+    {# Breadcrumb #}
+    {% block breadcrumb %}{% endblock %}
+    
+    {# Breadcrumb Schema.org #}
+    {% block breadcrumb_schema %}{% endblock %}
+    
+    {# Messages / Toast Container #}
+    {% include 'includes/toast.html' %}
+    
+    {# Main Content #}
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+    
+    {# Footer #}
+    {% include 'includes/footer.html' %}
+    
+    <script>
+        document.addEventListener('htmx:configRequest', function(evt) {
+            var cookie = document.cookie.split('; ').find(function(row) { return row.startsWith('csrftoken='); });
+            if (cookie) {
+                evt.detail.headers['X-CSRFToken'] = cookie.split('=')[1];
+            }
+        });
+    </script>
+    
+    {% include 'includes/cart-actions.html' %}
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

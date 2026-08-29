@@ -1,0 +1,16 @@
+{% comment %} Breadcrumb Component - دکارو {% endcomment %}
+{% comment %} Purpose: Navigation breadcrumb for storefront {% endcomment %}
+{% comment %} Variables: items (list of dicts with url and label) {% endcomment %}
+
+<nav class="section-container py-3" aria-label="breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-stone-500">
+        {% for item in items %}
+            {% if not forloop.last %}
+                <li><a href="{{ item.url }}" class="hover:text-primary-600 transition-colors">{{ item.label }}</a></li>
+                <li>/</li>
+            {% else %}
+                <li class="text-stone-900 font-medium">{{ item.label }}</li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>

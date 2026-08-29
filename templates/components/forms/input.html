@@ -1,0 +1,15 @@
+{% comment %} Input Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable form input {% endcomment %}
+{% comment %} Variables: name, value, placeholder, type (default: text), required, disabled, readonly, class, id {% endcomment %}
+
+<input 
+    type="{{ type|default:'text' }}" 
+    name="{{ name }}" 
+    id="{{ id|default:name }}" 
+    value="{{ value|default:'' }}" 
+    placeholder="{{ placeholder|default:'' }}" 
+    {% if required %}required{% endif %}
+    {% if disabled %}disabled{% endif %}
+    {% if readonly %}readonly{% endif %}
+    class="form-input {{ class|default:'' }}"
+>

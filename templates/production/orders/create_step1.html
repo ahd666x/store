@@ -16,8 +16,7 @@
                         {% if is_admin %}
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                {{ form.representative.label_tag }}
-                                {{ form.representative }}
+                                {% include 'components/forms/form_field.html' with field=form.representative %}
                             </div>
                         </div>
                         {% endif %}
@@ -33,12 +32,10 @@
                         <!-- <h5>یا مشتری جدید</h5> -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                {{ form.new_customer_name.label_tag }}
-                                {{ form.new_customer_name }}
+                                {% include 'components/forms/form_field.html' with field=form.new_customer_name %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                {{ form.number.label_tag }}
-                                {{ form.number }}
+                                {% include 'components/forms/form_field.html' with field=form.number %}
                             </div>
                             <!-- <div class="col-md-6 mb-3">
                                 {{ form.new_customer_phone.label_tag }}

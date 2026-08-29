@@ -1,0 +1,10 @@
+{% comment %} Date Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable date display with jformat support {% endcomment %}
+{% comment %} Variables: date, format (default: Y/m/d), relative (default: false) {% endcomment %}
+
+{% load jformat %}
+{% if date %}
+    <time datetime="{{ date|date:'c' }}" class="{% if class %}{{ class }}{% endif %}">
+        {{ date|jformat:format|default:"Y/m/d" }}
+    </time>
+{% endif %}

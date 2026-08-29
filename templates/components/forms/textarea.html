@@ -1,0 +1,13 @@
+{% comment %} Textarea Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable form textarea {% endcomment %}
+{% comment %} Variables: name, value, placeholder, rows (default: 3), required, disabled, class, id {% endcomment %}
+
+<textarea 
+    name="{{ name }}" 
+    id="{{ id|default:name }}" 
+    rows="{{ rows|default:3 }}" 
+    placeholder="{{ placeholder|default:'' }}" 
+    {% if required %}required{% endif %}
+    {% if disabled %}disabled{% endif %}
+    class="form-input {{ class|default:'' }}"
+>{{ value|default:'' }}</textarea>

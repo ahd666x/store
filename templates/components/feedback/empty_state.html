@@ -1,0 +1,28 @@
+{% comment %} Empty State Component - دکارو {% endcomment %}
+{% comment %} Purpose: Display when no data is available {% endcomment %}
+{% comment %} Variables: icon_svg, message, action_url, action_text, action_onclick, secondary_action_url, secondary_action_text {% endcomment %}
+
+<div class="text-center py-16">
+    {% if icon_svg %}
+    <div class="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        {{ icon_svg|safe }}
+    </div>
+    {% endif %}
+    <p class="text-stone-500 text-lg mb-4">{{ message|default:"هیچ موردی یافت نشد." }}</p>
+    {% if action_url and action_text %}
+    <a href="{{ action_url }}" class="btn-primary">
+        {{ action_text }}
+    </a>
+    {% elif action_onclick and action_text %}
+    <button type="button" onclick="{{ action_onclick }}" class="btn-primary">
+        {{ action_text }}
+    </button>
+    {% endif %}
+    {% if secondary_action_url and secondary_action_text %}
+    <div class="mt-4">
+        <a href="{{ secondary_action_url }}" class="text-stone-600 hover:text-primary-600">
+            {{ secondary_action_text }}
+        </a>
+    </div>
+    {% endif %}
+</div>

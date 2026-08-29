@@ -1,0 +1,15 @@
+{% comment %} Table Actions Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable action buttons for table rows {% endcomment %}
+{% comment %} Variables: actions (list of dicts with url, icon, title, class, target) {% endcomment %}
+
+<div class="btn-group btn-group-sm">
+    {% for action in actions %}
+    <a href="{{ action.url }}" 
+       class="btn {{ action.class|default:'btn-outline-primary' }}" 
+       title="{{ action.title|default:'' }}"
+       {% if action.target %}target="{{ action.target }}"{% endif %}
+       aria-label="{{ action.title|default:'' }}">
+        {% if action.icon %}<i class="bi bi-{{ action.icon }}"></i>{% endif %}
+    </a>
+    {% endfor %}
+</div>

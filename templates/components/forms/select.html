@@ -1,0 +1,15 @@
+{% comment %} Select Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable form select {% endcomment %}
+{% comment %} Variables: name, value, options (list of tuples), required, disabled, class, id {% endcomment %}
+
+<select 
+    name="{{ name }}" 
+    id="{{ id|default:name }}" 
+    {% if required %}required{% endif %}
+    {% if disabled %}disabled{% endif %}
+    class="form-select {{ class|default:'' }}"
+>
+    {% for opt_value, opt_label in options %}
+    <option value="{{ opt_value }}" {% if opt_value == value %}selected{% endif %}>{{ opt_label }}</option>
+    {% endfor %}
+</select>

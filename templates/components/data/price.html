@@ -1,0 +1,10 @@
+{% comment %} Price Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable price display {% endcomment %}
+{% comment %} Variables: amount, currency (default: تومان), size (default: base), compare_price {% endcomment %}
+
+<span class="{% if size == 'lg' %}text-2xl{% elif size == 'sm' %}text-sm{% else %}text-base{% endif %} font-bold text-primary-600">
+    {{ amount }} <span class="{% if size != 'lg' %}text-sm{% endif %} text-stone-500">{{ currency|default:'تومان' }}</span>
+</span>
+{% if compare_price %}
+<span class="text-sm text-stone-400 line-through me-2">{{ compare_price }}</span>
+{% endif %}

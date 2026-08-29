@@ -1,0 +1,8 @@
+{% comment %} Quick Link Card Component - دکارو (Dashboard) {% endcomment %}
+{% comment %} Purpose: Dashboard navigation card with icon and label {% endcomment %}
+{% comment %} Variables: icon, title, href {% endcomment %}
+
+<a href="{{ href|default:'#' }}" class="quick-link-card">
+    <div class="quick-link-icon"><i class="bi bi-{{ icon|default:'link-45deg' }}"></i></div>
+    <h6 class="fw-bold">{{ title }}</h6>
+</a>

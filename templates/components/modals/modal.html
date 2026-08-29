@@ -1,0 +1,39 @@
+{% comment %} Modal Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable Bootstrap modal for dashboard/production {% endcomment %}
+{% comment %} Variables: modal_id, title, size (sm/lg/xl), form_id, form_action, csrf_token {% endcomment %}
+
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog {{ size|default:'' }}">
+        <div class="modal-content">
+            {% if form_id %}
+            <form id="{{ form_id }}" {% if form_action %}action="{{ form_action }}"{% endif %} method="post">
+            {% endif %}
+                {% if csrf_token|default:True %}
+                {% csrf_token %}
+                {% endif %}
+                {% if form_action %}
+                <input type="hidden" name="next" value="{{ form_action }}">
+                {% endif %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="{{ modal_id }}Title">{{ title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ block.super }}
+                </div>
+                {% if submit_text or cancel_text %}
+                <div class="modal-footer">
+                    {% if cancel_text %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ cancel_text|default:'انصراف' }}</button>
+                    {% endif %}
+                    {% if submit_text %}
+                    <button type="submit" class="btn btn-primary">{{ submit_text|default:'ذخیره' }}</button>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% if form_id %}
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>

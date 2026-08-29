@@ -1,0 +1,21 @@
+{% comment %} Card Component - دکارو {% endcomment %}
+{% comment %} Purpose: Reusable card container for storefront {% endcomment %}
+{% comment %} Variables: title, footer, padding (default: p-6), shadow (default: shadow-sm), border (default: border-stone-200), hover (default: false) {% endcomment %}
+
+<div class="bg-white rounded-2xl border {{ border|default:'border-stone-200' }} {{ shadow|default:'shadow-sm' }} {% if hover %}hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1{% endif %} {% if padding %}p-{{ padding }}{% endif %}">
+    {% if title %}
+    <div class="px-6 py-4 border-b border-stone-200">
+        <h3 class="font-semibold text-stone-900">{{ title }}</h3>
+    </div>
+    {% endif %}
+    
+    <div class="{% if not title %}{{ padding|default:'p-6' }}{% endif %}">
+        {{ block.super }}
+    </div>
+    
+    {% if footer %}
+    <div class="px-6 py-4 border-t border-stone-200 bg-stone-50 rounded-b-2xl">
+        {{ footer }}
+    </div>
+    {% endif %}
+</div>
