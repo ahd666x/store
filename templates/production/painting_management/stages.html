@@ -122,51 +122,60 @@
 
 {% block painting_js %}
 <script>
-$(function () {
-    $('#stageForm').on('submit', function (e) {
+(function() {
+    const stageForm = document.getElementById('stageForm');
+    const stageModal = new bootstrap.Modal(document.getElementById('stageModal'));
+
+    stageForm?.addEventListener('submit', function(e) {
         e.preventDefault();
-        var $form = $(this);
-        $.ajax({
-            url: $form.attr('action'),
+        const formData = new FormData(stageForm);
+        fetch(stageForm.action, {
             method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: $form.serialize(),
-            success: function (data) {
-                if (data.success) { location.reload(); }
-                else { alert('خطا: ' + JSON.stringify(data.errors || data)); }
-            },
-            error: function () { alert('خطای ارتباط با سرور'); }
+            headers: { 'X-CSRFToken': Csrf.getToken() },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) location.reload();
+            else alert('خطا: ' + JSON.stringify(data.errors || data));
+        })
+        .catch(() => alert('خطای ارتباط با سرور'));
+    });
+
+    document.querySelectorAll('.edit-stage').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const form = document.getElementById('stageForm');
+            fetch('{% url "painting_stage_detail" 0 %}'.replace('/0/', '/' + id + '/'))
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('stageModalTitle').textContent = 'ویرایش مرحله';
+                    document.getElementById('stageAction').value = 'edit';
+                    document.getElementById('stageId').value = data.id;
+                    form.querySelector('[name="process"]').value = data.process;
+                    form.querySelector('[name="order"]').value = data.order;
+                    form.querySelector('[name="name"]').value = data.name;
+                    form.querySelector('[name="duration_minutes"]').value = data.duration_minutes;
+                    form.querySelector('[name="drying_time_minutes"]').value = data.drying_time_minutes;
+                    form.querySelector('[name="required_skill"]').value = data.required_skill;
+                    stageModal.show();
+                });
         });
     });
 
-    $('.edit-stage').on('click', function () {
-        var id = $(this).data('id');
-        var $form = $('#stageForm');
-        $.getJSON('{% url "painting_stage_detail" 0 %}'.replace('/0/', '/' + id + '/'), function (data) {
-            $('#stageModalTitle').text('ویرایش مرحله');
-            $('#stageAction').val('edit');
-            $('#stageId').val(data.id);
-            $form.find('[name="process"]').val(data.process);
-            $form.find('[name="order"]').val(data.order);
-            $form.find('[name="name"]').val(data.name);
-            $form.find('[name="duration_minutes"]').val(data.duration_minutes);
-            $form.find('[name="drying_time_minutes"]').val(data.drying_time_minutes);
-            $form.find('[name="required_skill"]').val(data.required_skill);
-            new bootstrap.Modal(document.getElementById('stageModal')).show();
+    document.querySelectorAll('.delete-stage').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!confirm('آیا از حذف این مرحله اطمینان دارید؟')) return;
+            const id = this.dataset.id;
+            fetch('{% url "painting_stages" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': Csrf.getToken() },
+                body: new URLSearchParams({ csrfmiddlewaretoken: '{{ csrf_token }}', action: 'delete', stage_id: id })
+            })
+            .then(res => res.json())
+            .then(data => { if (data.success) location.reload(); });
         });
     });
-
-    $('.delete-stage').on('click', function () {
-        if (!confirm('آیا از حذف این مرحله اطمینان دارید؟')) return;
-        var id = $(this).data('id');
-        $.ajax({
-            url: '{% url "painting_stages" %}',
-            method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: {'csrfmiddlewaretoken': '{{ csrf_token }}', 'action': 'delete', 'stage_id': id},
-            success: function (data) { if (data.success) location.reload(); }
-        });
-    });
-});
+})();
 </script>
 {% endblock %}

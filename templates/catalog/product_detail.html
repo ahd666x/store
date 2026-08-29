@@ -213,6 +213,7 @@
 
             {# Add to Cart #}
             <form id="add-to-cart-form" action="{% url 'cart:cart_add' product.id %}" method="post" class="mb-6"
+                  data-price-calc
                   data-base-price="{{ product.base_price|default:0 }}"
                   data-length-percent="{{ product.length_price_percent|default:0 }}"
                   data-width-percent="{{ product.width_price_percent|default:0 }}"
@@ -232,7 +233,7 @@
                     <div class="grid grid-cols-3 gap-3">
                         <div>
                             <label class="form-label">طول</label>
-                            <input type="text" inputmode="numeric" name="length" id="dim-length" min="1" step="1"
+                            <input type="text" inputmode="numeric" name="length" id="dim-length" data-dim="length" min="1" step="1"
                                    value="{{ product.length|default_if_none:'' }}"
                                    {% if not product.length_editable %}disabled{% endif %}
                                    autocomplete="off"
@@ -240,7 +241,7 @@
                         </div>
                         <div>
                             <label class="form-label">عرض</label>
-                            <input type="text" inputmode="numeric" name="width" id="dim-width" min="1" step="1"
+                            <input type="text" inputmode="numeric" name="width" id="dim-width" data-dim="width" min="1" step="1"
                                    value="{{ product.width|default_if_none:'' }}"
                                    {% if not product.width_editable %}disabled{% endif %}
                                    autocomplete="off"
@@ -248,7 +249,7 @@
                         </div>
                         <div>
                             <label class="form-label">ارتفاع</label>
-                            <input type="text" inputmode="numeric" name="height" id="dim-height" min="1" step="1"
+                            <input type="text" inputmode="numeric" name="height" id="dim-height" data-dim="height" min="1" step="1"
                                    value="{{ product.height|default_if_none:'' }}"
                                    {% if not product.height_editable %}disabled{% endif %}
                                    autocomplete="off"
@@ -332,67 +333,6 @@
         </div>
     </div>
 
-    <script>
-    (function () {
-        var form = document.getElementById('add-to-cart-form');
-        if (!form) return;
-
-        var basePrice = parseFloat(form.dataset.basePrice) || 0;
-        var lengthPercent = parseFloat(form.dataset.lengthPercent) || 0;
-        var widthPercent = parseFloat(form.dataset.widthPercent) || 0;
-        var heightPercent = parseFloat(form.dataset.heightPercent) || 0;
-        var defaults = {
-            length: form.dataset.defaultLength ? parseFloat(form.dataset.defaultLength) : null,
-            width: form.dataset.defaultWidth ? parseFloat(form.dataset.defaultWidth) : null,
-            height: form.dataset.defaultHeight ? parseFloat(form.dataset.defaultHeight) : null,
-        };
-        var inputs = {
-            length: document.getElementById('dim-length'),
-            width: document.getElementById('dim-width'),
-            height: document.getElementById('dim-height'),
-        };
-        var priceEl = document.getElementById('live-price');
-
-        function diff(customVal, defaultVal) {
-            if (defaultVal === null || defaultVal === undefined) return 0;
-            if (customVal === null || customVal === undefined || customVal === '') return 0;
-            var parsed = parseFloat(customVal);
-            if (isNaN(parsed)) return 0;
-            return parsed - defaultVal;
-        }
-
-        function recalc() {
-            try {
-                var diffs = 0;
-                if (inputs.length && !inputs.length.disabled) {
-                    diffs += diff(inputs.length.value, defaults.length) * lengthPercent;
-                }
-                if (inputs.width && !inputs.width.disabled) {
-                    diffs += diff(inputs.width.value, defaults.width) * widthPercent;
-                }
-                if (inputs.height && !inputs.height.disabled) {
-                    diffs += diff(inputs.height.value, defaults.height) * heightPercent;
-                }
-                var priceIncrease = basePrice * (diffs / 100);
-                var finalPrice = basePrice + priceIncrease;
-                if (finalPrice < 0) finalPrice = 0;
-                finalPrice = Math.round(finalPrice);
-                if (priceEl) {
-                    priceEl.textContent = finalPrice.toLocaleString('fa-IR') + ' تومان';
-                }
-            } catch (e) {
-                // silently handle recalc errors so they never block input
-            }
-        }
-
-        ['length', 'width', 'height'].forEach(function (key) {
-            if (inputs[key]) inputs[key].addEventListener('input', recalc);
-        });
-
-        recalc();
-    })();
-    </script>
-    
     {# Reviews Section #}
     <div class="mt-16">
         <h2 class="text-3xl font-bold text-stone-900 mb-8">نظرات کاربران ({{ product.review_count }})</h2>

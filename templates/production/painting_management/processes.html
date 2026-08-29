@@ -111,64 +111,71 @@
 
 {% block painting_js %}
 <script>
-$(function () {
-    // ایجاد/ویرایش (ارسال فرم به صورت AJAX)
-    $('#processForm').on('submit', function (e) {
+(function() {
+    const processForm = document.getElementById('processForm');
+    const processModal = new bootstrap.Modal(document.getElementById('processModal'));
+
+    processForm?.addEventListener('submit', function(e) {
         e.preventDefault();
-        var $form = $(this);
-        $.ajax({
-            url: $form.attr('action'),
+        const formData = new FormData(processForm);
+        fetch(processForm.action, {
             method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: $form.serialize(),
-            success: function (data) {
-                if (data.success) { location.reload(); }
-                else { alert('خطا: ' + JSON.stringify(data.errors || data)); }
-            },
-            error: function () { alert('خطای ارتباط با سرور'); }
+            headers: { 'X-CSRFToken': Csrf.getToken() },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) location.reload();
+            else alert('خطا: ' + JSON.stringify(data.errors || data));
+        })
+        .catch(() => alert('خطای ارتباط با سرور'));
+    });
+
+    document.querySelectorAll('.edit-process').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            fetch('{% url "painting_process_detail" 0 %}'.replace('/0/', '/' + id + '/'))
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('modalTitle').textContent = 'ویرایش روند';
+                    document.getElementById('formAction').value = 'edit';
+                    document.getElementById('processId').value = data.id;
+                    processForm.querySelector('[name="name"]').value = data.name;
+                    processForm.querySelector('[name="code"]').value = data.code;
+                    processForm.querySelector('[name="color_codes"]').value = JSON.stringify(data.color_codes);
+                    processForm.querySelector('[name="description"]').value = data.description;
+                    processForm.querySelector('[name="is_active"]').checked = data.is_active;
+                    processModal.show();
+                });
         });
     });
 
-    // ویرایش
-    $('.edit-process').on('click', function () {
-        var id = $(this).data('id');
-        $.getJSON('{% url "painting_process_detail" 0 %}'.replace('/0/', '/' + id + '/'), function (data) {
-            $('#modalTitle').text('ویرایش روند');
-            $('#formAction').val('edit');
-            $('#processId').val(data.id);
-            $('#processForm [name="name"]').val(data.name);
-            $('#processForm [name="code"]').val(data.code);
-            $('#processForm [name="color_codes"]').val(JSON.stringify(data.color_codes));
-            $('#processForm [name="description"]').val(data.description);
-            $('#processForm [name="is_active"]').prop('checked', data.is_active);
-            new bootstrap.Modal(document.getElementById('processModal')).show();
+    document.querySelectorAll('.delete-process').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!confirm('آیا از حذف این روند اطمینان دارید؟')) return;
+            const id = this.dataset.id;
+            fetch('{% url "painting_processes" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': Csrf.getToken() },
+                body: new URLSearchParams({ csrfmiddlewaretoken: '{{ csrf_token }}', action: 'delete', process_id: id })
+            })
+            .then(res => res.json())
+            .then(data => { if (data.success) location.reload(); });
         });
     });
 
-    // حذف
-    $('.delete-process').on('click', function () {
-        if (!confirm('آیا از حذف این روند اطمینان دارید؟')) return;
-        var id = $(this).data('id');
-        $.ajax({
-            url: '{% url "painting_processes" %}',
-            method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: {'csrfmiddlewaretoken': '{{ csrf_token }}', 'action': 'delete', 'process_id': id},
-            success: function (data) { if (data.success) location.reload(); }
+    document.querySelectorAll('.toggle-process').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            fetch('{% url "painting_processes" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': Csrf.getToken() },
+                body: new URLSearchParams({ csrfmiddlewaretoken: '{{ csrf_token }}', action: 'toggle_active', process_id: id })
+            })
+            .then(res => res.json())
+            .then(data => { if (data.success) location.reload(); });
         });
     });
-
-    // تغییر وضعیت
-    $('.toggle-process').on('click', function () {
-        var id = $(this).data('id');
-        $.ajax({
-            url: '{% url "painting_processes" %}',
-            method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: {'csrfmiddlewaretoken': '{{ csrf_token }}', 'action': 'toggle_active', 'process_id': id},
-            success: function (data) { if (data.success) location.reload(); }
-        });
-    });
-});
+})();
 </script>
 {% endblock %}

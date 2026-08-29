@@ -140,85 +140,20 @@
 </div>
 
 <script>
-(function() {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+window.CascadeConfig = [
+    {
+        categorySelector: '#id_category',
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_products" %}',
+        onSubmit: true
     }
-
-    function init() {
-        const categorySelect = document.querySelector('select[name="category"]');
-        const productSelect = document.querySelector('select[name="product"]');
-        const filterForm = document.getElementById('filter-form');
-        const initialProduct = "{{ selected_product|default:'' }}";
-
-        if (!categorySelect || !productSelect) return;
-
-        async function loadProducts(categoryId, selectedProductId = null) {
-            if (!categoryId) {
-                productSelect.innerHTML = '<option value="">همه محصولات</option>';
-                if (filterForm) filterForm.submit();
-                return;
-            }
-            try {
-                const baseUrl = "{% url 'ajax_load_products' %}";
-                const response = await fetch(`${baseUrl}?category=${categoryId}`);
-                const data = await response.json();
-                productSelect.innerHTML = '<option value="">همه محصولات</option>';
-                data.forEach(product => {
-                    const option = document.createElement('option');
-                    option.value = product.id;
-                    option.textContent = product.name;
-                    if (selectedProductId && product.id == selectedProductId) {
-                        option.selected = true;
-                    }
-                    productSelect.appendChild(option);
-                });
-                if (filterForm) filterForm.submit();
-            } catch (error) {
-                console.error('خطا:', error);
-            }
-        }
-
-        categorySelect.addEventListener('change', function() {
-            loadProducts(this.value);
-        });
-
-        productSelect.addEventListener('change', function() {
-            if (filterForm) filterForm.submit();
-        });
-
-        const customerSelect = document.querySelector('select[name="customer"]');
-        if (customerSelect) {
-            customerSelect.addEventListener('change', function() {
-                if (filterForm) filterForm.submit();
-            });
-        }
-
-        const initialCategory = categorySelect.value;
-        if (initialCategory) {
-            (async () => {
-                try {
-                    const baseUrl2 = "{% url 'ajax_load_products' %}";
-                    const response = await fetch(`${baseUrl2}?category=${initialCategory}`);
-                    const data = await response.json();
-                    productSelect.innerHTML = '<option value="">همه محصولات</option>';
-                    data.forEach(product => {
-                        const option = document.createElement('option');
-                        option.value = product.id;
-                        option.textContent = product.name;
-                        if (initialProduct && product.id == initialProduct) {
-                            option.selected = true;
-                        }
-                        productSelect.appendChild(option);
-                    });
-                } catch (error) {
-                    console.error('خطا در بارگذاری اولیه:', error);
-                }
-            })();
-        }
+];
+window.ColorFieldsConfig = [
+    {
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_product_colors" %}',
+        initialProduct: '{{ item_form.product.value|default:"" }}'
     }
-})();
+];
 </script>
 {% endblock %}

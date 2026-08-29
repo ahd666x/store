@@ -14,6 +14,19 @@
 </style>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+window.CascadeConfig = [
+    {
+        categorySelector: '#id_category',
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_products" %}',
+        onSubmit: false
+    }
+];
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <div class="d-flex align-items-center mb-4">
@@ -70,39 +83,4 @@
         </form>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-$(document).ready(function() {
-    function loadProducts(categoryId, selectedId) {
-        if (!categoryId) {
-            $('#id_product').html('<option value="">---------</option>');
-            return;
-        }
-        $.ajax({
-            url: "{% url 'ajax_load_products' %}",
-            data: {'category': categoryId},
-            success: function(data) {
-                var options = '<option value="">---------</option>';
-                $.each(data, function(i, product) {
-                    options += '<option value="' + product.id + '">' + product.name + '</option>';
-                });
-                $('#id_product').html(options);
-                if (selectedId) $('#id_product').val(selectedId);
-            }
-        });
-    }
-
-    $('#id_category').change(function() {
-        loadProducts($(this).val());
-    });
-
-    // بارگذاری اولیه
-    var initialCategory = $('#id_category').val();
-    if (initialCategory) {
-        loadProducts(initialCategory, "{{ item_form.product.value }}");
-    }
-});
-</script>
 {% endblock %}

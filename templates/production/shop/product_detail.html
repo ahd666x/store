@@ -129,39 +129,39 @@
 
 <script>
 function changeQty(delta) {
-    var qtyInput = document.getElementById('quantity');
-    var newVal = parseInt(qtyInput.value) + delta;
+    const qtyInput = document.getElementById('quantity');
+    const newVal = parseInt(qtyInput.value) + delta;
     if (newVal >= 1) qtyInput.value = newVal;
 }
 
-$(document).ready(function() {
-    $('#add-to-cart-form').submit(function(e) {
-        e.preventDefault();
-        var data = {
-            product_id: $('input[name=product_id]').val(),
-            quantity: $('#quantity').val(),
-            size: $('input[name=size]').val(),
-            notes: $('textarea[name=notes]').val(),
-            colors: {}
-        };
-        $('select[name^="color_"]').each(function() {
-            var part = $(this).attr('name').replace('color_', '');
-            var code = $(this).val();
-            if (code) data.colors[part] = code;
-        });
-        $.ajax({
-            url: "{% url 'cart_add' %}",
-            type: 'POST',
-            data: JSON.stringify(data),
-            contentType: 'application/json',
-            headers: {'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()},
-            success: function(resp) {
-                if (resp.success) {
-                    alert('محصول به سبد خرید اضافه شد.');
-                    window.location.href = "{% url 'cart_view' %}";
-                }
-            }
-        });
+document.getElementById('add-to-cart-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = {
+        product_id: document.querySelector('input[name=product_id]')?.value,
+        quantity: document.getElementById('quantity')?.value,
+        size: document.querySelector('input[name=size]')?.value,
+        notes: document.querySelector('textarea[name=notes]')?.value,
+        colors: {}
+    };
+    document.querySelectorAll('select[name^="color_"]').forEach(select => {
+        const part = select.name.replace('color_', '');
+        const code = select.value;
+        if (code) data.colors[part] = code;
+    });
+    fetch("{% url 'cart_add' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('input[name=csrfmiddlewaretoken]')?.value
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(resp => {
+        if (resp.success) {
+            alert('محصول به سبد خرید اضافه شد.');
+            window.location.href = "{% url 'cart_view' %}";
+        }
     });
 });
 </script>

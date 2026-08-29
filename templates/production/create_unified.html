@@ -97,67 +97,35 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    // بارگذاری محصولات بر اساس دسته
-    $('#id_category').change(function() {
-        var catId = $(this).val();
-        if (catId) {
-            $.ajax({
-                url: "{% url 'ajax_load_products' %}",
-                data: {'category': catId},
-                success: function(data) {
-                    var $prod = $('#id_product');
-                    $prod.empty().append('<option value="">---------</option>');
-                    $.each(data, function(i, p) {
-                        $prod.append(`<option value="${p.id}">${p.name}</option>`);
-                    });
-                }
-            });
-        } else {
-            $('#id_product').html('<option value="">---------</option>');
-        }
-    });
-
-    // فیلتر رنگ‌ها بر اساس محصول
-    $('#id_product').on('change', function() {
-        var prodId = $(this).val();
-        if (prodId) {
-            const baseUrl = "{% url 'ajax_load_product_colors' 0 %}";
-            fetch(baseUrl.replace('/0/', '/' + prodId + '/'))
-                .then(res => res.json())
-                .then(data => {
-                    const allowed = Object.keys(data.defaults);
-                    document.querySelectorAll('.color-field').forEach(el => {
-                        const part = el.getAttribute('data-part');
-                        if (allowed.includes(part)) {
-                            el.style.display = '';
-                            const sel = el.querySelector('select');
-                            if (sel && data.defaults[part]) sel.value = data.defaults[part];
-                        } else {
-                            el.style.display = 'none';
-                            const sel = el.querySelector('select');
-                            if (sel) sel.value = '';
-                        }
-                    });
-                });
-        }
-    });
-
-    // انتخاب مشتری از لیست
-    function fillCustomerFields(custId) {
-        if (custId) {
-            $('#customer-id').val(custId);
-            $('#new-customer-fields').hide();
-            // پاک کردن فیلدهای دستی (در صورت وجود)
-            $('#id_name').val('');
-            $('#id_phone').val('');
-            $('#id_address').val('');
-            $('#id_number').val('');
-        } else {
-            $('#customer-id').val('');
-            $('#new-customer-fields').show();
-        }
+window.CascadeConfig = [
+    {
+        categorySelector: '#id_category',
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_products" %}',
+        onSubmit: false
     }
-});
+];
+window.ColorFieldsConfig = [
+    {
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_product_colors" %}',
+        initialProduct: '{{ item_form.product.value|default:"" }}'
+    }
+];
+</script>
+<script>
+function fillCustomerFields(custId) {
+    if (custId) {
+        document.getElementById('customer-id').value = custId;
+        document.getElementById('new-customer-fields').style.display = 'none';
+        document.getElementById('id_name').value = '';
+        document.getElementById('id_phone').value = '';
+        document.getElementById('id_address').value = '';
+        document.getElementById('id_number').value = '';
+    } else {
+        document.getElementById('customer-id').value = '';
+        document.getElementById('new-customer-fields').style.display = '';
+    }
+}
 </script>
 {% endblock %}

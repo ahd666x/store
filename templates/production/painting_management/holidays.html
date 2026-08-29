@@ -75,48 +75,41 @@
 
 {% block painting_js %}
 <script>
-$(function() {
-    const csrf = '{{ csrf_token }}';
-
-    $('#addHolidayForm').on('submit', function(e) {
+(function() {
+    const addHolidayForm = document.getElementById('addHolidayForm');
+    addHolidayForm?.addEventListener('submit', function(e) {
         e.preventDefault();
-        $.ajax({
-            url: '{% url "painting_holidays" %}',
+        const formData = new FormData(addHolidayForm);
+        fetch('{% url "painting_holidays" %}', {
             method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: {
-                csrfmiddlewaretoken: csrf,
-                action: 'create',
-                date: $('#holidayDate').val(),
-                description: $('[name="description"]').val()
-            },
-            success: function(resp) {
-                if (resp.success) location.reload();
-                else alert(resp.error || 'خطا');
-            },
-            error: function() { alert('خطای ارتباط با سرور'); }
-        });
+            headers: { 'X-CSRFToken': Csrf.getToken() },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(resp => {
+            if (resp.success) location.reload();
+            else alert(resp.error || 'خطا');
+        })
+        .catch(() => alert('خطای ارتباط با سرور'));
     });
 
-    $('.delete-holiday').on('click', function() {
-        if (!confirm('آیا از حذف این تعطیلی اطمینان دارید؟')) return;
-        const id = $(this).data('id');
-        $.ajax({
-            url: '{% url "painting_holidays" %}',
-            method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: {
-                csrfmiddlewaretoken: csrf,
-                action: 'delete',
-                holiday_id: id
-            },
-            success: function(resp) {
+    document.querySelectorAll('.delete-holiday').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!confirm('آیا از حذف این تعطیلی اطمینان دارید؟')) return;
+            const id = this.dataset.id;
+            fetch('{% url "painting_holidays" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': Csrf.getToken() },
+                body: new URLSearchParams({ csrfmiddlewaretoken: '{{ csrf_token }}', action: 'delete', holiday_id: id })
+            })
+            .then(res => res.json())
+            .then(resp => {
                 if (resp.success) location.reload();
                 else alert(resp.error || 'خطا');
-            },
-            error: function() { alert('خطای ارتباط با سرور'); }
+            })
+            .catch(() => alert('خطای ارتباط با سرور'));
         });
     });
-});
+})();
 </script>
 {% endblock %}

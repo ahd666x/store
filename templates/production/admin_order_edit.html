@@ -247,51 +247,23 @@
     </div>
 </div>
 
-<!-- اسکریپت‌های AJAX برای بارگذاری محصولات و رنگ‌ها (همانند create_step2) -->
+{% if initial_category %}
 <script>
-$(document).ready(function() {
-    // بارگذاری محصولات بر اساس دسته
-    $('#id_category').change(function() {
-        var categoryId = $(this).val();
-        if (categoryId) {
-            $.ajax({
-                url: "{% url 'ajax_load_products' %}",
-                data: { 'category': categoryId },
-                success: function(data) {
-                    var $productSelect = $('#id_product');
-                    $productSelect.empty();
-                    $productSelect.append($('<option>', { value: '', text: '---------' }));
-                    $.each(data, function(i, product) {
-                        $productSelect.append($('<option>', { value: product.id, text: product.name }));
-                    });
-                }
-            });
-        } else {
-            $('#id_product').empty().append($('<option>', { value: '', text: '---------' }));
-        }
-    });
-
-    // بارگذاری رنگ‌های پیش‌فرض محصول
-    $('#id_product').on('change', function() {
-        var productId = $(this).val();
-        if (productId) {
-            const baseUrl = "{% url 'ajax_load_product_colors' 0 %}";
-            fetch(baseUrl.replace('/0/', '/' + productId + '/'))
-                .then(response => response.json())
-                .then(data => {
-                    $('.color-field select').val(''); // ریست
-                    Object.keys(data.defaults).forEach(part => {
-                        $(`.color-field[data-part="${part}"] select`).val(data.defaults[part]);
-                    });
-                });
-        }
-    });
-
-    // فعال‌سازی انتخاب اولیه اگر دسته‌ای انتخاب شده باشد
-    var initialCategory = $('#id_category').val();
-    if (initialCategory) {
-        $('#id_category').trigger('change');
+window.CascadeConfig = [
+    {
+        categorySelector: '#id_category',
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_products" %}',
+        onSubmit: false
     }
-});
+];
+window.ColorFieldsConfig = [
+    {
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_product_colors" %}',
+        initialProduct: '{{ item_form.product.value|default:"" }}'
+    }
+];
 </script>
+{% endif %}
 {% endblock %}

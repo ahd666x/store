@@ -305,43 +305,16 @@
 </div>
 
 <script>
-(function() {
-    // ===== بارگذاری محصولات =====
-    const categorySelect = document.getElementById('id_category');
-    const productSelect = document.getElementById('id_product');
-    const initialProduct = "{{ selected_product|default:'' }}";
-
-    if (categorySelect && productSelect) {
-        async function loadProducts(categoryId) {
-            if (!categoryId) {
-                productSelect.innerHTML = '<option value="">همه</option>';
-                return;
-            }
-            try {
-                const baseUrl = "{% url 'ajax_load_products' %}";
-                const response = await fetch(`${baseUrl}?category=${categoryId}`);
-                const data = await response.json();
-                productSelect.innerHTML = '<option value="">همه</option>';
-                data.forEach(product => {
-                    const option = document.createElement('option');
-                    option.value = product.id;
-                    option.textContent = product.name;
-                    productSelect.appendChild(option);
-                });
-                if (initialProduct) productSelect.value = initialProduct;
-            } catch (error) {
-                console.error('خطا در بارگذاری محصولات:', error);
-            }
-        }
-
-        categorySelect.addEventListener('change', function() {
-            loadProducts(this.value);
-        });
-
-        if (categorySelect.value) loadProducts(categorySelect.value);
+window.CascadeConfig = [
+    {
+        categorySelector: '#id_category',
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_products" %}',
+        onSubmit: false
     }
-
-    // ===== مدیریت نمایش/مخفی مراحل =====
+];
+</script>
+<script>
     const toggles = document.querySelectorAll('.stage-toggle');
     function updateStageVisibility() {
         toggles.forEach(cb => {
@@ -359,6 +332,5 @@
         });
     });
     updateStageVisibility();
-})();
 </script>
 {% endblock %}

@@ -2,87 +2,21 @@
 {% load static %}
 {% block extra_js %}
 <script>
-$(document).ready(function() {
-    // ----- بارگذاری محصولات بر اساس دسته -----
-    function loadProducts(categoryId, selectedId) {
-        if (!categoryId) {
-            $('#id_product').html('<option value="">---------</option>');
-            resetColorFields();
-            return;
-        }
-        $.ajax({
-            url: "{% url 'ajax_load_products' %}",
-            data: {'category': categoryId},
-            success: function(data) {
-                var options = '<option value="">---------</option>';
-                $.each(data, function(i, product) {
-                    options += '<option value="' + product.id + '">' + product.name + '</option>';
-                });
-                $('#id_product').html(options);
-                if (selectedId) $('#id_product').val(selectedId);
-                // پس از بارگذاری محصولات، رنگ‌ها را ریست کن
-                resetColorFields();
-            }
-        });
+window.CascadeConfig = [
+    {
+        categorySelector: '#id_category',
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_products" %}',
+        onSubmit: false
     }
-
-    // ----- بارگذاری رنگ‌های محصول هنگام تغییر محصول -----
-    function updateColorFields(defaults) {
-        const allowedParts = Object.keys(defaults);
-        document.querySelectorAll('.color-field').forEach(function(el) {
-            const part = el.getAttribute('data-part');
-            if (allowedParts.includes(part)) {
-                el.style.display = '';
-                const select = el.querySelector('select');
-                if (select && defaults[part]) {
-                    select.value = defaults[part];
-                } else if (select) {
-                    select.value = '';
-                }
-            } else {
-                el.style.display = 'none';
-                const select = el.querySelector('select');
-                if (select) select.value = '';
-            }
-        });
+];
+window.ColorFieldsConfig = [
+    {
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_product_colors" %}',
+        initialProduct: '{{ item_form.product.value|default:"" }}'
     }
-
-    function resetColorFields() {
-        document.querySelectorAll('.color-field').forEach(function(el) {
-            el.style.display = '';
-            const select = el.querySelector('select');
-            if (select) select.value = '';
-        });
-    }
-
-    $('#id_product').on('change', function() {
-        var productId = $(this).val();
-        if (productId) {
-            const baseUrl = "{% url 'ajax_load_product_colors' 0 %}";
-            fetch(baseUrl.replace('/0/', '/' + productId + '/'))
-                .then(response => response.json())
-                .then(data => updateColorFields(data.defaults));
-        } else {
-            resetColorFields();
-        }
-    });
-
-    // بارگذاری اولیه
-    var initialProduct = $('#id_product').val();
-    if (initialProduct) {
-        const baseUrl2 = "{% url 'ajax_load_product_colors' 0 %}";
-        fetch(baseUrl2.replace('/0/', '/' + initialProduct + '/'))
-            .then(response => response.json())
-            .then(data => updateColorFields(data.defaults));
-    }
-
-    $('#id_category').change(function() {
-        loadProducts($(this).val());
-    });
-
-    var initialCat = $('#id_category').val();
-    if (initialCat) loadProducts(initialCat, "{{ item_form.product.value|default:'' }}");
-});
+];
 </script>
 {% endblock %}
 

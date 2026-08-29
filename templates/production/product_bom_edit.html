@@ -150,13 +150,11 @@ document.getElementById('add-bom-row').addEventListener('click', function() {
     const totalForms = document.getElementById('id_bom-TOTAL_FORMS');
     const currentCount = parseInt(totalForms.value);
     const tbody = document.getElementById('bom-rows');
-    // یک ردیف جدید بر اساس آخرین ردیف موجود کپی کن
-    const rows = tbody.querySelectorAll('tr:not(.errorlist)'); // ردیف‌های دارای فرم
+    const rows = tbody.querySelectorAll('tr:not(.errorlist)');
     let templateRow;
     if (rows.length > 0) {
         templateRow = rows[rows.length - 1].cloneNode(true);
     } else {
-        // اگر هیچ ردیفی نبود، یک ردیف خالی دستی بسازیم
         templateRow = document.createElement('tr');
         templateRow.innerHTML = `
             <td><select name="bom-${currentCount}-part" class="form-select form-select-sm" id="id_bom-${currentCount}-part"><option value="">---------</option></select></td>
@@ -168,16 +166,13 @@ document.getElementById('add-bom-row').addEventListener('click', function() {
             <td><input type="hidden" name="bom-${currentCount}-color_material_map" id="id_bom-${currentCount}-color_material_map"></td>
         `;
     }
-    // به‌روزرسانی name و id با ایندکس جدید
     templateRow.querySelectorAll('input, select, textarea').forEach(el => {
         el.name = el.name.replace(/bom-\d+/, `bom-${currentCount}`);
         el.id = el.id.replace(/id_bom-\d+/, `id_bom-${currentCount}`);
-        // پاک کردن مقادیر (به‌جز select)
         if (el.type === 'checkbox') el.checked = false;
         else if (el.tagName === 'SELECT') el.selectedIndex = 0;
         else el.value = '';
     });
-    // حذف ستون حذف در صورت وجود
     templateRow.querySelector('td:last-child').innerHTML = '';
     tbody.appendChild(templateRow);
     totalForms.value = currentCount + 1;

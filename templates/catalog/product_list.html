@@ -48,7 +48,7 @@
             <div class="card lg:sticky lg:top-24">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="font-semibold text-stone-900">فیلترها</h3>
-                    <button onclick="resetFilters()" class="text-sm text-primary-600 hover:text-primary-800">
+                    <button data-filter-reset class="text-sm text-primary-600 hover:text-primary-800">
                         پاک کردن
                     </button>
                 </div>
@@ -103,7 +103,7 @@
                         </select>
                     </div>
                     
-                    <button onclick="applyFilters()" class="btn-primary w-full">
+                    <button data-filter-apply class="btn-primary w-full">
                         اعمال فیلترها
                     </button>
                 </div>
@@ -169,7 +169,7 @@
                             </select>
                         </div>
                         
-                        <button @click="applyMobileFilters()" class="btn-primary w-full">
+                        <button data-filter-apply class="btn-primary w-full">
                             اعمال فیلترها
                         </button>
                     </div>
@@ -245,50 +245,4 @@
         </div>
     </div>
 </div>
-
-<script>
-function applyFilters() {
-    const search = document.getElementById('searchInput').value;
-    const category = document.getElementById('categoryFilter').value;
-    const sort = document.getElementById('sortFilter').value;
-    const color = document.getElementById('colorFilter').value;
-    const minPrice = document.getElementById('minPrice').value;
-    const maxPrice = document.getElementById('maxPrice').value;
-    
-    const url = new URL(window.location);
-    if (search) url.searchParams.set('q', search);
-    if (category) url.searchParams.set('category', category);
-    if (sort) url.searchParams.set('sort', sort);
-    if (color) url.searchParams.set('color', color);
-    if (minPrice) url.searchParams.set('min_price', minPrice);
-    if (maxPrice) url.searchParams.set('max_price', maxPrice);
-    
-    url.searchParams.set('page', '1');
-    window.location = url.toString();
-}
-
-function applyMobileFilters() {
-    const search = document.getElementById('mobileSearchInput').value;
-    const category = document.getElementById('mobileCategoryFilter').value;
-    const sort = document.getElementById('mobileSortFilter').value;
-    const color = document.getElementById('mobileColorFilter').value;
-    const minPrice = document.getElementById('mobileMinPrice').value;
-    const maxPrice = document.getElementById('mobileMaxPrice').value;
-    
-    const url = new URL(window.location);
-    if (search) url.searchParams.set('q', search);
-    if (category) url.searchParams.set('category', category);
-    if (sort) url.searchParams.set('sort', sort);
-    if (color) url.searchParams.set('color', color);
-    if (minPrice) url.searchParams.set('min_price', minPrice);
-    if (maxPrice) url.searchParams.set('max_price', maxPrice);
-    
-    url.searchParams.set('page', '1');
-    window.location = url.toString();
-}
-
-function resetFilters() {
-    window.location = '{% url "catalog:product_list" %}';
-}
-</script>
 {% endblock %}

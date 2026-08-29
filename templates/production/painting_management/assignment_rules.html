@@ -226,111 +226,114 @@
 
 {% block painting_js %}
 <script>
-$(function() {
-    const csrf = '{{ csrf_token }}';
+(function() {
+    const ruleModal = new bootstrap.Modal(document.getElementById('ruleModal'));
+    const ruleTypeSelect = document.getElementById('ruleType');
+    const priorityField = document.getElementById('priorityField');
 
     function updatePriorityVisibility() {
-        const type = $('#ruleType').val();
-        if (type === 'priority') {
-            $('#priorityField').show();
+        if (ruleTypeSelect.value === 'priority') {
+            priorityField.style.display = '';
         } else {
-            $('#priorityField').hide();
+            priorityField.style.display = 'none';
         }
     }
 
     updatePriorityVisibility();
-    $('#ruleType').on('change', updatePriorityVisibility);
+    ruleTypeSelect?.addEventListener('change', updatePriorityVisibility);
 
-    $('#addRuleBtn').on('click', function() {
-        $('#ruleId').val('');
-        $('#modalTitle').text('جدید');
-        $('#ruleWorker').val('');
-        $('#ruleStage').val('');
-        $('#ruleProcess').val('');
-        $('#ruleColors').val('');
-        $('#ruleType').val('priority');
-        $('#rulePriority').val(100);
-        $('#ruleActive').prop('checked', true);
+    document.getElementById('addRuleBtn')?.addEventListener('click', function() {
+        document.getElementById('ruleId').value = '';
+        document.getElementById('modalTitle').textContent = 'جدید';
+        document.getElementById('ruleWorker').value = '';
+        document.getElementById('ruleStage').value = '';
+        document.getElementById('ruleProcess').value = '';
+        document.getElementById('ruleColors').value = '';
+        ruleTypeSelect.value = 'priority';
+        document.getElementById('rulePriority').value = 100;
+        document.getElementById('ruleActive').checked = true;
         updatePriorityVisibility();
     });
 
-    $('.edit-rule').on('click', function() {
-        const btn = $(this);
-        $('#ruleId').val(btn.data('id'));
-        $('#modalTitle').text('ویرایش');
-        $('#ruleWorker').val(btn.data('worker'));
-        $('#ruleStage').val(btn.data('stage') || '');
-        $('#ruleProcess').val(btn.data('process') || '');
-        $('#ruleColors').val(btn.data('colors') || '');
-        $('#ruleType').val(btn.data('rule-type') || 'priority');
-        $('#ruleActive').prop('checked', btn.data('active') === 'true');
-        updatePriorityVisibility();
-        $('#ruleModal').modal('show');
+    document.querySelectorAll('.edit-rule').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('ruleId').value = this.dataset.id;
+            document.getElementById('modalTitle').textContent = 'ویرایش';
+            document.getElementById('ruleWorker').value = this.dataset.worker;
+            document.getElementById('ruleStage').value = this.dataset.stage || '';
+            document.getElementById('ruleProcess').value = this.dataset.process || '';
+            document.getElementById('ruleColors').value = this.dataset.colors || '';
+            ruleTypeSelect.value = this.dataset.ruleType || 'priority';
+            document.getElementById('ruleActive').checked = this.dataset.active === 'true';
+            updatePriorityVisibility();
+            ruleModal.show();
+        });
     });
 
-    $('#ruleForm').on('submit', function(e) {
+    document.getElementById('ruleForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
-        const ruleId = $('#ruleId').val();
+        const ruleId = document.getElementById('ruleId').value;
         const action = ruleId ? 'edit' : 'create';
+        const formData = new FormData(this);
         const data = {
-            csrfmiddlewaretoken: csrf,
+            csrfmiddlewaretoken: '{{ csrf_token }}',
             action: action,
             rule_id: ruleId,
-            worker: $('#ruleWorker').val(),
-            stage: $('#ruleStage').val(),
-            process: $('#ruleProcess').val(),
-            color_codes: $('#ruleColors').val(),
-            rule_type: $('#ruleType').val(),
-            priority: $('#rulePriority').val(),
-            is_active: $('#ruleActive').is(':checked')
+            worker: formData.get('worker'),
+            stage: formData.get('stage'),
+            process: formData.get('process'),
+            color_codes: formData.get('color_codes'),
+            rule_type: formData.get('rule_type'),
+            priority: formData.get('priority'),
+            is_active: formData.get('is_active') === 'on'
         };
-        $.ajax({
-            url: '{% url "painting_assignment_rules" %}',
+        fetch('{% url "painting_assignment_rules" %}', {
             method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: data,
-            success: function(resp) {
-                if (resp.success) {
-                    window.location.reload();
-                } else {
-                    alert(resp.error || 'خطا در ذخیره ');
-                }
-            },
-            error: function() { alert('خطای ارتباط با سرور'); }
+            headers: { 'X-CSRFToken': Csrf.getToken() },
+            body: new URLSearchParams(data)
+        })
+        .then(res => res.json())
+        .then(resp => {
+            if (resp.success) window.location.reload();
+            else alert(resp.error || 'خطا در ذخیره ');
+        })
+        .catch(() => alert('خطای ارتباط با سرور'));
+    });
+
+    document.querySelectorAll('.delete-rule').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!confirm('آیا از حذف این  مطمئن هستید؟')) return;
+            const id = this.dataset.id;
+            fetch('{% url "painting_assignment_rules" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': Csrf.getToken() },
+                body: new URLSearchParams({ csrfmiddlewaretoken: '{{ csrf_token }}', action: 'delete', rule_id: id })
+            })
+            .then(res => res.json())
+            .then(resp => {
+                if (resp.success) window.location.reload();
+                else alert(resp.error || 'خطا');
+            })
+            .catch(() => alert('خطای ارتباط با سرور'));
         });
     });
 
-    $('.delete-rule').on('click', function() {
-        if (!confirm('آیا از حذف این  مطمئن هستید؟')) return;
-        const id = $(this).data('id');
-        $.ajax({
-            url: '{% url "painting_assignment_rules" %}',
-            method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: { csrfmiddlewaretoken: csrf, action: 'delete', rule_id: id },
-            success: function(resp) {
+    document.querySelectorAll('.toggle-active').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            fetch('{% url "painting_assignment_rules" %}', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': Csrf.getToken() },
+                body: new URLSearchParams({ csrfmiddlewaretoken: '{{ csrf_token }}', action: 'toggle_active', rule_id: id })
+            })
+            .then(res => res.json())
+            .then(resp => {
                 if (resp.success) window.location.reload();
                 else alert(resp.error || 'خطا');
-            },
-            error: function() { alert('خطای ارتباط با سرور'); }
+            })
+            .catch(() => alert('خطای ارتباط با سرور'));
         });
     });
-
-    $('.toggle-active').on('click', function() {
-        const id = $(this).data('id');
-        const isActive = $(this).data('active') === 'true';
-        $.ajax({
-            url: '{% url "painting_assignment_rules" %}',
-            method: 'POST',
-            headers: {'X-Requested-With': 'XMLHttpRequest'},
-            data: { csrfmiddlewaretoken: csrf, action: 'toggle_active', rule_id: id },
-            success: function(resp) {
-                if (resp.success) window.location.reload();
-                else alert(resp.error || 'خطا');
-            },
-            error: function() { alert('خطای ارتباط با سرور'); }
-        });
-    });
-});
+})();
 </script>
 {% endblock %}

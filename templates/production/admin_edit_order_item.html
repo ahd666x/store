@@ -58,24 +58,13 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    $('#id_category').change(function() {
-        var categoryId = $(this).val();
-        if (categoryId) {
-            $.ajax({
-                url: "{% url 'ajax_load_products' %}",
-                data: { 'category': categoryId },
-                success: function(data) {
-                    var $productSelect = $('#id_product');
-                    $productSelect.empty();
-                    $productSelect.append($('<option>', { value: '', text: '---------' }));
-                    $.each(data, function(i, product) {
-                        $productSelect.append($('<option>', { value: product.id, text: product.name }));
-                    });
-                }
-            });
-        }
-    });
-});
+window.CascadeConfig = [
+    {
+        categorySelector: '#id_category',
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_products" %}',
+        onSubmit: false
+    }
+];
 </script>
 {% endblock %}

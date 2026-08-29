@@ -96,95 +96,21 @@
     
 {% block extra_js %}
 <script>
-$(document).ready(function() {
-    // ----- بارگذاری محصولات بر اساس دسته (بدون تغییر) -----
-    $('#id_category').change(function() {
-        var categoryId = $(this).val();
-        if (categoryId) {
-            $.ajax({
-                url: "{% url 'ajax_load_products' %}",
-                data: { 'category': categoryId },
-                success: function(data) {
-                    var $productSelect = $('#id_product');
-                    $productSelect.empty();
-                    $productSelect.append($('<option>', { value: '', text: '---------' }));
-                    $.each(data, function(i, product) {
-                        $productSelect.append($('<option>', {
-                            value: product.id,
-                            text: product.name
-                        }));
-                    });
-                    // پس از بارگذاری محصولات، رنگ‌ها را ریست کن
-                    resetColorFields();
-                }
-            });
-        } else {
-            $('#id_product').empty().append($('<option>', { value: '', text: '---------' }));
-            resetColorFields();
-        }
-    });
-
-    // ----- بارگذاری رنگ‌های محصول هنگام تغییر محصول -----
-    $('#id_product').on('change', function() {
-        var productId = $(this).val();
-        if (productId) {
-            const baseUrl = "{% url 'ajax_load_product_colors' 0 %}";
-            fetch(baseUrl.replace('/0/', '/' + productId + '/'))
-                .then(response => response.json())
-                .then(data => {
-                    updateColorFields(data.defaults);
-                });
-        } else {
-            resetColorFields();
-        }
-    });
-
-    // ----- مقداردهی اولیه رنگ‌ها در صورت وجود محصول انتخاب‌شده -----
-    var initialProduct = $('#id_product').val();
-    if (initialProduct) {
-        const baseUrl2 = "{% url 'ajax_load_product_colors' 0 %}";
-        fetch(baseUrl2.replace('/0/', '/' + initialProduct + '/'))
-            .then(response => response.json())
-            .then(data => {
-                updateColorFields(data.defaults);
-            });
+window.CascadeConfig = [
+    {
+        categorySelector: '#id_category',
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_products" %}',
+        onSubmit: false
     }
-
-    // ----- توابع کمکی -----
-    function updateColorFields(defaults) {
-        const allowedParts = Object.keys(defaults);
-        document.querySelectorAll('.color-field').forEach(function(el) {
-            const part = el.getAttribute('data-part');
-            if (allowedParts.includes(part)) {
-                el.style.display = '';   // نمایش
-                const select = el.querySelector('select');
-                if (select && defaults[part]) {
-                    select.value = defaults[part];
-                } else if (select) {
-                    select.value = '';
-                }
-            } else {
-                el.style.display = 'none'; // مخفی‌سازی
-                const select = el.querySelector('select');
-                if (select) select.value = '';
-            }
-        });
+];
+window.ColorFieldsConfig = [
+    {
+        productSelector: '#id_product',
+        url: '{% url "ajax_load_product_colors" %}',
+        initialProduct: '{{ item_form.product.value|default:"" }}'
     }
-
-    function resetColorFields() {
-        document.querySelectorAll('.color-field').forEach(function(el) {
-            el.style.display = ''; // همه را نمایش بده (یا بسته به نیاز)
-            const select = el.querySelector('select');
-            if (select) select.value = '';
-        });
-    }
-
-    // اگر دسته از قبل انتخاب شده بود، لیست محصولات را بارگذاری کن
-    var initialCategory = $('#id_category').val();
-    if (initialCategory) {
-        $('#id_category').trigger('change');
-    }
-});
+];
 </script>
 {% endblock %}
 

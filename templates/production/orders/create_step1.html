@@ -57,27 +57,27 @@
 
 {% if is_admin %}
 <script>
-$(document).ready(function() {
-    // وقتی نماینده تغییر کرد، لیست مشتریان به‌روز شود
-    $('#id_representative').change(function() {
-        var userId = $(this).val();
-        var $customerSelect = $('#id_customer');
-        $customerSelect.empty();
-        $customerSelect.append($('<option>', { value: '', text: '---------' }));
-        if (userId) {
-            $.ajax({
-                url: "{% url 'ajax_load_customers' %}",
-                data: { 'representative': userId },
-                success: function(data) {
-                    $.each(data, function(i, customer) {
-                        $customerSelect.append($('<option>', {
-                            value: customer.id,
-                            text: customer.name
-                        }));
-                    });
-                }
-            });
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const repSelect = document.getElementById('id_representative');
+    const customerSelect = document.getElementById('id_customer');
+    if (!repSelect || !customerSelect) return;
+
+    repSelect.addEventListener('change', function() {
+        const userId = this.value;
+        customerSelect.innerHTML = '<option value="">---------</option>';
+        if (!userId) return;
+
+        fetch('{% url "ajax_load_customers" %}?representative=' + encodeURIComponent(userId))
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(customer => {
+                    const option = document.createElement('option');
+                    option.value = customer.id;
+                    option.textContent = customer.name;
+                    customerSelect.appendChild(option);
+                });
+            })
+            .catch(err => console.error('خطا:', err));
     });
 });
 </script>

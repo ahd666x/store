@@ -158,7 +158,6 @@
 </div>
 
 <script>
-    // ========== مدیریت چک‌باکس‌ها ==========
     document.addEventListener('DOMContentLoaded', function() {
         const selectAllCheckbox = document.getElementById('select-all');
         const orderCheckboxes = document.querySelectorAll('.order-checkbox');
@@ -181,7 +180,6 @@
 
         orderCheckboxes.forEach(cb => {
             cb.addEventListener('change', updateSelectedCount);
-            // جلوگیری از کلیک روی سطر هنگام کلیک روی چک‌باکس
             cb.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
@@ -189,15 +187,6 @@
 
         updateSelectedCount();
 
-        // ========== کلیک روی سطر (رفتن به جزئیات) ==========
-        document.querySelectorAll('.clickable-row').forEach(row => {
-            row.addEventListener('click', function(e) {
-                if (e.target.closest('a, button, input[type="checkbox"]')) return;
-                window.location.href = this.dataset.href;
-            });
-        });
-
-        // ========== ایجاد دستور تولید با AJAX ==========
         document.querySelectorAll('.generate-tasks').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
