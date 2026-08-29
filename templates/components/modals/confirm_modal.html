@@ -8,7 +8,7 @@
     </div>
     {% if confirm_action %}
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ cancel_text|default:"انصراف" }}</button>
+        <button type="button" class="btn btn-secondary" @click="$dispatch('close-modal')">{{ cancel_text|default:"انصراف" }}</button>
         <a href="{{ confirm_action }}" class="btn {{ confirm_class|default:'btn-danger' }}">{{ confirm_text|default:"بله، حذف کن" }}</a>
     </div>
     {% endif %}

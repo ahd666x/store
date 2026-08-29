@@ -1,0 +1,143 @@
+/* ========================================
+   COMPONENTS CSS - سلوی چوب
+   Shared component styles
+   ======================================== */
+
+/* Navbar */
+.navbar-custom {
+    background: #fff;
+    border-bottom: 1px solid #e9eef2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+    padding: 0.5rem 1rem;
+}
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #0f172a !important;
+    letter-spacing: -0.5px;
+    text-decoration: none;
+}
+.navbar-brand:hover {
+    color: #1e293b !important;
+}
+.nav-link {
+    font-weight: 500;
+    color: #4b5563 !important;
+    transition: 0.2s;
+    padding: 0.5rem 0.8rem;
+    text-decoration: none;
+}
+.nav-link:hover {
+    color: #3b82f6 !important;
+}
+.user-badge {
+    background: #f1f5f9;
+    border-radius: 30px;
+    padding: 0.25rem 1rem;
+    font-size: 0.9rem;
+    color: #334155;
+    display: inline-block;
+}
+
+/* Cards */
+.product-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+.table-product th,
+.table-product td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.color-badge {
+    display: inline-block;
+    background: #e9ecef;
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin: 2px;
+}
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+.clickable-row:hover {
+    background-color: #f8f9fa;
+}
+
+/* Forms */
+.form-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 12px;
+    font-size: 0.9rem;
+}
+
+/* Shop */
+.shop-navbar {
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    padding: 0.8rem 0;
+}
+.shop-footer {
+    background: #ffffff;
+    margin-top: 3rem;
+    padding: 2rem 0;
+    color: #6c757d;
+    border-top: 1px solid #eef2f6;
+}
+
+/* Login */
+.login-card {
+    max-width: 400px;
+    margin: 80px auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.login-card .card-header {
+    background: #2c3e50;
+    color: white;
+    border-radius: 20px 20px 0 0 !important;
+    padding: 25px 20px;
+    text-align: center;
+}
+.btn-login {
+    background: #27ae60;
+    color: white;
+    font-weight: bold;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    width: 100%;
+    transition: background 0.2s;
+}
+.btn-login:hover {
+    background: #219a52;
+    color: white;
+}
+.login-card .form-control {
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+.login-card .form-control:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+}
+
+/* Search */
+.search-box {
+    max-width: 350px;
+}
