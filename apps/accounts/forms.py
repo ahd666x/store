@@ -16,7 +16,7 @@ class UserRegistrationForm(UserCreationForm):
         required=True,
         validators=[IranianPhoneValidator()],
         label="شماره موبایل",
-        widget=forms.TextInput(attrs={'placeholder': '09123456789'}),
+        widget=forms.TextInput(attrs={'placeholder': ''}),
     )
 
     class Meta:
