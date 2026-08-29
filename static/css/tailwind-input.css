@@ -1209,6 +1209,56 @@
   }
 
   /* ==========================================
+      ADMIN TASKS MANAGEMENT
+      ========================================== */
+  .filter-bar {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .filter-bar .form-control,
+  .filter-bar .form-select {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+  .filter-bar .form-control:focus,
+  .filter-bar .form-select:focus {
+    background: #fff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+  }
+  .task-table .form-select {
+    border-radius: 8px;
+    font-size: 0.82rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 140px;
+  }
+  .status-badge {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .status-badge.waiting { background: #e5e9ff; color: #3140b8; }
+  .status-badge.pending { background: #fdecc8; color: #8a5a00; }
+  .status-badge.done { background: #d1f5e0; color: #0f7b41; }
+  .card-header-gradient {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #0f172a;
+  }
+
+  /* ==========================================
       NAVBAR
       ========================================== */
   .navbar-custom {
