@@ -57,13 +57,13 @@
                     {# Search #}
                     <div>
                         <label class="form-label">جستجو</label>
-                        <input type="text" placeholder="نام محصول..." class="form-input" id="searchInput" value="{{ query }}">
+                        <input type="text" placeholder="نام محصول..." class="form-input w-full" id="searchInput" value="{{ query }}">
                     </div>
                     
                     {# Category #}
                     <div>
                         <label class="form-label">دسته‌بندی</label>
-                        <select class="form-select" id="categoryFilter">
+                        <select class="form-select w-full" id="categoryFilter">
                             <option value="">همه دسته‌ها</option>
                             {% for category in categories %}
                                 <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
@@ -74,16 +74,16 @@
                     {# Price Range #}
                     <div>
                         <label class="form-label">محدوده قیمت (تومان)</label>
-                        <div class="flex gap-2">
-                            <input type="number" placeholder="از" class="form-input" id="minPrice" value="{{ min_price }}">
-                            <input type="number" placeholder="تا" class="form-input" id="maxPrice" value="{{ max_price }}">
+                        <div class="flex gap-2 w-full min-w-0">
+                            <input type="number" placeholder="از" class="form-input w-full min-w-0" id="minPrice" value="{{ min_price }}">
+                            <input type="number" placeholder="تا" class="form-input w-full min-w-0" id="maxPrice" value="{{ max_price }}">
                         </div>
                     </div>
                     
                     {# Sort #}
                     <div>
                         <label class="form-label">مرتب‌سازی</label>
-                        <select class="form-select" id="sortFilter">
+                        <select class="form-select w-full" id="sortFilter">
                             <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
                             <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>قیمت: کم به زیاد</option>
                             <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>قیمت: زیاد به کم</option>
@@ -95,7 +95,7 @@
                     {# Color #}
                     <div>
                         <label class="form-label">رنگ</label>
-                        <select class="form-select" id="colorFilter">
+                        <select class="form-select w-full" id="colorFilter">
                             <option value="">همه رنگ‌ها</option>
                             {% for color in colors %}
                                 <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>{{ color }}</option>
@@ -113,7 +113,7 @@
         {# Mobile Filters Drawer #}
         <div x-show="mobileFilters" x-cloak class="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
             <div x-show="mobileFilters" x-transition.opacity class="fixed inset-0 bg-black/50" @click="mobileFilters = false"></div>
-            <div x-show="mobileFilters" x-transition.slide.right class="fixed inset-y-0 end-0 w-full max-w-xs bg-white shadow-elevation-3 overflow-y-auto">
+            <div x-show="mobileFilters" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="fixed inset-y-0 start-0 w-full max-w-xs bg-white shadow-elevation-3 overflow-y-auto">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-stone-900">فیلترها</h3>
@@ -127,12 +127,12 @@
                     <div class="space-y-6">
                         <div>
                             <label class="form-label">جستجو</label>
-                            <input type="text" placeholder="نام محصول..." class="form-input" id="mobileSearchInput" value="{{ query }}">
+                            <input type="text" placeholder="نام محصول..." class="form-input w-full" id="mobileSearchInput" value="{{ query }}">
                         </div>
                         
                         <div>
                             <label class="form-label">دسته‌بندی</label>
-                            <select class="form-select" id="mobileCategoryFilter">
+                            <select class="form-select w-full" id="mobileCategoryFilter">
                                 <option value="">همه دسته‌ها</option>
                                 {% for category in categories %}
                                     <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
@@ -142,15 +142,15 @@
                         
                         <div>
                             <label class="form-label">محدوده قیمت (تومان)</label>
-                            <div class="flex gap-2">
-                                <input type="number" placeholder="از" class="form-input" id="mobileMinPrice" value="{{ min_price }}">
-                                <input type="number" placeholder="تا" class="form-input" id="mobileMaxPrice" value="{{ max_price }}">
-                            </div>
+                        <div class="flex gap-2 w-full min-w-0">
+                            <input type="number" placeholder="از" class="form-input w-full min-w-0" id="mobileMinPrice" value="{{ min_price }}">
+                            <input type="number" placeholder="تا" class="form-input w-full min-w-0" id="mobileMaxPrice" value="{{ max_price }}">
+                        </div>
                         </div>
                         
                         <div>
                             <label class="form-label">مرتب‌سازی</label>
-                            <select class="form-select" id="mobileSortFilter">
+                            <select class="form-select w-full" id="mobileSortFilter">
                                 <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
                                 <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>قیمت: کم به زیاد</option>
                                 <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>قیمت: زیاد به کم</option>
@@ -161,7 +161,7 @@
 
                         <div>
                             <label class="form-label">رنگ</label>
-                            <select class="form-select" id="mobileColorFilter">
+                            <select class="form-select w-full" id="mobileColorFilter">
                                 <option value="">همه رنگ‌ها</option>
                                 {% for color in colors %}
                                     <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>{{ color }}</option>
@@ -205,7 +205,7 @@
 
             {# Products Grid #}
             {% if products %}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                     {% for product in products %}
                         {% include 'catalog/includes/product_card.html' with product=product %}
                     {% endfor %}
