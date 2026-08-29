@@ -4,23 +4,25 @@
 
 <h3>سفارش‌های تاخیری</h3>
 
-<table class="table table-bordered">
-<tr>
-    <th>شماره</th>
-    <th>مشتری</th>
-</tr>
-
+<table class="table-modern border border-stone-200">
+<thead class="bg-stone-50">
+    <tr>
+        <th class="px-4 py-2 text-right text-xs font-semibold text-stone-500 uppercase">شماره</th>
+        <th class="px-4 py-2 text-right text-xs font-semibold text-stone-500 uppercase">مشتری</th>
+    </tr>
+</thead>
+<tbody>
 {% for o in orders %}
-<tr>
-    <td>{{ o.id }}</td>
-    <td>{{ o.customer_name }}</td>
+<tr class="border-b border-stone-100 hover:bg-stone-50">
+    <td class="px-4 py-2 text-sm text-stone-700">{{ o.id }}</td>
+    <td class="px-4 py-2 text-sm text-stone-700">{{ o.customer_name }}</td>
 </tr>
 {% empty %}
 <tr>
-    <td colspan="2">موردی نیست</td>
+    <td colspan="2" class="px-4 py-2 text-sm text-stone-500 text-center">موردی نیست</td>
 </tr>
 {% endfor %}
-
+</tbody>
 </table>
 
 {% endblock %}
