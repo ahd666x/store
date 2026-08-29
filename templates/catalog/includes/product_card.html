@@ -2,7 +2,7 @@
 
 {# Product Card Component - دکارو #}
 
-<div class="group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1">
+<div class="group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
     {# Product Image #}
     <div class="relative aspect-[4/3] bg-stone-100 overflow-hidden">
         {% if product.images.all %}
@@ -36,7 +36,7 @@
     </div>
     
     {# Product Info #}
-    <div class="p-5">
+    <div class="p-5 flex flex-col flex-1">
         <div class="mb-2">
             <span class="text-xs font-medium text-primary-600 bg-primary-50 px-2.5 py-1 rounded-full">
                 {% if product.category %}{{ product.category.name }}{% else %}کابینت{% endif %}
@@ -71,7 +71,7 @@
         {% endif %}
         
         {# Price & Actions #}
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between mt-auto">
             <div>
                 <span class="text-xl font-bold text-primary-600">{{ product.price }} تومان</span>
                 {% if product.base_price and product.base_price != product.price %}

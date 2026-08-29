@@ -43,7 +43,7 @@
                 {# Quick Search (Desktop) #}
                 <form action="{% url 'catalog:product_list' %}" method="get" class="hidden md:flex items-center relative">
                     <input type="text" name="q" placeholder="جستجو..." aria-label="جستجو" class="form-input w-48 lg:w-64 ps-10">
-                    <button type="submit" class="absolute end-1 text-stone-400 hover:text-primary-600" aria-label="جستجو">
+                    <button type="submit" class="absolute end-1 top-1/2 -translate-y-1/2 text-stone-400 hover:text-primary-600" aria-label="جستجو">
                         {% include 'includes/icons.html' with name='search' size=20 class='w-5 h-5' %}
                     </button>
                 </form>

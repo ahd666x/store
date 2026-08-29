@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.db.models import Q, Avg, Count
 from django.views.generic import CreateView, ListView, UpdateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from apps.catalog.models import Product
+from apps.catalog.models import Product, ProductCategory
 from apps.orders.models import Order
 from .models import User, OTPCode, Wishlist, WishlistItem
 from .forms import UserRegistrationForm, ProfileUpdateForm
@@ -17,7 +17,8 @@ def home(request):
         avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
         rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
     ).order_by('-created_at')[:8]
-    return render(request, 'home.html', {'featured_products': featured_products})
+    categories = ProductCategory.objects.all()[:8]
+    return render(request, 'home.html', {'featured_products': featured_products, 'categories': categories})
 
 
 class CustomLoginView(LoginView):
