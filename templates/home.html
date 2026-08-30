@@ -218,7 +218,7 @@
                                     مشاهده
                                 </a>
                                 {% if product.stock > 0 %}
-                                    <button onclick="addToCart({{ product.id }})" class="flex-1 btn-secondary py-2.5">
+                                    <button @click="Cart.add({{ product.id }})" class="flex-1 btn-secondary py-2.5">
                                         <svg class="w-4 h-4 inline-block me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
                                         </svg>
@@ -246,7 +246,7 @@
         </div>
         
         <div class="relative">
-            <div class="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-thin pb-4" style="scrollbar-width: thin;">
+                <div class="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-thin pb-4">
                 {# Testimonial 1 #}
                 <div class="min-w-[300px] md:min-w-[400px] snap-start card-hover p-6">
                     <div class="flex items-center gap-1 text-warning-400 mb-4">
@@ -384,12 +384,15 @@
             <h2 class="text-3xl md:text-4xl font-bold mb-4">عضویت در خبرنامه</h2>
             <p class="text-primary-100 mb-8 text-lg">از جدیدترین محصولات و تخفیف‌های ویژه ما باخبر شوید</p>
             
-            <form class="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto" onsubmit="event.preventDefault(); alert('این قابلیت به زودی فعال می‌شود.');">
-                <input type="email" placeholder="ایمیل خود را وارد کنید" aria-label="ایمیل" class="flex-1 px-5 py-3 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-white/50" required>
-                <button type="submit" class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
-                    عضویت
-                </button>
-            </form>
+            <div x-data="{ comingSoon: false }">
+                <form class="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto" @submit.prevent="comingSoon = true">
+                    <input type="email" placeholder="ایمیل خود را وارد کنید" aria-label="ایمیل" class="flex-1 px-5 py-3 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-white/50" required>
+                    <button type="submit" class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
+                        عضویت
+                    </button>
+                </form>
+                <p x-show="comingSoon" x-cloak class="text-primary-100 text-sm mt-3">این قابلیت به زودی فعال می‌شود.</p>
+            </div>
         </div>
     </div>
 </section>

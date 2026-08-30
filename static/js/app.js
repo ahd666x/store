@@ -17,32 +17,6 @@ const App = {
         CascadeSelect.init();
         ColorFields.init();
 
-        document.querySelectorAll('.select2-ajax').forEach(select => {
-            if (typeof $ !== 'undefined' && $.fn.select2) {
-                $(select).select2({
-                    theme: 'bootstrap-5',
-                    width: '100%',
-                    placeholder: 'جستجو...',
-                    allowClear: true,
-                    closeOnSelect: false,
-                    minimumInputLength: 0,
-                    ajax: {
-                        url: (params) => {
-                            const type = document.getElementById('exclusionType')?.value || 'products';
-                            return type === 'products' ? SEARCH_PRODUCTS_URL : SEARCH_ITEMS_URL;
-                        },
-                        dataType: 'json',
-                        delay: 250,
-                        data: (params) => ({ q: params.term || '' }),
-                        processResults: (data) => ({
-                            results: data.results.map(item => ({ id: item.id, text: item.text }))
-                        }),
-                        cache: false
-                    }
-                });
-            }
-        });
-
         document.querySelectorAll('.size-rule-preset').forEach(select => {
             const customInput = select.parentElement.querySelector('.size-rule-custom');
             const hiddenInput = select.parentElement.querySelector('.size-rule-hidden');
