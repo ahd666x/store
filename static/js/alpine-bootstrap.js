@@ -10,9 +10,17 @@ document.addEventListener('alpine:init', () => {
     }))
 
     Alpine.data('modal', () => ({
+        id: '',
+        titleId: '',
         open: false,
         show() {
             this.open = true
+            this.$nextTick(() => {
+                const root = document.getElementById(this.id)
+                if (!root) return
+                const focusable = root.querySelector('[autofocus], button, [href], input, select, textarea')
+                if (focusable) focusable.focus()
+            })
         },
         hide() {
             this.open = false

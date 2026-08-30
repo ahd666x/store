@@ -3,6 +3,11 @@
    Shared component styles
    ======================================== */
 
+/* Alpine.js: hide elements until initialized (used by modals, dropdowns, etc.) */
+[x-cloak] {
+    display: none !important;
+}
+
 /* Navbar */
 .navbar-custom {
     background: #fff;

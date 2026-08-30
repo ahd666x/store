@@ -1,15 +1,26 @@
+{% extends 'components/modals/modal.html' %}
 {% comment %} Confirm Modal Component - دکارو {% endcomment %}
-{% comment %} Purpose: Reusable confirmation dialog {% endcomment %}
-{% comment %} Variables: modal_id, title, message, confirm_text (default: "بله، حذف کن"), cancel_text (default: "انصراف"), confirm_action, confirm_class (default: btn-danger) {% endcomment %}
+{% comment %} Purpose: Reusable confirmation dialog (Alpine.js + Tailwind, Bootstrap-free) {% endcomment %}
+{% comment %} Variables: modal_id, title, message, confirm_text (default: بله، حذف کن), cancel_text (default: انصراف), confirm_action, confirm_class {% endcomment %}
+{% comment %} Reuses components/modals/modal.html and overrides the body/footer blocks. {% endcomment %}
 
-{% include 'components/modals/modal.html' with modal_id=modal_id title=title submit_text=confirm_text|default:"بله، حذف کن" cancel_text=cancel_text|default:"انصراف" submit_class=confirm_class|default:"btn-danger" size="" %}
-    <div class="modal-body">
-        <p>{{ message }}</p>
-    </div>
-    {% if confirm_action %}
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" @click="$dispatch('close-modal')">{{ cancel_text|default:"انصراف" }}</button>
-        <a href="{{ confirm_action }}" class="btn {{ confirm_class|default:'btn-danger' }}">{{ confirm_text|default:"بله، حذف کن" }}</a>
-    </div>
-    {% endif %}
-{% include 'components/modals/modal.html' %}
+{% block modal_body %}
+<div class="px-6 py-4 text-stone-700">
+    <p>{{ message }}</p>
+    {{ block.super }}
+</div>
+{% endblock %}
+
+{% block modal_footer %}
+<div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-stone-200">
+    <button type="button"
+            @click="hide()"
+            class="px-4 py-2 text-sm font-medium rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-stone-400 transition-colors">
+        {{ cancel_text|default:"انصراف" }}
+    </button>
+    <a href="{{ confirm_action }}"
+       class="px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 transition-colors {{ confirm_class|default:'' }}">
+        {{ confirm_text|default:"بله، حذف کن" }}
+    </a>
+</div>
+{% endblock %}
