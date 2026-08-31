@@ -2,9 +2,9 @@
 
 {# Product Card Component - دکارو #}
 
-<div :class="view === 'list' ? 'group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col md:flex-row' : 'group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col justify-between'">
+<div class="group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col" :class="view === 'list' ? 'md:flex-row' : 'justify-between'">
     {# Product Image #}
-    <div :class="view === 'list' ? 'relative md:w-2/5 aspect-[4/3] md:aspect-auto overflow-hidden bg-stone-100 flex-shrink-0' : 'relative aspect-square overflow-hidden bg-stone-100'">
+    <div class="relative overflow-hidden bg-stone-100" :class="view === 'list' ? 'md:w-2/5 aspect-[4/3] md:aspect-auto flex-shrink-0' : 'aspect-square'">
         {% if product.images.all %}
             <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
         {% else %}
@@ -25,7 +25,7 @@
         </div>
         
         {# Quick Actions Overlay #}
-        <div :class="view === 'list' ? 'hidden' : 'absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center'">
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center" :class="view === 'list' ? 'hidden' : ''">
             <a href="{% url 'catalog:product_detail' product.slug %}" class="bg-white text-stone-900 p-3 rounded-full hover:bg-stone-100 transition-colors" title="مشاهده سریع">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -36,7 +36,7 @@
     </div>
     
     {# Product Info #}
-    <div :class="view === 'list' ? 'p-5 md:w-3/5 flex flex-col justify-between' : 'p-5 flex flex-col flex-1'">
+    <div class="p-5 flex flex-col" :class="view === 'list' ? 'md:w-3/5 justify-between' : 'flex-1'">
         <div>
             <div class="mb-2">
                 <span class="text-xs font-medium text-primary-600 bg-primary-50 px-2.5 py-1 rounded-full">
@@ -48,7 +48,7 @@
                 <a href="{% url 'catalog:product_detail' product.slug %}">{{ product.name }}</a>
             </h3>
             
-            <p :class="view === 'list' ? 'text-sm text-stone-500 mb-3 line-clamp-3' : 'text-sm text-stone-500 mb-3 line-clamp-2'">{{ product.description|truncatewords:10 }}</p>
+            <p class="text-sm text-stone-500 mb-3" :class="view === 'list' ? 'line-clamp-3' : 'line-clamp-2'">{{ product.description|truncatewords:10 }}</p>
             
             {# Rating #}
             {% if product.average_rating %}
@@ -73,7 +73,7 @@
         </div>
         
         {# Price & Actions #}
-        <div :class="view === 'list' ? 'flex items-center justify-between mt-4' : 'flex items-center justify-between mt-auto'">
+        <div class="flex items-center justify-between" :class="view === 'list' ? 'mt-4' : 'mt-auto'">
             <div>
                 <span class="text-xl font-bold text-primary-600">{{ product.price }} تومان</span>
                 {% if product.base_price and product.base_price != product.price %}
@@ -81,7 +81,7 @@
                 {% endif %}
             </div>
             
-            <div :class="view === 'list' ? 'flex gap-2' : 'flex gap-2 mt-4'">
+            <div class="flex gap-2" :class="view === 'list' ? '' : 'mt-4'">
                 <a href="{% url 'catalog:product_detail' product.slug %}" class="flex-1 btn-primary text-center py-2.5">
                     مشاهده
                 </a>
