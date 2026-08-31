@@ -100,27 +100,11 @@ const Catalog = {
                 if (url) window.location.href = url;
             });
         });
-    },
-    
-    forceGridColumns() {
-        const grid = document.getElementById('products-grid');
-        if (grid) {
-            grid.style.setProperty('display', 'grid', 'important');
-            grid.style.setProperty('grid-template-columns', 'repeat(3, 1fr)', 'important');
-            grid.style.setProperty('gap', '1.5rem', 'important');
-        }
     }
 };
 
-// Force grid columns after Alpine mounts and on DOM changes
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => Catalog.forceGridColumns(), 100);
-        setTimeout(() => Catalog.forceGridColumns(), 500);
-        setTimeout(() => Catalog.forceGridColumns(), 1000);
-    });
-} else {
-    setTimeout(() => Catalog.forceGridColumns(), 100);
-    setTimeout(() => Catalog.forceGridColumns(), 500);
-    setTimeout(() => Catalog.forceGridColumns(), 1000);
-}
+document.addEventListener('DOMContentLoaded', () => {
+    Catalog.initPriceCalc();
+    Catalog.initFilters();
+    Catalog.initClickableRows();
+});
