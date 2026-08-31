@@ -1,5 +1,5 @@
 {% extends 'layouts/store.html' %}
-{% load jformat %}
+{% load static jformat %}
 
 {% block title %}لیست محصولات{% endblock %}
 {% block breadcrumb %}
@@ -245,4 +245,7 @@
         </div>
     </div>
 </div>
+{% block extra_js %}
+<script src="{% static 'js/store/catalog.js' %}"></script>
+{% endblock %}
 {% endblock %}

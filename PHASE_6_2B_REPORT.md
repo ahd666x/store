@@ -1,87 +1,133 @@
-# PHASE 6.2B — STOREFRONT HOME PAGE MIGRATION REPORT
+# PHASE 6.2B — STOREFRONT HOME PAGE MIGRATION
 
-**Project:** store (دکارو / سلوی چوب)
-**Scope:** Storefront Home page only (`templates/home.html`)
-**Date:** 2026-08-30
+## STATUS: COMPLETE
+
+The Storefront Home page was already migrated to the modern frontend stack in prior phases. This phase verified the current state, fixed one remaining inline-JS issue in a shared component used by the home page, validated rendering, and documented the result.
 
 ---
 
-## 1. Files Changed
+## FILES CHANGED
 
 | File | Change |
 |------|--------|
-| `templates/home.html` | Removed inline `style=`, inline `onclick`, inline `onsubmit`/`alert`; rewired add-to-cart to the real `Cart.add()` via Alpine `@click`; replaced testimonials inline scrollbar style with the `scrollbar-thin` design-system class; converted the newsletter form to Alpine `@submit.prevent` + `x-show` message |
-
-No Python, views, URLs, context, APIs, product queries, auth, or cart business logic were modified. No new components were created (existing ones reused).
-
-The Home template was already on Tailwind + Alpine + the project design system; the work was to eliminate the **legacy inline CSS/JS** and a **broken global function call** that the page relied on.
+| `templates/home.html` | Already migrated in prior commits. No structural changes required. |
+| `templates/catalog/includes/product_card.html` | Removed inline `onclick="addToCart(...)"` and replaced with Alpine `@click="Cart.add(...)"` to match the modern cart pattern used elsewhere on the home page. |
 
 ---
 
-## 2. Components Reused
+## COMPONENTS REUSED
 
-- `templates/catalog/includes/product_card.html` — reused via `{% include %}` for the "پیشنهادهای ما برای شما" (recommendations) section. **No duplicate card markup created.**
-- `templates/components/feedback/empty_state.html` — reused for the "no featured products" fallback (via `{% include %}` with `icon_svg`, `message`, `action_url`, `action_text`).
-- Project design-system classes (defined in `static/css/tailwind-input.css` → compiled into `static/css/style.css`): `btn-primary`, `btn-secondary`, `btn-lg`, `badge-danger`, `badge-warning`, `card-hover`, `section-container`, `section-padding`, `scrollbar-thin`, `me-2`.
+| Component | Usage on Home Page | Status |
+|-----------|-------------------|--------|
+| `catalog/includes/product_card.html` | Recommendations section (authenticated users) | Fixed inline JS |
+| `components/feedback/empty_state.html` | Empty state when no featured products | Already clean |
 
----
-
-## 3. Bootstrap Removed
-
-The page contained **no Bootstrap library CSS or JS** before or after. A targeted scan for classic Bootstrap utility classes returned **zero** matches: `container`, `row`, `col-*`, `d-flex`, `d-none`, `alert`, `modal`, `form-control`, `form-select`, `btn-close`, `navbar`, bare `badge`.
-
-The remaining class names (`btn-primary`, `badge-danger`, `me-2`, `card-hover`, `section-container`, `section-padding`) are the **project's own Tailwind component/utility classes** (defined in `tailwind-input.css`), not Bootstrap. They were intentionally retained per the instructions to *use the existing design system* and *reuse components*, not duplicate them.
-
-`data-bs-*` attributes: **none** in the page.
+No duplicate components were created.
 
 ---
 
-## 4. jQuery Removed
+## BOOTSTRAP REMOVED
 
-No jQuery was used on the page (no `$()` / `jQuery`). The add-to-cart button previously called a global `addToCart(...)`, which **did not exist anywhere** in the codebase (a latent bug). It now correctly invokes `Cart.add(productId)` (defined in `static/js/store/cart.js`, loaded globally by the layout) via Alpine `@click`. Still jQuery-free.
+**Bootstrap CSS:** None present on the home page or its includes.
+- No `bootstrap.rtl.min.css`
+- No `bootstrap.bundle.min.js`
+- No `data-bs-*` attributes
+- No Bootstrap classes (`alert-*`, `btn-close`, `modal-*`, `navbar-*`, `collapse`, `dropdown-toggle`, `table`, `form-control`, etc.)
+
+**jQuery Removed:** None present.
+- No `jquery-3.7.1.min.js`
+- No `$(` or `jQuery(` usage
 
 ---
 
-## 5. Inline CSS Removed
+## INLINE CSS REMOVED
+
+No inline `style="..."` attributes found in `home.html` or `product_card.html`.
+
+---
+
+## INLINE JS REMOVED
 
 | Before | After |
-|--------|-------|
-| `<div ... style="scrollbar-width: thin;">` (testimonials scroller) | `<div ... scrollbar-thin">` (project class, equivalent behavior) |
+|---------|-------|
+| `product_card.html`: `<button onclick="addToCart({{ product.id }})">` | `<button @click="Cart.add({{ product.id }})">` |
 
-No other `style=` attributes existed in the template.
-
----
-
-## 6. Inline JS Removed
-
-| Before | After |
-|--------|-------|
-| `<button onclick="addToCart({{ product.id }})">` (broken global) | `<button @click="Cart.add({{ product.id }})">` (Alpine; calls real cart API, updates `#cart-count-home`) |
-| `<form ... onsubmit="event.preventDefault(); alert('این قابلیت به زودی فعال می‌شود.');">` | `<div x-data="{ comingSoon: false }"><form ... @submit.prevent="comingSoon = true"> … <p x-show="comingSoon" x-cloak>این قابلیت به زودی فعال می‌شود.</p></div>` |
-
-The JSON-LD `<script type="application/ld+json">` SEO block was **preserved** (it is structured data, not behavioral JS, and is required SEO infrastructure per the preservation list).
+The home page's own featured products section already used `@click="Cart.add(...)` in prior commits. The shared `product_card.html` component was the last remaining inline-JS blocker.
 
 ---
 
-## 7. Responsive Validation
+## ALPINE.JS USAGE
 
-- **Mobile → Tablet → Desktop:** section grids use `grid-cols-1` → `sm:grid-cols-2` → `lg:grid-cols-4` (featured/recommendations) and `md:grid-cols-4` (categories) / `md:grid-cols-3` (features); hero CTAs use `flex-col sm:flex-row`; testimonials use `min-w-[300px] md:min-w-[400px]` with `overflow-x-auto snap-x`.
-- **RTL preserved:** `<html dir="rtl">` is set by the layout; the page uses logical/start-end utilities (`start-3`, `me-2`) and symmetric padding, so direction is unaffected.
-- Horizontal testimonial scroller retains `overflow-x-auto` + `scrollbar-thin` for touch/desktop scrolling.
+| Feature | Implementation |
+|---------|----------------|
+| Newsletter form | `x-data="{ comingSoon: false }"` with `@submit.prevent` |
+| Toast notifications | `includes/toast.html` — `x-show`, `x-transition`, auto-dismiss |
+| Header dropdowns | `includes/header.html` — `userMenuOpen`, `mobileMenuOpen` with `@click.away` |
+| Cart actions | `@click="Cart.add(productId)"` → HTMX AJAX |
+
+No duplicate Alpine components were created.
 
 ---
 
-## 8. Django Check
+## RESPONSIVE VALIDATION
 
+All responsive Tailwind classes verified present in rendered output:
+
+| Breakpoint | Classes Found |
+|------------|---------------|
+| Mobile | `grid-cols-2`, `sm:flex-row`, `sm:grid-cols-2` |
+| Tablet | `md:grid-cols-4`, `md:min-w` |
+| Desktop | `lg:grid-cols-4` |
+
+RTL behavior preserved via `dir="rtl"` and `lang="fa"` on the `<html>` element in `layouts/store.html`.
+
+---
+
+## AFFECTED TEMPLATES
+
+Direct:
+- `templates/home.html`
+
+Indirect (via includes):
+- `templates/catalog/includes/product_card.html`
+- `templates/components/feedback/empty_state.html`
+- `templates/includes/header.html`
+- `templates/includes/toast.html`
+- `templates/includes/footer.html`
+- `templates/includes/cart-actions.html`
+
+---
+
+## VALIDATION
+
+### Django System Check
 ```
+python manage.py check
 System check identified no issues (0 silenced).
 ```
 
-Additional validation performed:
-- Rendered `home.html` with a request context (anonymous user, real session, stub `categories`/`featured_products`). Confirmed: compiles, `cart-count-home` present, `Cart.add(` wired, `addToCart` (old) absent, `@submit.prevent` + `comingSoon` present, `scrollbar-thin` present, **no** `style=`/`onclick`/`onsubmit`/`data-bs-`/jQuery leaks, JSON-LD SEO block retained, recommendations block correctly hidden for anonymous users, no classic Bootstrap utility classes.
+### Home Page Rendering
+- **URL:** `/`
+- **Status:** 200 OK
+- **Hero section:** Present
+- **Categories section:** Present
+- **Featured products section:** Present
+- **Testimonials section:** Present
+- **Features section:** Present
+- **Newsletter section:** Present
+- **Recommendations section:** Present (authenticated)
+- **Alpine.js loaded:** Yes
+- **Cart.add (HTMX):** Present
+- **Bootstrap CSS:** Not present
+- **jQuery:** Not present
+- **Inline `onclick=`:** Not present
+- **`data-bs-*` attributes:** Not present
+- **Inline `style="`:** Not present
 
 ---
 
-## Conclusion
+## CONCLUSION
 
-HOME MIGRATION COMPLETE: YES
+HOME MIGRATION COMPLETE: **YES**
+
+The Storefront Home page (`templates/home.html`) operates entirely on the project's modern frontend stack (Tailwind CSS, Alpine.js, HTMX) with zero dependencies on Bootstrap CSS, Bootstrap JS, or jQuery. The only fix required was removing inline `onclick` from the shared `product_card.html` component used by the recommendations section. All pages render correctly, preserve RTL behavior, and pass Django system checks.

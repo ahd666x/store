@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load jformat %}
+{% load static jformat %}
 
 {% block title %}{{ product.name }}{% endblock %}
 {% block meta_description %}{{ product.description|truncatewords:30 }}{% endblock %}
@@ -59,23 +59,8 @@
 {% endblock %}
 
 {% block content %}
-<style>[x-cloak]{display:none !important;}</style>
-<style>
-    @media (min-width: 768px) {
-        .force-two-col {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-        }
-        .force-two-col > *:first-child {
-            order: 1 !important;
-        }
-        .force-two-col > *:last-child {
-            order: 2 !important;
-        }
-    }
-</style>
 <div class="section-container section-padding">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 force-two-col" x-data="{ selectedImage: '{{ product.images.all.0.image.url|default:"" }}', selectedColor: null, sizeGuideOpen: false }">
+    <div class="flex flex-col lg:flex-row-reverse gap-12" x-data="{ selectedImage: '{{ product.images.all.0.image.url|default:"" }}', selectedColor: null, sizeGuideOpen: false, quantity: 1 }">
         {# Product Gallery #}
         <div>
             <div class="aspect-square bg-stone-100 rounded-2xl overflow-hidden mb-4">
@@ -171,7 +156,7 @@
 
             {% if product.stock == 0 %}
                 <div class="alert alert-danger">
-                    <i class="bi bi-x-circle me-2"></i>
+                    <svg class="w-5 h-5 inline-block me-2 text-danger-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M15 9l-6 6M9 9l6 6"/></svg>
                     این محصول در حال حاضر ناموجود است.
                 </div>
                 {% if user.is_authenticated %}
@@ -291,9 +276,9 @@
                 <div class="flex items-center gap-4 mb-4">
                     <label class="form-label mb-0">تعداد:</label>
                     <div class="flex items-center border border-stone-300 rounded-lg overflow-hidden">
-                        <button type="button" onclick="this.nextElementSibling.value = Math.max(1, parseInt(this.nextElementSibling.value) - 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">-</button>
-                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-16 text-center border-0 p-2">
-                        <button type="button" onclick="this.previousElementSibling.value = Math.min({{ product.stock }}, parseInt(this.previousElementSibling.value) + 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">+</button>
+                        <button type="button" @click="quantity = Math.max(1, quantity - 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">-</button>
+                        <input type="number" name="quantity" x-model="quantity" min="1" max="{{ product.stock }}" class="w-16 text-center border-0 p-2">
+                        <button type="button" @click="quantity = Math.min({{ product.stock }}, quantity + 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">+</button>
                     </div>
                     <span class="text-sm text-stone-500">موجودی: {{ product.stock }}</span>
                 </div>
@@ -447,4 +432,7 @@
         </div>
     {% endif %}
 </div>
+{% block extra_js %}
+<script src="{% static 'js/store/catalog.js' %}"></script>
+{% endblock %}
 {% endblock %}

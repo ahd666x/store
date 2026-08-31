@@ -81,7 +81,7 @@ const Catalog = {
         });
 
         const resetFilters = () => {
-            window.location = '{% url "catalog:product_list" %}';
+            window.location = '/catalog/products/';
         };
 
         document.querySelectorAll('[data-filter-reset]').forEach(btn => {
