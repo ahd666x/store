@@ -44,7 +44,7 @@
 
     <div class="flex flex-col lg:flex-row gap-8">
         {# Desktop Sidebar Filters #}
-        <aside class="hidden lg:block w-64 flex-shrink-0">
+        <aside class="hidden lg:block w-[17rem] flex-shrink-0">
             <div class="card lg:sticky lg:top-24">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="font-semibold text-stone-900">فیلترها</h3>
@@ -205,7 +205,7 @@
 
             {# Products Grid #}
             {% if products %}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+                <div :class="view === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch' : 'grid grid-cols-1 gap-6'">
                     {% for product in products %}
                         {% include 'catalog/includes/product_card.html' with product=product %}
                     {% endfor %}
@@ -215,7 +215,7 @@
                 {% if is_paginated %}
                     <div class="flex justify-center items-center gap-2 mt-10">
                         {% if page_obj.has_previous %}
-                            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}"
+                            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}"
                                class="btn-secondary btn-sm">قبلی</a>
                         {% endif %}
 
@@ -224,7 +224,7 @@
                         </span>
 
                         {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}"
+                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}"
                                class="btn-secondary btn-sm">بعدی</a>
                         {% endif %}
                     </div>

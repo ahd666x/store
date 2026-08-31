@@ -2,9 +2,9 @@
 
 {# Product Card Component - دکارو #}
 
-<div class="group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col justify-between">
+<div :class="view === 'list' ? 'group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col md:flex-row' : 'group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col justify-between'">
     {# Product Image #}
-    <div class="relative aspect-square overflow-hidden bg-stone-100">
+    <div :class="view === 'list' ? 'relative md:w-2/5 aspect-[4/3] md:aspect-auto overflow-hidden bg-stone-100 flex-shrink-0' : 'relative aspect-square overflow-hidden bg-stone-100'">
         {% if product.images.all %}
             <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
         {% else %}
@@ -25,7 +25,7 @@
         </div>
         
         {# Quick Actions Overlay #}
-        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+        <div :class="view === 'list' ? 'hidden' : 'absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center'">
             <a href="{% url 'catalog:product_detail' product.slug %}" class="bg-white text-stone-900 p-3 rounded-full hover:bg-stone-100 transition-colors" title="مشاهده سریع">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -36,63 +36,64 @@
     </div>
     
     {# Product Info #}
-    <div class="p-5 flex flex-col flex-1">
-        <div class="mb-2">
-            <span class="text-xs font-medium text-primary-600 bg-primary-50 px-2.5 py-1 rounded-full">
-                {% if product.category %}{{ product.category.name }}{% else %}کابینت{% endif %}
-            </span>
+    <div :class="view === 'list' ? 'p-5 md:w-3/5 flex flex-col justify-between' : 'p-5 flex flex-col flex-1'">
+        <div>
+            <div class="mb-2">
+                <span class="text-xs font-medium text-primary-600 bg-primary-50 px-2.5 py-1 rounded-full">
+                    {% if product.category %}{{ product.category.name }}{% else %}کابینت{% endif %}
+                </span>
+            </div>
+            
+            <h3 class="text-lg font-semibold text-stone-900 mb-2 line-clamp-1 group-hover:text-primary-600 transition-colors">
+                <a href="{% url 'catalog:product_detail' product.slug %}">{{ product.name }}</a>
+            </h3>
+            
+            <p :class="view === 'list' ? 'text-sm text-stone-500 mb-3 line-clamp-3' : 'text-sm text-stone-500 mb-3 line-clamp-2'">{{ product.description|truncatewords:10 }}</p>
+            
+            {# Rating #}
+            {% if product.average_rating %}
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="flex text-warning-400">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= product.average_rating %}
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            {% else %}
+                                <svg class="w-4 h-4 text-stone-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="text-sm text-stone-600">{{ product.average_rating }}</span>
+                    <span class="text-sm text-stone-400">({{ product.review_count }} نظر)</span>
+                </div>
+            {% endif %}
         </div>
         
-        <h3 class="text-lg font-semibold text-stone-900 mb-2 line-clamp-1 group-hover:text-primary-600 transition-colors">
-            <a href="{% url 'catalog:product_detail' product.slug %}">{{ product.name }}</a>
-        </h3>
-        
-        <p class="text-sm text-stone-500 mb-3 line-clamp-2">{{ product.description|truncatewords:10 }}</p>
-        
-        {# Rating #}
-        {% if product.average_rating %}
-            <div class="flex items-center gap-2 mb-3">
-                <div class="flex text-warning-400">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= product.average_rating %}
-                            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        {% else %}
-                            <svg class="w-4 h-4 text-stone-300" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.26.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                            </svg>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <span class="text-sm text-stone-600">{{ product.average_rating }}</span>
-                <span class="text-sm text-stone-400">({{ product.review_count }} نظر)</span>
-            </div>
-        {% endif %}
-        
         {# Price & Actions #}
-        <div class="flex items-center justify-between mt-auto">
+        <div :class="view === 'list' ? 'flex items-center justify-between mt-4' : 'flex items-center justify-between mt-auto'">
             <div>
                 <span class="text-xl font-bold text-primary-600">{{ product.price }} تومان</span>
                 {% if product.base_price and product.base_price != product.price %}
                     <span class="text-sm text-stone-400 line-through me-2">{{ product.base_price }}</span>
                 {% endif %}
             </div>
-        </div>
-        
-        <div class="flex gap-2 mt-4">
-            <a href="{% url 'catalog:product_detail' product.slug %}" class="flex-1 btn-primary text-center py-2.5">
-                مشاهده
-            </a>
-            {% if product.stock > 0 %}
-                <button @click="Cart.add({{ product.id }})" class="flex-1 btn-secondary py-2.5">
-                    <svg class="w-4 h-4 inline-block me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-                    </svg>
-                    سبد
-                </button>
-            {% endif %}
+            
+            <div :class="view === 'list' ? 'flex gap-2' : 'flex gap-2 mt-4'">
+                <a href="{% url 'catalog:product_detail' product.slug %}" class="flex-1 btn-primary text-center py-2.5">
+                    مشاهده
+                </a>
+                {% if product.stock > 0 %}
+                    <button @click="Cart.add({{ product.id }})" class="flex-1 btn-secondary py-2.5">
+                        <svg class="w-4 h-4 inline-block me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                        </svg>
+                        سبد
+                    </button>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-
