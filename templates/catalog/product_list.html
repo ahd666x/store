@@ -205,7 +205,7 @@
 
             {# Products Grid #}
             {% if products %}
-                <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-stretch" style="display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;">
+                <div id="products-grid" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-stretch" style="display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important;">
                     {% for product in products %}
                         {% include 'catalog/includes/product_card.html' with product=product %}
                     {% endfor %}
