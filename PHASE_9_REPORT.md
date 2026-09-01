@@ -57,6 +57,7 @@ Customer-facing storefront templates (non-admin)
 
 ### Phase 9.9 — CSS Cleanup
 - Removed `product-grid.css` from `layouts/store.html` — file was loaded but unused by any active template
+- Deleted `static/css/product-grid.css` from disk — confirmed zero references in any template
 - Removed `components.css` from `layouts/store.html` — legacy classes only used by admin/dashboard templates (out of scope)
 - Kept inline `[x-cloak]{display:none!important}` in store.html as fallback
 
