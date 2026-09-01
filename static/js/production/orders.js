@@ -54,8 +54,4 @@ const Orders = {
     }
 };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => Orders.init());
-} else {
-    Orders.init();
-}
+

@@ -61,12 +61,12 @@
                         <i class="bi bi-trash me-2"></i>حذف
                     </a>
                 </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
+                {% comment %} <li><hr class="dropdown-divider"></li> {% endcomment %}
+                {% comment %} <li>
                     <a class="dropdown-item" href="{% url 'painting_worker_excluded_items' worker.id %}">
                         <i class="bi bi-eye me-2"></i>مشاهده ممنوعیت‌ها
                     </a>
-                </li>
+                </li> {% endcomment %}
             </ul>
         </div>
     </td>

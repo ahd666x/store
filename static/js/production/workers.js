@@ -270,7 +270,6 @@ window.WorkersModal = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => Workers.init());
 document.addEventListener('change', () => Workers.updateSkillsHidden());
 
 const TableManager = {

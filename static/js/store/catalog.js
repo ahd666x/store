@@ -103,8 +103,3 @@ const Catalog = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    Catalog.initPriceCalc();
-    Catalog.initFilters();
-    Catalog.initClickableRows();
-});
