@@ -353,7 +353,7 @@
                                 </div>
                                 <p class="text-stone-700">{{ review.comment|default:"بدون نظر" }}</p>
                                 {% if review.image %}
-                                    <img src="{{ review.image.url }}" alt="تصویر نظر" class="mt-3 max-w-xs rounded-lg border border-stone-200">
+                                    <img src="{{ review.image.url }}" alt="تصویر نظر" class="mt-3 max-w-xs rounded-lg border border-stone-200" loading="lazy">
                                 {% endif %}
                             </div>
                         </div>
