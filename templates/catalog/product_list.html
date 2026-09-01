@@ -17,7 +17,7 @@
     {# Header #}
     <div class="mb-8">
         <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-2">محصولات</h1>
-        {% comment %} <p class="text-lg text-stone-600">کابینت‌های مدرن و کلاسیک با بهترین مواد اولیه</p> {% endcomment %}
+        <p class="text-lg text-stone-600">کابینت‌های مدرن و کلاسیک با بهترین مواد اولیه</p>
     </div>
 
     {# Mobile Filter Toggle & View Toggle #}
@@ -48,12 +48,12 @@
             <div class="card lg:sticky lg:top-24">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="font-semibold text-stone-900">فیلترها</h3>
-                    <button data-filter-reset class="text-sm text-primary-600 hover:text-primary-800">
+                    <button data-filter-reset class="text-sm text-primary-600 hover:text-primary-800 font-medium">
                         پاک کردن
                     </button>
                 </div>
                 
-                <div class="space-y-6">
+                <div class="space-y-5">
                     {# Search #}
                     <div>
                         <label class="form-label">جستجو</label>
@@ -124,7 +124,7 @@
                         </button>
                     </div>
                     
-                    <div class="space-y-6">
+                    <div class="space-y-5">
                         <div>
                             <label class="form-label">جستجو</label>
                             <input type="text" placeholder="نام محصول..." class="form-input w-full" id="mobileSearchInput" value="{{ query }}">
@@ -219,7 +219,7 @@
                                class="btn-secondary btn-sm">قبلی</a>
                         {% endif %}
 
-                        <span class="text-sm text-gray-600">
+                        <span class="text-sm text-stone-600">
                             صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
                         </span>
 

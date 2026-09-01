@@ -2,14 +2,14 @@
 {% load jformat %}
 
 {# Header Partial - دکارو #}
-<header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-stone-200 transition-shadow duration-200" id="site-header" x-data="{ mobileMenuOpen: false, userMenuOpen: false }">
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-200 transition-shadow duration-200" id="site-header" x-data="{ mobileMenuOpen: false, userMenuOpen: false }">
     {# Discount Banner removed #}
     
     <div class="section-container">
         <div class="flex items-center justify-between h-16">
             {# Logo #}
-            <a href="{% url 'home' %}" class="flex items-center gap-2 flex-shrink-0">
-                <svg class="w-8 h-8 text-primary-600" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a href="{% url 'home' %}" class="flex items-center gap-2.5 flex-shrink-0 group">
+                <svg class="w-8 h-8 text-primary-600 transition-transform duration-200 group-hover:scale-105" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 6h16"/>
                     <path d="M4 10h16"/>
                     <path d="M4 14h16"/>
@@ -17,41 +17,41 @@
                     <path d="M8 6v12"/>
                     <path d="M16 6v12"/>
                 </svg>
-                <span class="text-xl font-bold text-primary-600">دکارو</span>
+                <span class="text-xl font-bold text-primary-600 tracking-tight">دکارو</span>
             </a>
 
             {# Desktop Navigation #}
-            <nav class="hidden md:flex items-center gap-8">
-                <a href="{% url 'catalog:product_list' %}" class="text-stone-600 hover:text-primary-600 font-medium transition-colors">
+            <nav class="hidden md:flex items-center gap-1">
+                <a href="{% url 'catalog:product_list' %}" class="relative px-3 py-2 text-stone-600 hover:text-primary-600 font-medium transition-colors duration-200 after:absolute after:start-0 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary-600 after:transition-all after:duration-200 hover:after:w-full">
                     محصولات
                 </a>
-                <a href="{% url 'cart:cart_detail' %}" class="relative text-stone-600 hover:text-primary-600 font-medium transition-colors">
+                <a href="{% url 'cart:cart_detail' %}" class="relative px-3 py-2 text-stone-600 hover:text-primary-600 font-medium transition-colors duration-200 after:absolute after:start-0 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary-600 after:transition-all after:duration-200 hover:after:w-full">
                     سبد خرید
-                    <span id="cart-count" class="absolute -top-2 -start-3 bg-primary-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center {% if cart_count == 0 %}hidden{% endif %}">
+                    <span id="cart-count" class="absolute -top-1.5 -start-2 bg-primary-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 {% if cart_count == 0 %}hidden{% endif %}">
                         {{ cart_count|default:0 }}
                     </span>
                 </a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:profile' %}" class="text-stone-600 hover:text-primary-600 font-medium transition-colors">
+                    <a href="{% url 'accounts:profile' %}" class="relative px-3 py-2 text-stone-600 hover:text-primary-600 font-medium transition-colors duration-200 after:absolute after:start-0 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary-600 after:transition-all after:duration-200 hover:after:w-full">
                         پروفایل
                     </a>
                 {% endif %}
             </nav>
 
             {# Right Actions #}
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
                 {# Quick Search (Desktop) #}
                 <form action="{% url 'catalog:product_list' %}" method="get" class="hidden md:flex items-center relative">
-                    <input type="text" name="q" placeholder="جستجو..." aria-label="جستجو" class="form-input w-48 lg:w-64 pe-10">
-                    <button type="submit" class="absolute end-1 top-1/2 -translate-y-1/2 text-stone-400 hover:text-primary-600" aria-label="جستجو">
-                        {% include 'includes/icons.html' with name='search' size=20 class='w-5 h-5' %}
+                    <input type="text" name="q" placeholder="جستجوی محصولات..." aria-label="جستجو" class="form-input w-40 lg:w-56 ps-4 pe-10 bg-stone-50 border-stone-200 focus:bg-white focus:border-primary-400 focus:ring-primary-100">
+                    <button type="submit" class="absolute end-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-primary-600 transition-colors" aria-label="جستجو">
+                        {% include 'includes/icons.html' with name='search' size=18 class='w-4 h-4' %}
                     </button>
                 </form>
 
                 {# Cart (Mobile) #}
-                <a href="{% url 'cart:cart_detail' %}" class="relative md:hidden text-stone-600 hover:text-primary-600 p-2">
+                <a href="{% url 'cart:cart_detail' %}" class="relative md:hidden text-stone-600 hover:text-primary-600 p-2 -me-2" aria-label="سبد خرید">
                     {% include 'includes/icons.html' with name='cart' size=24 class='w-6 h-6' %}
-                    <span id="cart-count-mobile" class="absolute -top-1 -start-1 bg-primary-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center {% if cart_count == 0 %}hidden{% endif %}">
+                    <span id="cart-count-mobile" class="absolute -top-1 -start-1 bg-primary-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 {% if cart_count == 0 %}hidden{% endif %}">
                         {{ cart_count|default:0 }}
                     </span>
                 </a>
@@ -59,27 +59,27 @@
                 {# User Menu #}
                 {% if user.is_authenticated %}
                     <div class="relative hidden md:block">
-                <button @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-2 text-stone-600 hover:text-primary-600 font-medium transition-colors" aria-label="منوی کاربر">
-                        {% include 'includes/icons.html' with name='user' size=24 class='w-6 h-6' %}
-                            <span>{{ user.username }}</span>
-                            {% include 'includes/icons.html' with name='chevron-down' size=16 class='w-4 h-4' %}
+                        <button @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-2 text-stone-600 hover:text-primary-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-stone-50" aria-label="منوی کاربر" aria-expanded="false">
+                            {% include 'includes/icons.html' with name='user' size=20 class='w-5 h-5' %}
+                            <span class="text-sm">{{ user.username }}</span>
+                            {% include 'includes/icons.html' with name='chevron-down' size=14 class='w-3.5 h-3.5' %}
                         </button>
-                        <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-transition class="absolute end-0 mt-2 w-48 bg-white rounded-lg shadow-elevation-3 border border-stone-200 py-1">
-                            <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-stone-700 hover:bg-stone-50">
+                        <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-transition class="absolute end-0 mt-2 w-48 bg-white rounded-xl shadow-elevation-2 border border-stone-200 py-1.5 overflow-hidden">
+                            <a href="{% url 'accounts:profile' %}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition-colors">
                                 پروفایل
                             </a>
-                            <a href="{% url 'orders:return_request_list' %}" class="block px-4 py-2 text-sm text-stone-700 hover:bg-stone-50">
+                            <a href="{% url 'orders:return_request_list' %}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-stone-700 hover:bg-stone-50 transition-colors">
                                 درخواست‌های مرجوعی
                             </a>
-                            <div class="border-t border-stone-100"></div>
-                            <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                            <div class="border-t border-stone-100 my-1"></div>
+                            <a href="{% url 'accounts:logout' %}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
                                 خروج
                             </a>
                         </div>
                     </div>
                 {% else %}
                     <div class="hidden md:flex items-center gap-2">
-                        <a href="{% url 'accounts:login' %}" class="text-stone-600 hover:text-primary-600 font-medium transition-colors">
+                        <a href="{% url 'accounts:login' %}" class="text-stone-600 hover:text-primary-600 font-medium transition-colors px-3 py-2">
                             ورود
                         </a>
                         <a href="{% url 'accounts:register' %}" class="btn-primary">
@@ -89,34 +89,47 @@
                 {% endif %}
 
                 {# Mobile Menu Button #}
-                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-stone-600 hover:text-primary-600 p-2" aria-label="منوی موبایل">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-stone-600 hover:text-primary-600 p-2 -me-2" aria-label="منوی موبایل" aria-expanded="false" aria-controls="mobile-menu">
                     {% include 'includes/icons.html' with name='menu' size=24 class='w-6 h-6' %}
                 </button>
             </div>
         </div>
 
         {# Mobile Menu #}
-        <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false" x-transition class="md:hidden border-t border-stone-200 py-4">
-            <form action="{% url 'catalog:product_list' %}" method="get" class="mb-4">
-                <input type="text" name="q" placeholder="جستجو..." aria-label="جستجو" class="form-input w-full">
+        <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false" x-transition class="md:hidden border-t border-stone-200 pt-4 pb-5" id="mobile-menu">
+            <form action="{% url 'catalog:product_list' %}" method="get" class="mb-5">
+                <div class="relative">
+                    <input type="text" name="q" placeholder="جستجوی محصولات..." aria-label="جستجو" class="form-input w-full ps-4 pe-10 bg-stone-50 border-stone-200">
+                    <button type="submit" class="absolute end-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-primary-600">
+                        {% include 'includes/icons.html' with name='search' size=18 class='w-4 h-4' %}
+                    </button>
+                </div>
             </form>
-            <nav class="flex flex-col gap-2">
-                <a href="{% url 'catalog:product_list' %}" class="text-stone-600 hover:text-primary-600 font-medium py-2">
+            <nav class="flex flex-col gap-1">
+                <a href="{% url 'catalog:product_list' %}" class="flex items-center gap-3 text-stone-600 hover:text-primary-600 font-medium py-3 px-3 rounded-lg hover:bg-stone-50 transition-colors">
+                    {% include 'includes/icons.html' with name='package' size=20 class='w-5 h-5 text-stone-400' %}
                     محصولات
                 </a>
-                <a href="{% url 'cart:cart_detail' %}" class="text-stone-600 hover:text-primary-600 font-medium py-2">
+                <a href="{% url 'cart:cart_detail' %}" class="flex items-center gap-3 text-stone-600 hover:text-primary-600 font-medium py-3 px-3 rounded-lg hover:bg-stone-50 transition-colors">
+                    {% include 'includes/icons.html' with name='cart' size=20 class='w-5 h-5 text-stone-400' %}
                     سبد خرید
-                    <span id="cart-count-mobile-menu" class="badge-neutral {% if cart_count == 0 %}hidden{% endif %}">{{ cart_count|default:0 }}</span>
+                    <span id="cart-count-mobile-menu" class="badge-neutral ms-auto {% if cart_count == 0 %}hidden{% endif %}">{{ cart_count|default:0 }}</span>
                 </a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:profile' %}" class="text-stone-600 hover:text-primary-600 font-medium py-2">
+                    <a href="{% url 'accounts:profile' %}" class="flex items-center gap-3 text-stone-600 hover:text-primary-600 font-medium py-3 px-3 rounded-lg hover:bg-stone-50 transition-colors">
+                        {% include 'includes/icons.html' with name='user' size=20 class='w-5 h-5 text-stone-400' %}
                         پروفایل
                     </a>
+                    <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 text-red-600 hover:bg-red-50 font-medium py-3 px-3 rounded-lg transition-colors">
+                        {% include 'includes/icons.html' with name='logout' size=20 class='w-5 h-5 text-stone-400' %}
+                        خروج
+                    </a>
                 {% else %}
-                    <a href="{% url 'accounts:login' %}" class="text-stone-600 hover:text-primary-600 font-medium py-2">
+                    <a href="{% url 'accounts:login' %}" class="flex items-center gap-3 text-stone-600 hover:text-primary-600 font-medium py-3 px-3 rounded-lg hover:bg-stone-50 transition-colors">
+                        {% include 'includes/icons.html' with name='login' size=20 class='w-5 h-5 text-stone-400' %}
                         ورود
                     </a>
-                    <a href="{% url 'accounts:register' %}" class="btn-primary w-full text-center">
+                    <a href="{% url 'accounts:register' %}" class="btn-primary w-full text-center mt-2">
                         ثبت‌نام
                     </a>
                 {% endif %}

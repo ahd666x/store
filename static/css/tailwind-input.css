@@ -50,6 +50,15 @@
   small, .caption {
     @apply text-sm text-stone-500;
   }
+  .price {
+    @apply text-2xl font-bold text-stone-900 tracking-tight;
+  }
+  .price-sale {
+    @apply text-xl font-semibold text-primary-600;
+  }
+  .price-original {
+    @apply text-base text-stone-400 line-through;
+  }
 
   /* Focus styles */
   *:focus-visible {
@@ -179,6 +188,12 @@
   .btn-lg {
     @apply px-6 py-3 text-base;
   }
+  .btn-icon {
+    @apply inline-flex items-center justify-center p-2 rounded-lg;
+  }
+  .btn-icon-sm {
+    @apply inline-flex items-center justify-center p-1.5 rounded-md;
+  }
 
   /* Button loading state */
   .btn.is-loading {
@@ -206,6 +221,12 @@
   }
   .card-elevated {
     @apply bg-white rounded-xl border border-stone-200 shadow-elevation-2;
+  }
+  .card-premium {
+    @apply bg-white rounded-2xl border border-stone-200 shadow-elevation-2;
+  }
+  .card-premium-hover {
+    @apply card-premium transition-all duration-200 hover:shadow-elevation-3 hover:-translate-y-0.5;
   }
 
   /* Bootstrap card compatibility */
@@ -262,8 +283,9 @@
     -moz-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: left 0.75rem center;
-    padding-left: 2.5rem;
+    background-position: right 0.75rem center;
+    padding-inline-start: 0.75rem;
+    padding-inline-end: 2.5rem;
   }
 
   /* Bootstrap form-control compatibility */
@@ -316,7 +338,7 @@
     @apply z-10;
   }
   .input-group-text {
-    @apply inline-flex items-center px-3 py-2 text-sm text-stone-600 bg-stone-50 border border-stone-300 rounded-r-lg border-l-0;
+    @apply inline-flex items-center px-3 py-2 text-sm text-stone-600 bg-stone-50 border border-stone-300 rounded-s-lg border-e-0;
   }
   .input-group-sm .form-input {
     @apply form-control-sm;
@@ -514,10 +536,10 @@
      SECTION CONTAINERS
      ========================================== */
   .section-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
   }
   .section-padding {
-    @apply py-12 md:py-16;
+    @apply py-10 md:py-14 lg:py-16;
   }
 
   /* ==========================================
@@ -1422,23 +1444,7 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* ==========================================
-      UTILITIES
-      ========================================== */
-  .product-grid {
-    @apply grid gap-6;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  @media (min-width: 640px) {
-    .product-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1024px) {
-    .product-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
+
   .filters {
     @apply bg-stone-100 p-3 rounded-lg mb-4 flex flex-wrap gap-4 items-end;
   }

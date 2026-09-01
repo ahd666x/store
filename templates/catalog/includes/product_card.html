@@ -2,21 +2,21 @@
 
 {# Product Card Component - دکارو #}
 
-<div class="group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1 h-full flex flex-col w-full" :class="view === 'list' ? 'md:flex-row' : 'justify-between'">
+<div class="group card-premium-hover flex flex-col w-full h-full" :class="view === 'list' ? 'md:flex-row' : ''">
     {# Product Image #}
-    <div class="relative overflow-hidden bg-stone-100" :class="view === 'list' ? 'md:w-2/5 aspect-[4/3] md:aspect-auto flex-shrink-0' : ''">
+    <div class="relative overflow-hidden bg-stone-100" :class="view === 'list' ? 'md:w-2/5 md:aspect-auto md:flex-shrink-0 aspect-[4/3]' : 'aspect-[4/3]'">
         {% if product.images.all %}
-            <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+            <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
         {% else %}
-            <div class="w-full h-full flex items-center justify-center">
+            <div class="w-full h-full flex items-center justify-center bg-stone-100">
                 <svg class="w-16 h-16 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0-2 2z"/>
                 </svg>
             </div>
         {% endif %}
         
         {# Badges #}
-        <div class="absolute top-3 start-3 flex flex-col gap-2">
+        <div class="absolute top-3 start-3 flex flex-col gap-1.5">
             {% if product.stock == 0 %}
                 <span class="badge-danger">ناموجود</span>
             {% elif product.stock < 5 %}
@@ -25,8 +25,8 @@
         </div>
         
         {# Quick Actions Overlay #}
-        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center" :class="view === 'list' ? 'hidden' : ''">
-            <a href="{% url 'catalog:product_detail' product.slug %}" class="bg-white text-stone-900 p-3 rounded-full hover:bg-stone-100 transition-colors" title="مشاهده سریع">
+        <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center" :class="view === 'list' ? 'hidden' : ''">
+            <a href="{% url 'catalog:product_detail' product.slug %}" class="bg-white text-stone-900 p-2.5 rounded-full hover:bg-stone-100 hover:scale-110 transition-all shadow-lg" aria-label="مشاهده سریع {{ product.name }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -36,10 +36,10 @@
     </div>
     
     {# Product Info #}
-    <div class="p-5 flex flex-col" :class="view === 'list' ? 'md:w-3/5 justify-between' : 'flex-1'">
+    <div class="p-5 flex flex-col flex-1" :class="view === 'list' ? 'md:w-3/5 justify-between' : ''">
         <div>
-            <div class="mb-2">
-                <span class="text-xs font-medium text-primary-600 bg-primary-50 px-2.5 py-1 rounded-full">
+            <div class="mb-2.5">
+                <span class="text-xs font-medium text-primary-700 bg-primary-50 px-2.5 py-1 rounded-full">
                     {% if product.category %}{{ product.category.name }}{% else %}کابینت{% endif %}
                 </span>
             </div>
@@ -48,12 +48,12 @@
                 <a href="{% url 'catalog:product_detail' product.slug %}">{{ product.name }}</a>
             </h3>
             
-            <p class="text-sm text-stone-500 mb-3" :class="view === 'list' ? 'line-clamp-3' : 'line-clamp-2'">{{ product.description|truncatewords:10 }}</p>
+            <p class="text-sm text-stone-500 mb-3 leading-relaxed" :class="view === 'list' ? 'line-clamp-3' : 'line-clamp-2'">{{ product.description|truncatewords:10 }}</p>
             
             {# Rating #}
             {% if product.average_rating %}
                 <div class="flex items-center gap-2 mb-3">
-                    <div class="flex text-warning-400">
+                    <div class="flex text-warning-500">
                         {% for i in "12345" %}
                             {% if forloop.counter <= product.average_rating %}
                                 <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
@@ -66,7 +66,7 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <span class="text-sm text-stone-600">{{ product.average_rating }}</span>
+                    <span class="text-sm text-stone-600 font-medium">{{ product.average_rating }}</span>
                     <span class="text-sm text-stone-400">({{ product.review_count }} نظر)</span>
                 </div>
             {% endif %}
@@ -75,9 +75,9 @@
         {# Price & Actions #}
         <div class="flex items-center justify-between" :class="view === 'list' ? 'mt-4' : 'mt-auto'">
             <div>
-                <span class="text-xl font-bold text-primary-600">{{ product.price }} تومان</span>
+                <span class="price">{{ product.price }} تومان</span>
                 {% if product.base_price and product.base_price != product.price %}
-                    <span class="text-sm text-stone-400 line-through me-2">{{ product.base_price }}</span>
+                    <span class="price-original me-2">{{ product.base_price }}</span>
                 {% endif %}
             </div>
             

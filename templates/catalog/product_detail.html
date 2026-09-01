@@ -60,16 +60,16 @@
 
 {% block content %}
 <div class="section-container section-padding">
-    <div class="flex flex-col lg:flex-row-reverse gap-12" x-data="{ selectedImage: '{{ product.images.all.0.image.url|default:"" }}', selectedColor: null, sizeGuideOpen: false, quantity: 1 }">
+    <div class="flex flex-col lg:flex-row-reverse gap-10 lg:gap-16" x-data="{ selectedImage: '{{ product.images.all.0.image.url|default:"" }}', selectedColor: null, sizeGuideOpen: false, quantity: 1 }">
         {# Product Gallery #}
-        <div>
+        <div class="lg:w-[55%]">
             <div class="aspect-square bg-stone-100 rounded-2xl overflow-hidden mb-4">
                 {% if product.images.all %}
                     <img :src="selectedImage" alt="{{ product.name }}" class="w-full h-full object-cover" loading="lazy">
                 {% else %}
                     <div class="w-full h-full flex items-center justify-center">
                         <svg class="w-24 h-24 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 00-2 2z"/>
                         </svg>
                     </div>
                 {% endif %}
@@ -80,7 +80,7 @@
                 {% if color_images|length > 1 %}
                     <div class="flex gap-2 mb-4">
                         <button @click="selectedColor = null; selectedImage = '{{ product.images.all.0.image.url }}'" 
-                                class="w-8 h-8 rounded-full border-2 transition-colors"
+                                class="w-8 h-8 rounded-full border-2 transition-all"
                                 :class="selectedColor === null ? 'border-primary-600 ring-2 ring-primary-200' : 'border-transparent hover:border-stone-300'"
                                 title="همه رنگ‌ها">
                             <span class="block w-full h-full rounded-full bg-gradient-to-br from-stone-200 to-stone-300"></span>
@@ -88,7 +88,7 @@
                         {% for image in color_images %}
                             {% if image.color %}
                                 <button @click="selectedColor = '{{ image.color.id }}'; selectedImage = '{{ image.image.url }}'" 
-                                        class="w-8 h-8 rounded-full border-2 transition-colors"
+                                        class="w-8 h-8 rounded-full border-2 transition-all"
                                         :class="selectedColor == '{{ image.color.id }}' ? 'border-primary-600 ring-2 ring-primary-200' : 'border-transparent hover:border-stone-300'"
                                         title="{{ image.color.name }}"
                                         style="background-color: {{ image.color.code|default:'#ccc' }}">
@@ -104,7 +104,7 @@
                 {% if filtered_images|length > 1 %}
                     <div class="flex gap-3 overflow-x-auto pb-2">
                         {% for image in filtered_images %}
-                            <button @click="selectedImage = '{{ image.image.url }}'" class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors" :class="selectedImage === '{{ image.image.url }}' ? 'border-primary-600' : 'border-transparent hover:border-stone-300'">
+                            <button @click="selectedImage = '{{ image.image.url }}'" class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all" :class="selectedImage === '{{ image.image.url }}' ? 'border-primary-600' : 'border-transparent hover:border-stone-300'">
                                     <img src="{{ image.image.url }}" alt="{{ image.alt_text|default:product.name }}" class="w-full h-full object-cover" loading="lazy">
                             </button>
                         {% endfor %}
@@ -114,18 +114,18 @@
         </div>
 
         {# Product Info - Sticky #}
-        <div class="lg:sticky lg:top-24 lg:self-start">
-            <div class="mb-6">
-                <span class="text-sm font-medium text-primary-600 bg-primary-50 px-3 py-1 rounded-full">
+        <div class="lg:w-[45%] lg:sticky lg:top-24 lg:self-start">
+            <div class="mb-5">
+                <span class="text-sm font-medium text-primary-700 bg-primary-50 px-3 py-1.5 rounded-full">
                     {{ product.category.name }}
                 </span>
             </div>
             
-            <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">{{ product.name }}</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4 leading-tight">{{ product.name }}</h1>
             
-            <div class="flex items-center gap-4 mb-6">
+            <div class="flex items-center gap-3 mb-5">
                 {% if product.average_rating %}
-                    <div class="flex items-center gap-1 text-warning-400">
+                    <div class="flex items-center gap-1 text-warning-500">
                         {% for i in "12345" %}
                             {% if forloop.counter <= product.average_rating %}
                                 <svg class="w-5 h-5 fill-current" viewBox="0 0 20 20">
@@ -138,7 +138,7 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <span class="text-sm text-stone-600">{{ product.average_rating }}</span>
+                    <span class="text-sm text-stone-600 font-medium">{{ product.average_rating }}</span>
                     <span class="text-sm text-stone-400">({{ product.review_count }} نظر)</span>
                 {% endif %}
             </div>
@@ -148,19 +148,19 @@
             </div>
 
             <div class="flex items-baseline gap-3 mb-6">
-                <span class="text-3xl font-bold text-primary-600">{{ product.price }} تومان</span>
+                <span class="price">{{ product.price }} تومان</span>
                 {% if product.base_price and product.base_price != product.price %}
-                    <span class="text-lg text-stone-400 line-through">{{ product.base_price }}</span>
+                    <span class="price-original">{{ product.base_price }}</span>
                 {% endif %}
             </div>
 
             {% if product.stock == 0 %}
-                <div class="alert alert-danger">
+                <div class="alert alert-danger mb-6">
                     <svg class="w-5 h-5 inline-block me-2 text-danger-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M15 9l-6 6M9 9l6 6"/></svg>
                     این محصول در حال حاضر ناموجود است.
                 </div>
                 {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'catalog:stock_alert_add' product.id %}" class="mt-3">
+                    <form method="post" action="{% url 'catalog:stock_alert_add' product.id %}" class="mb-6">
                         {% csrf_token %}
                         <button type="submit" class="btn-secondary w-full">
                             به من خبر بده
@@ -171,28 +171,31 @@
 
             {# Dimensions #}
             {% if product.length or product.width or product.height %}
-                <div class="grid grid-cols-3 gap-4 mb-6">
-                    {% if product.length %}
-                        <div class="text-center p-3 bg-stone-50 rounded-lg">
-                            <p class="text-sm text-stone-500">طول</p>
-                            <p class="text-lg font-semibold text-stone-900">{{ product.length }}</p>
-                            <p class="text-xs text-stone-400">سانتی‌متر</p>
-                        </div>
-                    {% endif %}
-                    {% if product.width %}
-                        <div class="text-center p-3 bg-stone-50 rounded-lg">
-                            <p class="text-sm text-stone-500">عرض</p>
-                            <p class="text-lg font-semibold text-stone-900">{{ product.width }}</p>
-                            <p class="text-xs text-stone-400">سانتی‌متر</p>
-                        </div>
-                    {% endif %}
-                    {% if product.height %}
-                        <div class="text-center p-3 bg-stone-50 rounded-lg">
-                            <p class="text-sm text-stone-500">ارتفاع</p>
-                            <p class="text-lg font-semibold text-stone-900">{{ product.height }}</p>
-                            <p class="text-xs text-stone-400">سانتی‌متر</p>
-                        </div>
-                    {% endif %}
+                <div class="mb-6">
+                    <h3 class="font-semibold text-stone-900 mb-3">ابعاد محصول</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        {% if product.length %}
+                            <div class="text-center p-3 bg-stone-50 rounded-xl">
+                                <p class="text-xs text-stone-500 mb-1">طول</p>
+                                <p class="text-lg font-semibold text-stone-900">{{ product.length }}</p>
+                                <p class="text-xs text-stone-400">سانتی‌متر</p>
+                            </div>
+                        {% endif %}
+                        {% if product.width %}
+                            <div class="text-center p-3 bg-stone-50 rounded-xl">
+                                <p class="text-xs text-stone-500 mb-1">عرض</p>
+                                <p class="text-lg font-semibold text-stone-900">{{ product.width }}</p>
+                                <p class="text-xs text-stone-400">سانتی‌متر</p>
+                            </div>
+                        {% endif %}
+                        {% if product.height %}
+                            <div class="text-center p-3 bg-stone-50 rounded-xl">
+                                <p class="text-xs text-stone-500 mb-1">ارتفاع</p>
+                                <p class="text-lg font-semibold text-stone-900">{{ product.height }}</p>
+                                <p class="text-xs text-stone-400">سانتی‌متر</p>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             {% endif %}
 
@@ -208,10 +211,10 @@
                   data-default-height="{{ product.height|default_if_none:'' }}">
                 {% csrf_token %}
 
-                <div class="mb-4">
+                <div class="mb-5">
                     <div class="flex items-center justify-between mb-3">
                         <h3 class="font-semibold text-stone-900">ابعاد سفارشی (سانتی‌متر)</h3>
-                        <button type="button" @click="sizeGuideOpen = true" class="text-sm text-primary-600 hover:text-primary-800">
+                        <button type="button" @click="sizeGuideOpen = true" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
                             راهنمای اندازه
                         </button>
                     </div>
@@ -251,7 +254,7 @@
                         <div class="p-6">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-xl font-bold text-stone-900">راهنمای اندازه کابینت</h3>
-                                <button type="button" @click="sizeGuideOpen = false" class="text-stone-400 hover:text-stone-600">
+                                <button type="button" @click="sizeGuideOpen = false" class="text-stone-400 hover:text-stone-600 p-1">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                             </div>
@@ -268,22 +271,22 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between bg-primary-50 border border-primary-200 rounded-lg px-4 py-3 mb-4">
+                <div class="flex items-center justify-between bg-primary-50 border border-primary-200 rounded-xl px-4 py-3 mb-4">
                     <span class="text-sm text-stone-600">قیمت با این ابعاد:</span>
-                    <span id="live-price" class="text-2xl font-bold text-primary-700">{{ product.price }} تومان</span>
+                    <span id="live-price" class="price text-primary-700">{{ product.price }} تومان</span>
                 </div>
 
-                <div class="flex items-center gap-4 mb-4">
+                <div class="flex items-center gap-4 mb-5">
                     <label class="form-label mb-0">تعداد:</label>
                     <div class="flex items-center border border-stone-300 rounded-lg overflow-hidden">
-                        <button type="button" @click="quantity = Math.max(1, quantity - 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">-</button>
-                        <input type="number" name="quantity" x-model="quantity" min="1" max="{{ product.stock }}" class="w-16 text-center border-0 p-2">
-                        <button type="button" @click="quantity = Math.min({{ product.stock }}, quantity + 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors">+</button>
+                        <button type="button" @click="quantity = Math.max(1, quantity - 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors text-stone-600">-</button>
+                        <input type="number" name="quantity" x-model="quantity" min="1" max="{{ product.stock }}" class="w-16 text-center border-0 p-2 text-stone-900 font-medium">
+                        <button type="button" @click="quantity = Math.min({{ product.stock }}, quantity + 1)" class="px-4 py-2 bg-stone-50 hover:bg-stone-100 transition-colors text-stone-600">+</button>
                     </div>
                     <span class="text-sm text-stone-500">موجودی: {{ product.stock }}</span>
                 </div>
 
-                <button type="submit" class="btn-primary w-full py-3 text-lg" {% if product.stock == 0 %}disabled{% endif %}>
+                <button type="submit" class="btn-primary w-full py-3.5 text-lg" {% if product.stock == 0 %}disabled{% endif %}>
                     {% if product.stock > 0 %}
                         <svg class="w-5 h-5 inline-block me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
@@ -335,7 +338,7 @@
                                     <h4 class="font-semibold text-stone-900">{{ review.user.username }}</h4>
                                     <span class="text-sm text-stone-500">{{ review.created_at|jformat:"Y/m/d" }}</span>
                                 </div>
-                                <div class="flex items-center gap-1 text-warning-400 mb-3">
+                                <div class="flex items-center gap-1 text-warning-500 mb-3">
                                     {% for i in "12345" %}
                                         {% if forloop.counter <= review.rating %}
                                             <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
