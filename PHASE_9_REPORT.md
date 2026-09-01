@@ -78,6 +78,13 @@ Customer-facing storefront templates (non-admin)
 ### Phase 9.12 — Undefined Class Fix
 - `discount_form.html`: replaced undefined `btn-ghost` with `btn-secondary` for cancel button
 
+### Phase 9.13 — Accessibility Improvements
+- `product_detail.html`: added `id="quantity"` and `aria-label="کاهش تعداد"/"افزایش تعداد"` to quantity +/- buttons
+- `cart_item_row.html`: added `aria-label="کاهش تعداد"/"افزایش تعداد"` to cart quantity +/- buttons
+
+### Phase 9.14 — Notification Subtitle Color
+- `notification_list.html`: fixed subtitle color from `text-stone-500` to `text-stone-600`
+
 ## Responsive Behavior
 
 | Template | Status |
