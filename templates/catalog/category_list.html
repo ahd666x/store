@@ -16,13 +16,13 @@
 <div class="section-container section-padding">
     <div class="mb-12 text-center">
         <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">دسته‌بندی محصولات</h1>
-        <p class="text-lg text-stone-600 max-w-2xl mx-auto">کابینت‌های باکیفیت را در دسته‌بندی‌های مختلف پیدا کنید</p>
+        <p class="text-lg text-stone-600 max-w-2xl mx-auto">کابینت‌های مدرن و کلاسیک با بهترین مواد اولیه</p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {% for category in categories %}
             {% with first_product=category.products.first %}
-            <a href="{% url 'catalog:category_detail' category.slug %}" class="group block bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1">
+            <a href="{% url 'catalog:category_detail' category.slug %}" class="group block card-premium-hover overflow-hidden">
                 <div class="relative aspect-[4/3] bg-stone-100 overflow-hidden">
                     {% if first_product and first_product.images.all %}
                         <img src="{{ first_product.images.all.0.image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">

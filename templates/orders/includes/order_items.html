@@ -32,8 +32,8 @@
       {% endif %}
 
       {% if production_staff %}
-        <div class="w-full mt-3 border-t border-gray-100 pt-3">
-          <h4 class="text-sm font-semibold text-gray-700 mb-2">واحدهای بسته‌بندی</h4>
+        <div class="w-full mt-3 border-t border-stone-100 pt-3">
+          <h4 class="text-sm font-semibold text-stone-700 mb-2">واحدهای بسته‌بندی</h4>
           {% for unit in item.packaging_units.all %}
             <div class="flex items-center justify-between text-sm py-1">
               <span>واحد {{ unit.unit_number }} —

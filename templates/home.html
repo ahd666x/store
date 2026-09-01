@@ -137,7 +137,7 @@
         {% if featured_products %}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {% for product in featured_products %}
-                    <div class="group bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-elevation-2 transition-all duration-300 hover:-translate-y-1">
+                    <div class="group card-premium-hover overflow-hidden">
                         {# Product Image #}
                         <div class="relative aspect-[4/3] bg-stone-100 overflow-hidden">
                             {% if product.images.all %}
@@ -171,7 +171,7 @@
                         {# Product Info #}
                         <div class="p-5">
                             <div class="mb-2">
-                                <span class="text-xs font-medium text-primary-600 bg-primary-50 px-2.5 py-1 rounded-full">
+                                <span class="text-sm font-medium text-primary-700 bg-primary-50 px-3 py-1.5 rounded-full">
                                     {% if product.category %}{{ product.category.name }}{% else %}کابینت{% endif %}
                                 </span>
                             </div>
@@ -206,9 +206,9 @@
                             {# Price & Actions #}
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <span class="text-xl font-bold text-primary-600">{{ product.price }} تومان</span>
+                                    <span class="price">{{ product.price }} تومان</span>
                                     {% if product.base_price and product.base_price != product.price %}
-                                        <span class="text-sm text-stone-400 line-through me-2">{{ product.base_price }}</span>
+                                        <span class="price-original">{{ product.base_price }}</span>
                                     {% endif %}
                                 </div>
                             </div>
