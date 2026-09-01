@@ -75,6 +75,9 @@ Customer-facing storefront templates (non-admin)
 - `discount_list.html`: replaced `bg-red-500` with `bg-danger-500`
 - `order_confirm.html`: fixed sticky sidebar from `top-6` to `lg:top-24`
 
+### Phase 9.12 — Undefined Class Fix
+- `discount_form.html`: replaced undefined `btn-ghost` with `btn-secondary` for cancel button
+
 ## Responsive Behavior
 
 | Template | Status |
