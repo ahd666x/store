@@ -33,7 +33,7 @@
                   مشاهده جزئیات
                 </a>
                 {% if order.status in 'draft,planned' %}
-                  <form method="post" action="{% url 'orders:order_cancel' order.id %}" class="mt-2" onsubmit="return confirm('آیا مطمئن هستید می‌خواهید سفارش #{{ order.id }} را لغو کنید؟')">
+                  <form method="post" action="{% url 'orders:order_cancel' order.id %}" class="mt-2" data-confirm="آیا مطمئن هستید می‌خواهید سفارش #{{ order.id }} را لغو کنید؟">
                     {% csrf_token %}
                     <button type="submit" class="text-danger-600 hover:text-danger-800 text-sm font-medium">
                       لغو سفارش

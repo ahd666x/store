@@ -17,6 +17,25 @@ const App = {
         CascadeSelect.init();
         ColorFields.init();
 
+        document.querySelectorAll('[data-confirm]').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                const message = form.dataset.confirm;
+                if (!confirm(message)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-action]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = btn.dataset.action;
+                if (action && typeof window[action] === 'function') {
+                    e.preventDefault();
+                    window[action]();
+                }
+            });
+        });
+
         document.querySelectorAll('.size-rule-preset').forEach(select => {
             const customInput = select.parentElement.querySelector('.size-rule-custom');
             const hiddenInput = select.parentElement.querySelector('.size-rule-hidden');

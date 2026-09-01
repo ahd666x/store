@@ -83,6 +83,7 @@ const Catalog = {
         const resetFilters = () => {
             window.location = '/catalog/products/';
         };
+        window.resetFilters = resetFilters;
 
         document.querySelectorAll('[data-filter-reset]').forEach(btn => {
             btn.addEventListener('click', (e) => {

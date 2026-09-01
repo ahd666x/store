@@ -13,8 +13,8 @@
     <a href="{{ action_url }}" class="btn-primary">
         {{ action_text }}
     </a>
-    {% elif action_onclick and action_text %}
-    <button type="button" onclick="{{ action_onclick }}" class="btn-primary">
+    {% elif action and action_text %}
+    <button type="button" data-action="{{ action }}" class="btn-primary">
         {{ action_text }}
     </button>
     {% endif %}

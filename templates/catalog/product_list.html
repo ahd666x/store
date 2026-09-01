@@ -230,7 +230,7 @@
                     </div>
                 {% endif %}
             {% else %}
-                {% include 'components/feedback/empty_state.html' with icon_svg='<svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>' message='محصولی با این معیارها یافت نشد.' action_onclick='resetFilters()' action_text='پاک کردن فیلترها' %}
+                {% include 'components/feedback/empty_state.html' with icon_svg='<svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>' message='محصولی با این معیارها یافت نشد.' action='resetFilters' action_text='پاک کردن فیلترها' %}
                 {% if query %}
                     <div class="mt-12">
                         <h3 class="text-xl font-bold text-stone-900 mb-6">پیشنهادهای ما</h3>

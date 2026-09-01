@@ -33,7 +33,7 @@
   
   <div class="text-left flex-shrink-0">
     <p id="cart-item-total-{{ item.product.id }}" class="text-lg font-bold text-stone-900">{{ item.total_price }} تومان</p>
-    <form method="post" action="{% url 'cart:cart_remove' item.id %}" class="mt-2" onsubmit="return confirm('حذف شود؟')">
+    <form method="post" action="{% url 'cart:cart_remove' item.id %}" class="mt-2" data-confirm="حذف شود؟">
       {% csrf_token %}
       <button type="submit" class="text-danger-600 hover:text-danger-800 text-sm font-medium">
         حذف
