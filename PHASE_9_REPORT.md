@@ -9,7 +9,7 @@ python manage.py check
 System check identified no issues (0 silenced).
 
 npm run build:css
-Rebuilding... Done in 8093ms.
+Rebuilding... Done in 7673ms.
 ```
 
 ## Target
@@ -65,6 +65,16 @@ Customer-facing storefront templates (non-admin)
 - Fixed `border-gray-100` to `border-stone-100` in same file
 - Verified zero remaining `text-gray-*`, `border-gray-*`, or `bg-gray-*` in storefront templates
 
+### Phase 9.11 — Design System Token Migration
+- `header.html`: replaced `text-red-600 hover:bg-red-50` with `text-danger-600 hover:bg-danger-50` (logout links)
+- `order_items.html`: replaced `text-red-600 hover:text-red-800` with `text-danger-600 hover:text-danger-800` (return request link)
+- `confirm_modal.html`: replaced `bg-red-600 hover:bg-red-700 focus-visible:ring-red-500` with `danger-600/700/500`
+- `return_status_badge.html`: replaced hardcoded `bg-yellow-100 text-yellow-800` etc. with `badge badge-warning/success/danger/info`
+- `return_request_detail.html`: replaced `bg-blue-50 text-blue-800` with `bg-primary-50 text-primary-800`
+- `return_request_form.html`: replaced `text-red-600` with `text-danger-600`
+- `discount_list.html`: replaced `bg-red-500` with `bg-danger-500`
+- `order_confirm.html`: fixed sticky sidebar from `top-6` to `lg:top-24`
+
 ## Responsive Behavior
 
 | Template | Status |
@@ -94,7 +104,7 @@ Customer-facing storefront templates (non-admin)
 |-------|--------|
 | Card consistency | PASS — card-premium-hover applied |
 | Price typography | PASS — .price / .price-original classes |
-| Color semantics | PASS — zero text-gray-* remaining |
+| Color semantics | PASS — zero gray/red/blue/green hardcoded; all design system tokens |
 | Spacing consistency | PASS — subtitles, sticky positions aligned |
 | CSS cleanup | PASS — legacy CSS removed from store layout |
 | Functional regression | NONE |
