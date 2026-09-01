@@ -43,7 +43,7 @@
                   {% widthratio discount.used_count discount.max_uses 100 as used_pct %}
                   <div class="flex items-center gap-2">
                     <div class="flex-1 h-2 bg-stone-200 rounded-full overflow-hidden">
-                      <div class="h-full rounded-full transition-all duration-300 {% if used_pct >= 100 %}bg-red-500{% elif used_pct >= 80 %}bg-warning-500{% else %}bg-primary-500{% endif %}" style="width: {% if used_pct > 100 %}100{% else %}{{ used_pct }}{% endif %}%"></div>
+                      <div class="h-full rounded-full transition-all duration-300 {% if used_pct >= 100 %}bg-danger-500{% elif used_pct >= 80 %}bg-warning-500{% else %}bg-primary-500{% endif %}" style="width: {% if used_pct > 100 %}100{% else %}{{ used_pct }}{% endif %}%"></div>
                     </div>
                     <span class="text-xs text-stone-500 whitespace-nowrap">{{ discount.used_count }} / {{ discount.max_uses }}</span>
                   </div>

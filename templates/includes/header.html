@@ -72,7 +72,7 @@
                                 درخواست‌های مرجوعی
                             </a>
                             <div class="border-t border-stone-100 my-1"></div>
-                            <a href="{% url 'accounts:logout' %}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                            <a href="{% url 'accounts:logout' %}" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-danger-600 hover:bg-danger-50 transition-colors">
                                 خروج
                             </a>
                         </div>
@@ -120,7 +120,7 @@
                         {% include 'includes/icons.html' with name='user' size=20 class='w-5 h-5 text-stone-400' %}
                         پروفایل
                     </a>
-                    <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 text-red-600 hover:bg-red-50 font-medium py-3 px-3 rounded-lg transition-colors">
+                    <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 text-danger-600 hover:bg-danger-50 font-medium py-3 px-3 rounded-lg transition-colors">
                         {% include 'includes/icons.html' with name='logout' size=20 class='w-5 h-5 text-stone-400' %}
                         خروج
                     </a>
