@@ -60,7 +60,10 @@ def cart_add(request, product_id):
         cart_count = cart.items.count()
         return HttpResponse(f'<span id="cart-count" class="absolute -top-2 -start-3 bg-primary-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">{cart_count}</span>')
 
-    return redirect('catalog:product_list')
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+    if next_url and next_url.startswith('/'):
+        return redirect(next_url)
+    return redirect('cart:cart_detail')
 
 
 def cart_remove(request, cart_item_id):

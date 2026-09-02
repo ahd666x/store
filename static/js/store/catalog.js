@@ -40,7 +40,7 @@ const Catalog = {
                     }
                     const priceIncrease = basePrice * (diffs / 100);
                     const finalPrice = Math.round(basePrice + priceIncrease);
-                    priceEl.textContent = finalPrice.toLocaleString('fa-IR') + ' تومان';
+                    priceEl.textContent = finalPrice.toLocaleString('en-US') + ' تومان';
                 } catch (e) {
                     // silently handle
                 }
