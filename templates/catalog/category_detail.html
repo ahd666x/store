@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load jformat %}
+{% load jformat price_format %}
 
 {% block title %}{{ category.name }}{% endblock %}
 {% block meta_description %}محصولات دسته {{ category.name }} را در دکارو ببینید.{% endblock %}
@@ -46,7 +46,7 @@
                 {% endif %}
 
                 <span class="text-sm text-stone-600">
-                    صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+                    صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}
                 </span>
 
                 {% if page_obj.has_next %}

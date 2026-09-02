@@ -1,5 +1,5 @@
 {% extends 'layouts/store.html' %}
-{% load static jformat %}
+{% load static jformat price_format %}
 
 {% block title %}لیست محصولات{% endblock %}
 {% block breadcrumb %}
@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="section-container section-padding" x-data="{ mobileFilters: false, view: 'grid' }">
+<div class="section-container section-padding" x-data="{ mobileFilters: false, view: 'grid', activeQuery: '{{ query|default:''|escapejs }}', activeCategory: '{{ selected_category|default:''|escapejs }}', activeColor: '{{ selected_color|default:''|escapejs }}', activeSort: '{{ selected_sort|default:''|escapejs }}', activeMin: '{{ min_price|default:''|escapejs }}', activeMax: '{{ max_price|default:''|escapejs }}' }">
     {# Header #}
     <div class="mb-8">
         <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-2">محصولات</h1>
@@ -22,19 +22,19 @@
 
     {# Mobile Filter Toggle & View Toggle #}
     <div class="flex items-center justify-between mb-6 lg:hidden">
-        <button @click="mobileFilters = true" class="btn-secondary">
-            <svg class="w-5 h-5 inline-block me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+        <button @click="mobileFilters = true" class="btn-secondary inline-flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 01-.293.707V17l-4 4v-6.586a1 1 0 01-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
             </svg>
             فیلترها
         </button>
         <div class="flex items-center border border-stone-300 rounded-lg overflow-hidden">
-                    <button @click="view = 'grid'" :class="view === 'grid' ? 'bg-stone-100 text-stone-900' : 'text-stone-500'" class="px-3 py-2 transition-colors" aria-label="نمای شبکه‌ای">
+            <button @click="view = 'grid'" :class="view === 'grid' ? 'bg-stone-100 text-stone-900' : 'text-stone-500'" class="px-3 py-2 transition-colors" aria-label="نمای شبکه‌ای">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h6v6H4zM14 6h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>
                 </svg>
             </button>
-                    <button @click="view = 'list'" :class="view === 'list' ? 'bg-stone-100 text-stone-900' : 'text-stone-500'" class="px-3 py-2 transition-colors" aria-label="نمای لیستی">
+            <button @click="view = 'list'" :class="view === 'list' ? 'bg-stone-100 text-stone-900' : 'text-stone-500'" class="px-3 py-2 transition-colors" aria-label="نمای لیستی">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
@@ -46,23 +46,40 @@
         {# Desktop Sidebar Filters #}
         <aside class="hidden lg:block w-[17rem] flex-shrink-0">
             <div class="card lg:sticky lg:top-24 !p-6 !rounded-2xl">
+                {# Filter Header #}
                 <div class="flex items-center justify-between mb-5 pb-4 border-b border-stone-100">
-                    <h3 class="font-semibold text-stone-900 text-base">فیلترها</h3>
-                    <button data-filter-reset class="text-sm text-primary-600 hover:text-primary-800 font-medium underline underline-offset-2">
-                        پاک کردن
-                    </button>
+                    <h3 class="font-semibold text-stone-900 text-base inline-flex items-center gap-2">
+                        {% include 'includes/icons.html' with name='filter' size=18 class='w-4 h-4 text-stone-500' %}
+                        فیلترها
+                    </h3>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-medium text-stone-500 whitespace-nowrap" x-cloak
+                              x-show="(activeQuery||activeCategory||activeColor||activeMin||activeMax||(activeSort&&activeSort!=='newest'))"
+                              x-text="((activeQuery?1:0)+(activeCategory?1:0)+(activeColor?1:0)+(activeMin?1:0)+(activeMax?1:0)+(activeSort&&activeSort!=='newest'?1:0)) + ' فیلتر فعال'">
+                        </span>
+                        <button type="button" data-filter-reset class="text-xs text-stone-500 hover:text-stone-900 font-medium inline-flex items-center gap-1">
+                            {% include 'includes/icons.html' with name='x' size=12 class='w-3 h-3' %}
+                            پاک کردن
+                        </button>
+                    </div>
                 </div>
-                
-                <div class="space-y-6">
+
+                <div class="space-y-1">
                     {# Search #}
-                    <div>
-                        <label class="form-label font-medium text-stone-800 mb-2">جستجو</label>
+                    <div class="py-4 border-b border-stone-100 last:border-0">
+                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                            {% include 'includes/icons.html' with name='search' size=16 class='w-4 h-4 text-stone-500' %}
+                            جستجو
+                        </label>
                         <input type="text" placeholder="نام محصول..." class="form-input w-full" id="searchInput" value="{{ query }}">
                     </div>
-                    
+
                     {# Category #}
-                    <div>
-                        <label class="form-label font-medium text-stone-800 mb-2">دسته‌بندی</label>
+                    <div class="py-4 border-b border-stone-100 last:border-0">
+                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                            {% include 'includes/icons.html' with name='package' size=16 class='w-4 h-4 text-stone-500' %}
+                            دسته‌بندی
+                        </label>
                         <select class="form-select w-full" id="categoryFilter">
                             <option value="">همه دسته‌ها</option>
                             {% for category in categories %}
@@ -70,21 +87,28 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
+
                     {# Price Range #}
-                    <div>
-                        <label class="form-label font-medium text-stone-800 mb-2">محدوده قیمت (تومان)</label>
-                        <div class="flex gap-3 w-full min-w-0">
-                            <input type="number" placeholder="از" class="form-input w-full min-w-0 text-sm" id="minPrice" value="{{ min_price }}">
-                            <input type="number" placeholder="تا" class="form-input w-full min-w-0 text-sm" id="maxPrice" value="{{ max_price }}">
+                    <div class="py-4 border-b border-stone-100 last:border-0">
+                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                            {% include 'includes/icons.html' with name='percent' size=16 class='w-4 h-4 text-stone-500' %}
+                            محدوده قیمت (تومان)
+                        </label>
+                        <div class="flex items-center w-full gap-1">
+                            <input type="number" placeholder="از" class="form-input w-1/2 min-w-0 text-sm" id="minPrice" value="{{ min_price }}">
+                            <span class="text-stone-400 text-sm">—</span>
+                            <input type="number" placeholder="تا" class="form-input w-1/2 min-w-0 text-sm" id="maxPrice" value="{{ max_price }}">
                         </div>
                     </div>
-                    
+
                     {# Sort #}
-                    <div>
-                        <label class="form-label font-medium text-stone-800 mb-2">مرتب‌سازی</label>
+                    <div class="py-4 border-b border-stone-100 last:border-0">
+                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                            {% include 'includes/icons.html' with name='filter' size=16 class='w-4 h-4 text-stone-500' %}
+                            مرتب‌سازی
+                        </label>
                         <select class="form-select w-full" id="sortFilter">
-                            <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
+                            <option value="newest" {% if selected_sort == 'newest' or selected_sort == '' %}selected{% endif %}>جدیدترین</option>
                             <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>قیمت: کم به زیاد</option>
                             <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>قیمت: زیاد به کم</option>
                             <option value="rating" {% if selected_sort == 'rating' or selected_sort == '-average_rating' %}selected{% endif %}>محبوب‌ترین</option>
@@ -93,8 +117,11 @@
                     </div>
 
                     {# Color #}
-                    <div>
-                        <label class="form-label font-medium text-stone-800 mb-2">رنگ</label>
+                    <div class="py-4 border-b border-stone-100 last:border-0">
+                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-stone-400"></span>
+                            رنگ
+                        </label>
                         <select class="form-select w-full" id="colorFilter">
                             <option value="">همه رنگ‌ها</option>
                             {% for color in colors %}
@@ -102,7 +129,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    
+
                     <div class="pt-5 mt-1 border-t border-stone-100">
                         <button data-filter-apply class="btn-primary w-full">
                             اعمال فیلترها
@@ -117,23 +144,34 @@
             <div x-show="mobileFilters" x-transition.opacity class="fixed inset-0 bg-black/50" @click="mobileFilters = false"></div>
             <div x-show="mobileFilters" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="fixed inset-y-0 start-0 w-full max-w-xs bg-white shadow-elevation-3 overflow-y-auto">
                 <div class="p-6">
+                    {# Filter Header #}
                     <div class="flex items-center justify-between mb-5 pb-4 border-b border-stone-100">
                         <h3 class="text-lg font-semibold text-stone-900">فیلترها</h3>
-                        <button @click="mobileFilters = false" class="text-stone-500 hover:text-stone-700" aria-label="بستن فیلترها">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-medium text-stone-500 whitespace-nowrap" x-cloak
+                                  x-show="(activeQuery||activeCategory||activeColor||activeMin||activeMax||(activeSort&&activeSort!=='newest'))"
+                                  x-text="((activeQuery?1:0)+(activeCategory?1:0)+(activeColor?1:0)+(activeMin?1:0)+(activeMax?1:0)+(activeSort&&activeSort!=='newest'?1:0)) + ' فیلتر فعال'">
+                            </span>
+                            <button @click="mobileFilters = false" class="text-stone-500 hover:text-stone-700" aria-label="بستن فیلترها">
+                                {% include 'includes/icons.html' with name='x' size=20 class='w-5 h-5' %}
+                            </button>
+                        </div>
                     </div>
-                    
-                    <div class="space-y-6">
-                        <div>
-                            <label class="form-label font-medium text-stone-800 mb-2">جستجو</label>
+
+                    <div class="space-y-1">
+                        <div class="py-4 border-b border-stone-100 last:border-0">
+                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                                {% include 'includes/icons.html' with name='search' size=16 class='w-4 h-4 text-stone-500' %}
+                                جستجو
+                            </label>
                             <input type="text" placeholder="نام محصول..." class="form-input w-full" id="mobileSearchInput" value="{{ query }}">
                         </div>
-                        
-                        <div>
-                            <label class="form-label font-medium text-stone-800 mb-2">دسته‌بندی</label>
+
+                        <div class="py-4 border-b border-stone-100 last:border-0">
+                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                                {% include 'includes/icons.html' with name='package' size=16 class='w-4 h-4 text-stone-500' %}
+                                دسته‌بندی
+                            </label>
                             <select class="form-select w-full" id="mobileCategoryFilter">
                                 <option value="">همه دسته‌ها</option>
                                 {% for category in categories %}
@@ -141,19 +179,26 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        
-                        <div>
-                            <label class="form-label font-medium text-stone-800 mb-2">محدوده قیمت (تومان)</label>
-                        <div class="flex gap-3 w-full min-w-0">
-                            <input type="number" placeholder="از" class="form-input w-full min-w-0 text-sm" id="mobileMinPrice" value="{{ min_price }}">
-                            <input type="number" placeholder="تا" class="form-input w-full min-w-0 text-sm" id="mobileMaxPrice" value="{{ max_price }}">
+
+                        <div class="py-4 border-b border-stone-100 last:border-0">
+                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                                {% include 'includes/icons.html' with name='percent' size=16 class='w-4 h-4 text-stone-500' %}
+                                محدوده قیمت (تومان)
+                            </label>
+                            <div class="flex items-center w-full gap-1">
+                                <input type="number" placeholder="از" class="form-input w-1/2 min-w-0 text-sm" id="mobileMinPrice" value="{{ min_price }}">
+                                <span class="text-stone-400 text-sm">—</span>
+                                <input type="number" placeholder="تا" class="form-input w-1/2 min-w-0 text-sm" id="mobileMaxPrice" value="{{ max_price }}">
+                            </div>
                         </div>
-                        </div>
-                        
-                        <div>
-                            <label class="form-label font-medium text-stone-800 mb-2">مرتب‌سازی</label>
+
+                        <div class="py-4 border-b border-stone-100 last:border-0">
+                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                                {% include 'includes/icons.html' with name='filter' size=16 class='w-4 h-4 text-stone-500' %}
+                                مرتب‌سازی
+                            </label>
                             <select class="form-select w-full" id="mobileSortFilter">
-                                <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
+                                <option value="newest" {% if selected_sort == 'newest' or selected_sort == '' %}selected{% endif %}>جدیدترین</option>
                                 <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>قیمت: کم به زیاد</option>
                                 <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>قیمت: زیاد به کم</option>
                                 <option value="rating" {% if selected_sort == 'rating' or selected_sort == '-average_rating' %}selected{% endif %}>محبوب‌ترین</option>
@@ -161,8 +206,11 @@
                             </select>
                         </div>
 
-                        <div>
-                            <label class="form-label font-medium text-stone-800 mb-2">رنگ</label>
+                        <div class="py-4 border-b border-stone-100 last:border-0">
+                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-stone-400"></span>
+                                رنگ
+                            </label>
                             <select class="form-select w-full" id="mobileColorFilter">
                                 <option value="">همه رنگ‌ها</option>
                                 {% for color in colors %}
@@ -170,7 +218,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        
+
                         <div class="pt-5 mt-1 border-t border-stone-100">
                             <button data-filter-apply class="btn-primary w-full">
                                 اعمال فیلترها
@@ -187,9 +235,9 @@
             <div class="flex items-center justify-between mb-6">
                 <p class="text-sm text-stone-600">
                     {% if is_paginated %}
-                        {{ paginator.count }} محصول یافت شد (صفحه {{ page_obj.number }} از {{ paginator.num_pages }})
+                        {{ paginator.count|fa_number }} محصول یافت شد (صفحه {{ page_obj.number|fa_number }} از {{ paginator.num_pages|fa_number }})
                     {% else %}
-                        {{ products|length }} محصول یافت شد
+                        {{ products|length|fa_number }} محصول یافت شد
                     {% endif %}
                 </p>
                 {# Desktop View Toggle #}
@@ -224,7 +272,7 @@
                         {% endif %}
 
                         <span class="text-sm text-stone-600">
-                            صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+                            صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}
                         </span>
 
                         {% if page_obj.has_next %}

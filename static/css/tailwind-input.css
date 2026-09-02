@@ -56,9 +56,12 @@
   .price-sale {
     @apply text-xl font-semibold text-primary-600;
   }
-  .price-original {
-    @apply text-base text-stone-400 line-through;
-  }
+   .price-original {
+     @apply text-base text-stone-400 line-through;
+   }
+   .price-card {
+     @apply text-base sm:text-lg font-semibold text-stone-900 tracking-tight;
+   }
 
   /* Focus styles */
   *:focus-visible {
@@ -223,10 +226,10 @@
     @apply bg-white rounded-xl border border-stone-200 shadow-elevation-2;
   }
   .card-premium {
-    @apply bg-white rounded-2xl border border-stone-200 shadow-elevation-2;
+    @apply bg-white rounded-2xl border border-stone-200 shadow-elevation-2 overflow-hidden;
   }
   .card-premium-hover {
-    @apply card-premium transition-all duration-200 hover:shadow-elevation-3 hover:-translate-y-0.5;
+    @apply card-premium overflow-hidden transition-all duration-200 hover:shadow-elevation-3 hover:-translate-y-1;
   }
 
   /* Bootstrap card compatibility */
