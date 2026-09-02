@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load price_format %}
 
 {% block title %}علاقه‌مندی‌ها{% endblock %}
 
@@ -28,7 +29,7 @@
               <h3 class="font-semibold text-stone-900 group-hover:text-primary-600 transition-colors">{{ item.product.name }}</h3>
             </a>
             <div class="flex items-center justify-between mt-3">
-              <span class="price">{{ item.product.price }} تومان</span>
+              <span class="price">{{ item.product.price|price_fa }} تومان</span>
               <form method="post" action="{% url 'accounts:wishlist_remove' item.product.id %}" class="inline">
                 {% csrf_token %}
                 <button type="submit" class="text-sm text-danger-600 hover:text-danger-800 font-medium">

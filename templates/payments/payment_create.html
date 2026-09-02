@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load price_format %}
 
 {% block title %}پرداخت{% endblock %}
 
@@ -9,7 +10,7 @@
       <div class="p-6 sm:p-8">
         <div class="text-center mb-8">
           <h2 class="text-2xl font-bold text-stone-900">انتخاب روش پرداخت</h2>
-          <p class="mt-2 text-stone-600">مبلغ قابل پرداخت: <span class="font-bold text-primary-600">{{ order.final_amount }} تومان</span></p>
+          <p class="mt-2 text-stone-600">مبلغ قابل پرداخت: <span class="font-bold text-primary-600">{{ order.final_amount|price_fa }} تومان</span></p>
         </div>
 
         <form method="post" class="space-y-4">

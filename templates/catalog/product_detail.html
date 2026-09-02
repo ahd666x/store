@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static jformat %}
+{% load static jformat price_format %}
 
 {% block title %}{{ product.name }}{% endblock %}
 {% block meta_description %}{{ product.description|truncatewords:30 }}{% endblock %}
@@ -148,9 +148,9 @@
             </div>
 
             <div class="flex items-baseline gap-3 mb-6">
-                <span class="price">{{ product.price }} تومان</span>
+                <span class="price">{{ product.price|price_fa }} تومان</span>
                 {% if product.base_price and product.base_price != product.price %}
-                    <span class="price-original">{{ product.base_price }}</span>
+                    <span class="price-original">{{ product.base_price|price_fa }}</span>
                 {% endif %}
             </div>
 
@@ -273,7 +273,7 @@
 
                 <div class="flex items-center justify-between bg-primary-50 border border-primary-200 rounded-xl px-4 py-3 mb-4">
                     <span class="text-sm text-stone-600">قیمت با این ابعاد:</span>
-                    <span id="live-price" class="price text-primary-700">{{ product.price }} تومان</span>
+                    <span id="live-price" class="price text-primary-700">{{ product.price|price_fa }} تومان</span>
                 </div>
 
                 <div class="flex items-center gap-4 mb-5">

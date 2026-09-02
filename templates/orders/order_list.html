@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load jformat %}
+{% load jformat price_format %}
 
 {% block title %}لیست سفارشات{% endblock %}
 
@@ -27,7 +27,7 @@
               </div>
               <div class="text-left flex-shrink-0">
                 <p class="text-lg font-bold text-stone-900">
-                  {{ order.final_amount }} تومان
+                  {{ order.final_amount|price_fa }} تومان
                 </p>
                 <a href="{% url 'orders:order_detail' order.id %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">
                   مشاهده جزئیات

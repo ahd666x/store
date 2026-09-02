@@ -1,4 +1,4 @@
-{% load jformat %}
+{% load jformat price_format %}
 <div id="cart-row-{{ item.product.id }}" class="p-4 sm:p-6 flex items-start gap-4 sm:gap-6">
   {% if item.product.images.all %}
     <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0" loading="lazy">
@@ -19,7 +19,7 @@
       </p>
     {% endif %}
     <div class="flex items-center gap-4 mt-2">
-      <span class="text-base sm:text-lg font-bold text-primary-600">{{ item.unit_price }} تومان</span>
+      <span class="text-base sm:text-lg font-bold text-primary-600">{{ item.unit_price|price_fa }} تومان</span>
       <span class="text-stone-400">×</span>
       
       <form method="post" action="{% url 'cart:cart_update' item.product.id %}" hx-target="#cart-row-{{ item.product.id }}" hx-swap="outerHTML" hx-trigger="change" class="flex items-center gap-2">
@@ -32,7 +32,7 @@
   </div>
   
   <div class="text-left flex-shrink-0">
-    <p id="cart-item-total-{{ item.product.id }}" class="text-lg font-bold text-stone-900">{{ item.total_price }} تومان</p>
+    <p id="cart-item-total-{{ item.product.id }}" class="text-lg font-bold text-stone-900">{{ item.total_price|price_fa }} تومان</p>
     <form method="post" action="{% url 'cart:cart_remove' item.id %}" class="mt-2" data-confirm="حذف شود؟">
       {% csrf_token %}
       <button type="submit" class="text-danger-600 hover:text-danger-800 text-sm font-medium">
