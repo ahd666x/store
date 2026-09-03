@@ -16,7 +16,8 @@ if not SECRET_KEY:
     raise Exception('SECRET_KEY environment variable is required.')
 
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', 'testserver'])
+# ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', 'testserver'])
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 DJANGO_APPS = [
@@ -74,6 +75,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.cart.context_processors.cart_total',
+                'apps.catalog.context_processors.categories_menu',
             ],
         },
     },

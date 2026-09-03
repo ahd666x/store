@@ -8,15 +8,12 @@ PERSIAN_THOUSANDS_SEP = '٬'
 
 @register.filter
 def price_fa(value):
-    """قیمت را با جداکنندهٔ سه‌رقمی و اعداد فارسی نمایش می‌دهد. مثال: 1000000 -> ۱٬۰۰۰٬۰۰۰"""
+    """قیمت را با جداکنندهٔ سه‌رقمی و اعداد انگلیسی نمایش می‌دهد. مثال: 1000000 -> 1,000,000"""
     try:
         value = int(value)
     except (TypeError, ValueError):
         return value
-    formatted = f"{value:,}"
-    for i, digit in enumerate('0123456789'):
-        formatted = formatted.replace(digit, PERSIAN_DIGITS[i])
-    return formatted.replace(',', PERSIAN_THOUSANDS_SEP)
+    return f"{value:,}"
 
 
 @register.filter

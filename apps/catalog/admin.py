@@ -18,9 +18,16 @@ class MaterialAdmin(admin.ModelAdmin):
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug']
+    list_display = ['name', 'slug', 'image_preview']
     search_fields = ['name']
     prepopulated_fields = {'slug': ('name',)}
+    fields = ['name', 'slug', 'image']
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="max-height:50px; border-radius:6px;" />', obj.image.url)
+        return '-'
+    image_preview.short_description = 'پیش‌نمایش'
 
 
 @admin.register(ColorMaterialMap)

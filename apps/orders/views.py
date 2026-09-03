@@ -63,7 +63,7 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
             except Address.DoesNotExist:
                 pass
 
-        response = super().form_valid(form)
+        self.object = form.save()
         cart = get_object_or_404(Cart, user=self.request.user)
         OrderService.add_cart_items_to_order(self.object, cart)
         return redirect('orders:order_confirm', order_id=self.object.id)

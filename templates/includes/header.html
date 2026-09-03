@@ -2,7 +2,7 @@
 {% load jformat %}
 
 {# Header Partial - دکارو #}
-<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-200 transition-shadow duration-200" id="site-header" x-data="{ mobileMenuOpen: false, userMenuOpen: false }">
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-stone-200 transition-shadow duration-200" id="site-header" x-data="{ mobileMenuOpen: false, userMenuOpen: false, categoryMenuOpen: false }">
     {# Discount Banner removed #}
     
     <div class="section-container">
@@ -25,6 +25,24 @@
                 <a href="{% url 'catalog:product_list' %}" class="relative px-3 py-2 text-stone-600 hover:text-primary-600 font-medium transition-colors duration-200 after:absolute after:start-0 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary-600 after:transition-all after:duration-200 hover:after:w-full">
                     محصولات
                 </a>
+                <div class="relative" @mouseenter="categoryMenuOpen = true" @mouseleave="setTimeout(() => categoryMenuOpen = false, 100)">
+                    <button class="px-3 py-2 text-stone-600 hover:text-primary-600 font-medium transition-colors duration-200 inline-flex items-center gap-1">
+                        دسته‌بندی
+                        {% include 'includes/icons.html' with name='chevron-down' size=14 class='w-3.5 h-3.5' %}
+                    </button>
+                    <div x-show="categoryMenuOpen" x-cloak x-transition class="absolute start-0 top-full z-40">
+                        <div class="w-80 bg-white rounded-2xl shadow-xl border border-stone-200/60 py-2.5 overflow-hidden max-h-[28rem] overflow-y-auto">
+                            <div class="px-4 py-2 mb-1">
+                                <span class="text-[11px] font-bold text-stone-400 uppercase tracking-widest">دسته‌بندی‌ها</span>
+                            </div>
+                            {% for cat in nav_categories %}
+                                <a href="{% url 'catalog:category_detail' cat.slug %}" class="block px-4 py-3 text-sm font-medium text-stone-700 hover:bg-primary-50 hover:text-primary-700 transition-colors">{{ cat.name }}</a>
+                            {% empty %}
+                                <span class="block px-4 py-3 text-sm text-stone-400">دسته‌ای موجود نیست</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
                 <a href="{% url 'cart:cart_detail' %}" class="relative px-3 py-2 text-stone-600 hover:text-primary-600 font-medium transition-colors duration-200 after:absolute after:start-0 after:bottom-0 after:h-0.5 after:w-0 after:bg-primary-600 after:transition-all after:duration-200 hover:after:w-full">
                     سبد خرید
                     <span id="cart-count" class="absolute -top-1.5 -start-2 bg-primary-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1 {% if cart_count == 0 %}hidden{% endif %}">
@@ -110,6 +128,11 @@
                     {% include 'includes/icons.html' with name='package' size=20 class='w-5 h-5 text-stone-400' %}
                     محصولات
                 </a>
+                {% for cat in nav_categories %}
+                    <a href="{% url 'catalog:category_detail' cat.slug %}" class="flex items-center gap-3 text-stone-600 hover:text-primary-600 font-medium py-3 px-3 rounded-lg hover:bg-stone-50 transition-colors">
+                        {{ cat.name }}
+                    </a>
+                {% endfor %}
                 <a href="{% url 'cart:cart_detail' %}" class="flex items-center gap-3 text-stone-600 hover:text-primary-600 font-medium py-3 px-3 rounded-lg hover:bg-stone-50 transition-colors">
                     {% include 'includes/icons.html' with name='cart' size=20 class='w-5 h-5 text-stone-400' %}
                     سبد خرید

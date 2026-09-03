@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
-{% load jformat price_format %}
+{% load static jformat price_format %}
 
 {% block title %}{{ category.name }}{% endblock %}
-{% block meta_description %}محصولات دسته {{ category.name }} را در دکارو ببینید.{% endblock %}
 
 {% block breadcrumb %}
 <nav class="section-container py-3" aria-label="breadcrumb">
@@ -17,57 +16,89 @@
 {% endblock %}
 
 {% block content %}
-<div class="section-container section-padding">
-    {# Category Header #}
-    <div class="mb-12 text-center">
-        <div class="w-20 h-20 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-            </svg>
-        </div>
-        <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">{{ category.name }}</h1>
-        <p class="text-lg text-stone-600">کابینت‌های مدرن و کلاسیک با بهترین مواد اولیه</p>
+<div class="section-container section-padding" x-data="{ mobileFilters: false, view: 'grid' }">
+    {% comment %} <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-stone-900 mb-2">{{ category.name }}</h1>
+        <p class="text-lg text-stone-600">{{ products.paginator.count|default:products|length }} محصول</p>
+    </div> {% endcomment %}
+
+    <div class="flex items-center justify-between mb-6 lg:hidden">
+        <button @click="mobileFilters = true" class="btn-secondary inline-flex items-center gap-2">
+            {% include 'includes/icons.html' with name='filter' size=18 class='w-4 h-4' %}
+            فیلترها
+        </button>
     </div>
 
-    {# Products Grid #}
-    {% if products %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {% for product in products %}
-                {% include 'catalog/includes/product_card.html' with product=product %}
-            {% endfor %}
-        </div>
-
-        {# Pagination #}
-        {% if is_paginated %}
-            <div class="flex justify-center items-center gap-2 mt-10">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
-                       class="btn-secondary btn-sm">قبلی</a>
-                {% endif %}
-
-                <span class="text-sm text-stone-600">
-                    صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}
-                </span>
-
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}"
-                       class="btn-secondary btn-sm">بعدی</a>
-                {% endif %}
+    <div class="flex flex-col lg:flex-row gap-8">
+        <aside class="hidden lg:block w-[17rem] flex-shrink-0">
+            <div class="card lg:sticky lg:top-24 !p-6 !rounded-2xl">
+                <h3 class="font-semibold text-stone-900 mb-4">فیلترها</h3>
+                <div class="space-y-1">
+                    <div class="py-4 border-b border-stone-100">
+                        <label class="form-label">جستجو</label>
+                        <input type="text" placeholder="نام محصول..." class="form-input w-full" id="searchInput" value="{{ query }}">
+                    </div>
+                    <div class="py-4 border-b border-stone-100">
+                        <label class="form-label">محدوده قیمت (تومان)</label>
+                        <div class="flex items-center w-full gap-1">
+                            <input type="number" placeholder="از" class="form-input w-1/2 text-sm" id="minPrice" value="{{ min_price }}">
+                            <span class="text-stone-400 text-sm">—</span>
+                            <input type="number" placeholder="تا" class="form-input w-1/2 text-sm" id="maxPrice" value="{{ max_price }}">
+                        </div>
+                    </div>
+                    <div class="py-4 border-b border-stone-100">
+                        <label class="form-label">مرتب‌سازی</label>
+                        <select class="form-select w-full" id="sortFilter">
+                            <option value="newest" {% if not selected_sort or selected_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
+                            <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>قیمت: کم به زیاد</option>
+                            <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>قیمت: زیاد به کم</option>
+                            <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>محبوب‌ترین</option>
+                            <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>قدیمی‌ترین</option>
+                        </select>
+                    </div>
+                    <div class="py-4 border-b border-stone-100">
+                        <label class="form-label">رنگ</label>
+                        <select class="form-select w-full" id="colorFilter">
+                            <option value="">همه رنگ‌ها</option>
+                            {% for color in colors %}
+                                <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>{{ color }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="pt-5">
+                        <button data-filter-apply class="btn-primary w-full">اعمال فیلترها</button>
+                    </div>
+                </div>
             </div>
-        {% endif %}
-    {% else %}
-        <div class="text-center py-16">
-            <div class="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg class="w-12 h-12 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                </svg>
-            </div>
-            <p class="text-stone-500 text-lg mb-4">محصولی در این دسته یافت نشد.</p>
-            <a href="{% url 'catalog:product_list' %}" class="btn-primary">
-                مشاهده همه محصولات
-            </a>
+        </aside>
+
+        <div class="flex-1">
+            {% if products %}
+                <div class="grid gap-6 items-stretch grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {% for product in products %}
+                        {% include 'catalog/includes/product_card.html' with product=product %}
+                    {% endfor %}
+                </div>
+
+                {% if is_paginated %}
+                <div class="flex justify-center items-center gap-2 mt-10">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn-secondary btn-sm">قبلی</a>
+                    {% endif %}
+                    <span class="text-sm text-stone-600">صفحه {{ page_obj.number|fa_number }} از {{ page_obj.paginator.num_pages|fa_number }}</span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn-secondary btn-sm">بعدی</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-16">
+                    <p class="text-stone-500 text-lg mb-4">محصولی در این دسته یافت نشد.</p>
+                    <a href="{% url 'catalog:product_list' %}" class="btn-primary">مشاهده همه محصولات</a>
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
+    </div>
 </div>
+{% block extra_js %}<script src="{% static 'js/store/catalog.js' %}"></script>{% endblock %}
 {% endblock %}
-

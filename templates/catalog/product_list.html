@@ -15,10 +15,10 @@
 {% block content %}
 <div class="section-container section-padding" x-data="{ mobileFilters: false, view: 'grid', activeQuery: '{{ query|default:''|escapejs }}', activeCategory: '{{ selected_category|default:''|escapejs }}', activeColor: '{{ selected_color|default:''|escapejs }}', activeSort: '{{ selected_sort|default:''|escapejs }}', activeMin: '{{ min_price|default:''|escapejs }}', activeMax: '{{ max_price|default:''|escapejs }}' }">
     {# Header #}
-    <div class="mb-8">
+    {% comment %} <div class="mb-8">
         <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-2">محصولات</h1>
         <p class="text-lg text-stone-600">کابینت‌های مدرن و کلاسیک با بهترین مواد اولیه</p>
-    </div>
+    </div> {% endcomment %}
 
     {# Mobile Filter Toggle & View Toggle #}
     <div class="flex items-center justify-between mb-6 lg:hidden">
@@ -45,42 +45,48 @@
     <div class="flex flex-col lg:flex-row gap-8">
         {# Desktop Sidebar Filters #}
         <aside class="hidden lg:block w-[17rem] flex-shrink-0">
-            <div class="card lg:sticky lg:top-24 !p-6 !rounded-2xl">
-                {# Filter Header #}
-                <div class="flex items-center justify-between mb-5 pb-4 border-b border-stone-100">
-                    <h3 class="font-semibold text-stone-900 text-base inline-flex items-center gap-2">
-                        {% include 'includes/icons.html' with name='filter' size=18 class='w-4 h-4 text-stone-500' %}
-                        فیلترها
-                    </h3>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-medium text-stone-500 whitespace-nowrap" x-cloak
-                              x-show="(activeQuery||activeCategory||activeColor||activeMin||activeMax||(activeSort&&activeSort!=='newest'))"
-                              x-text="((activeQuery?1:0)+(activeCategory?1:0)+(activeColor?1:0)+(activeMin?1:0)+(activeMax?1:0)+(activeSort&&activeSort!=='newest'?1:0)) + ' فیلتر فعال'">
-                        </span>
-                        <button type="button" data-filter-reset class="text-xs text-stone-500 hover:text-stone-900 font-medium inline-flex items-center gap-1">
-                            {% include 'includes/icons.html' with name='x' size=12 class='w-3 h-3' %}
-                            پاک کردن
-                        </button>
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-elevation-1 sticky lg:top-24 overflow-hidden">
+
+                {# Header #}
+                <div class="flex items-center justify-between px-5 py-4 bg-stone-50 border-b border-stone-100">
+                    <div class="flex items-center gap-2">
+                        {% include 'includes/icons.html' with name='filter' size=16 class='w-4 h-4 text-primary-600' %}
+                        <h3 class="font-semibold text-stone-900 text-sm">فیلترها</h3>
+                        {% if selected_category or min_price or max_price or selected_color or query %}
+                            <span class="w-5 h-5 flex items-center justify-center rounded-full bg-primary-600 text-white text-[11px] font-bold">
+                                {{ active_filter_count|default:"" }}
+                            </span>
+                        {% endif %}
                     </div>
+                    <button data-filter-reset class="flex items-center gap-1 text-xs font-medium text-stone-400 hover:text-danger-600 transition-colors">
+                        {% include 'includes/icons.html' with name='x' size=12 class='w-3 h-3' %}
+                        پاک کردن
+                    </button>
                 </div>
 
-                <div class="space-y-1">
+                {# Sections #}
+                <div class="divide-y divide-stone-100">
+
                     {# Search #}
-                    <div class="py-4 border-b border-stone-100 last:border-0">
-                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                            {% include 'includes/icons.html' with name='search' size=16 class='w-4 h-4 text-stone-500' %}
+                    <div class="px-5 py-4">
+                        <label for="searchInput" class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                            {% include 'includes/icons.html' with name='search' size=14 class='w-3.5 h-3.5 text-stone-400' %}
                             جستجو
                         </label>
-                        <input type="text" placeholder="نام محصول..." class="form-input w-full" id="searchInput" value="{{ query }}">
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="نام محصول..." value="{{ query }}"
+                                   class="form-input w-full text-sm pe-9">
+                            {% include 'includes/icons.html' with name='search' size=16 class='w-4 h-4 text-stone-300 absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none' %}
+                        </div>
                     </div>
 
                     {# Category #}
-                    <div class="py-4 border-b border-stone-100 last:border-0">
-                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                            {% include 'includes/icons.html' with name='package' size=16 class='w-4 h-4 text-stone-500' %}
+                    <div class="px-5 py-4">
+                        <label for="categoryFilter" class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                            {% include 'includes/icons.html' with name='package' size=14 class='w-3.5 h-3.5 text-stone-400' %}
                             دسته‌بندی
                         </label>
-                        <select class="form-select w-full" id="categoryFilter">
+                        <select class="form-select w-full text-sm" id="categoryFilter">
                             <option value="">همه دسته‌ها</option>
                             {% for category in categories %}
                                 <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
@@ -89,25 +95,27 @@
                     </div>
 
                     {# Price Range #}
-                    <div class="py-4 border-b border-stone-100 last:border-0">
-                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                            {% include 'includes/icons.html' with name='percent' size=16 class='w-4 h-4 text-stone-500' %}
+                    <div class="px-5 py-4">
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                            {% include 'includes/icons.html' with name='percent' size=14 class='w-3.5 h-3.5 text-stone-400' %}
                             محدوده قیمت (تومان)
                         </label>
-                        <div class="flex items-center w-full gap-1">
-                            <input type="number" placeholder="از" class="form-input w-1/2 min-w-0 text-sm" id="minPrice" value="{{ min_price }}">
-                            <span class="text-stone-400 text-sm">—</span>
-                            <input type="number" placeholder="تا" class="form-input w-1/2 min-w-0 text-sm" id="maxPrice" value="{{ max_price }}">
+                        <div class="flex items-center gap-2">
+                            <input type="number" placeholder="از" value="{{ min_price }}"
+                                   class="form-input w-full text-sm text-center px-2" id="minPrice">
+                            <span class="text-stone-300 text-sm flex-shrink-0">−</span>
+                            <input type="number" placeholder="تا" value="{{ max_price }}"
+                                   class="form-input w-full text-sm text-center px-2" id="maxPrice">
                         </div>
                     </div>
 
                     {# Sort #}
-                    <div class="py-4 border-b border-stone-100 last:border-0">
-                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                            {% include 'includes/icons.html' with name='filter' size=16 class='w-4 h-4 text-stone-500' %}
+                    <div class="px-5 py-4">
+                        <label for="sortFilter" class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                            {% include 'includes/icons.html' with name='filter' size=14 class='w-3.5 h-3.5 text-stone-400' %}
                             مرتب‌سازی
                         </label>
-                        <select class="form-select w-full" id="sortFilter">
+                        <select class="form-select w-full text-sm" id="sortFilter">
                             <option value="newest" {% if selected_sort == 'newest' or selected_sort == '' %}selected{% endif %}>جدیدترین</option>
                             <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>قیمت: کم به زیاد</option>
                             <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>قیمت: زیاد به کم</option>
@@ -117,12 +125,12 @@
                     </div>
 
                     {# Color #}
-                    <div class="py-4 border-b border-stone-100 last:border-0">
-                        <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-stone-400"></span>
+                    <div class="px-5 py-4">
+                        <label for="colorFilter" class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-stone-400 inline-block"></span>
                             رنگ
                         </label>
-                        <select class="form-select w-full" id="colorFilter">
+                        <select class="form-select w-full text-sm" id="colorFilter">
                             <option value="">همه رنگ‌ها</option>
                             {% for color in colors %}
                                 <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>{{ color }}</option>
@@ -130,11 +138,13 @@
                         </select>
                     </div>
 
-                    <div class="pt-5 mt-1 border-t border-stone-100">
-                        <button data-filter-apply class="btn-primary w-full">
-                            اعمال فیلترها
-                        </button>
-                    </div>
+                </div>
+
+                {# Apply Button #}
+                <div class="px-5 py-4 bg-stone-50 border-t border-stone-100">
+                    <button data-filter-apply class="btn-primary w-full text-sm">
+                        اعمال فیلترها
+                    </button>
                 </div>
             </div>
         </aside>
@@ -158,21 +168,25 @@
                         </div>
                     </div>
 
-                    <div class="space-y-1">
-                        <div class="py-4 border-b border-stone-100 last:border-0">
-                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                                {% include 'includes/icons.html' with name='search' size=16 class='w-4 h-4 text-stone-500' %}
+                    <div class="divide-y divide-stone-100">
+                        <div class="px-1 py-4">
+                            <label for="mobileSearchInput" class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                                {% include 'includes/icons.html' with name='search' size=14 class='w-3.5 h-3.5 text-stone-400' %}
                                 جستجو
                             </label>
-                            <input type="text" placeholder="نام محصول..." class="form-input w-full" id="mobileSearchInput" value="{{ query }}">
+                            <div class="relative">
+                                <input type="text" placeholder="نام محصول..." id="mobileSearchInput" value="{{ query }}"
+                                       class="form-input w-full text-sm pe-9">
+                                {% include 'includes/icons.html' with name='search' size=16 class='w-4 h-4 text-stone-300 absolute end-3 top-1/2 -translate-y-1/2 pointer-events-none' %}
+                            </div>
                         </div>
 
-                        <div class="py-4 border-b border-stone-100 last:border-0">
-                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                                {% include 'includes/icons.html' with name='package' size=16 class='w-4 h-4 text-stone-500' %}
+                        <div class="px-1 py-4">
+                            <label for="mobileCategoryFilter" class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                                {% include 'includes/icons.html' with name='package' size=14 class='w-3.5 h-3.5 text-stone-400' %}
                                 دسته‌بندی
                             </label>
-                            <select class="form-select w-full" id="mobileCategoryFilter">
+                            <select class="form-select w-full text-sm" id="mobileCategoryFilter">
                                 <option value="">همه دسته‌ها</option>
                                 {% for category in categories %}
                                     <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
@@ -180,24 +194,26 @@
                             </select>
                         </div>
 
-                        <div class="py-4 border-b border-stone-100 last:border-0">
-                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                                {% include 'includes/icons.html' with name='percent' size=16 class='w-4 h-4 text-stone-500' %}
+                        <div class="px-1 py-4">
+                            <label class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                                {% include 'includes/icons.html' with name='percent' size=14 class='w-3.5 h-3.5 text-stone-400' %}
                                 محدوده قیمت (تومان)
                             </label>
-                            <div class="flex items-center w-full gap-1">
-                                <input type="number" placeholder="از" class="form-input w-1/2 min-w-0 text-sm" id="mobileMinPrice" value="{{ min_price }}">
-                                <span class="text-stone-400 text-sm">—</span>
-                                <input type="number" placeholder="تا" class="form-input w-1/2 min-w-0 text-sm" id="mobileMaxPrice" value="{{ max_price }}">
+                            <div class="flex items-center gap-2">
+                                <input type="number" placeholder="از" value="{{ min_price }}"
+                                       class="form-input w-full text-sm text-center px-2" id="mobileMinPrice">
+                                <span class="text-stone-300 text-sm flex-shrink-0">−</span>
+                                <input type="number" placeholder="تا" value="{{ max_price }}"
+                                       class="form-input w-full text-sm text-center px-2" id="mobileMaxPrice">
                             </div>
                         </div>
 
-                        <div class="py-4 border-b border-stone-100 last:border-0">
-                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                                {% include 'includes/icons.html' with name='filter' size=16 class='w-4 h-4 text-stone-500' %}
+                        <div class="px-1 py-4">
+                            <label for="mobileSortFilter" class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                                {% include 'includes/icons.html' with name='filter' size=14 class='w-3.5 h-3.5 text-stone-400' %}
                                 مرتب‌سازی
                             </label>
-                            <select class="form-select w-full" id="mobileSortFilter">
+                            <select class="form-select w-full text-sm" id="mobileSortFilter">
                                 <option value="newest" {% if selected_sort == 'newest' or selected_sort == '' %}selected{% endif %}>جدیدترین</option>
                                 <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>قیمت: کم به زیاد</option>
                                 <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>قیمت: زیاد به کم</option>
@@ -206,24 +222,24 @@
                             </select>
                         </div>
 
-                        <div class="py-4 border-b border-stone-100 last:border-0">
-                            <label class="form-label font-medium text-stone-800 mb-2 inline-flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-stone-400"></span>
+                        <div class="px-1 py-4">
+                            <label for="mobileColorFilter" class="flex items-center gap-1.5 text-xs font-semibold text-stone-500 mb-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-stone-400 inline-block"></span>
                                 رنگ
                             </label>
-                            <select class="form-select w-full" id="mobileColorFilter">
+                            <select class="form-select w-full text-sm" id="mobileColorFilter">
                                 <option value="">همه رنگ‌ها</option>
                                 {% for color in colors %}
                                     <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>{{ color }}</option>
                                 {% endfor %}
                             </select>
                         </div>
+                    </div>
 
-                        <div class="pt-5 mt-1 border-t border-stone-100">
-                            <button data-filter-apply class="btn-primary w-full">
-                                اعمال فیلترها
-                            </button>
-                        </div>
+                    <div class="pt-5 mt-2 border-t border-stone-100">
+                        <button data-filter-apply class="btn-primary w-full text-sm">
+                            اعمال فیلترها
+                        </button>
                     </div>
                 </div>
             </div>

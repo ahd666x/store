@@ -80,6 +80,13 @@ class ProductListView(ListView):
         context['categories'] = ProductCategory.objects.all()
         context['colors'] = Product.active_objects.exclude(color__isnull=True).exclude(color__exact='').values_list('color', flat=True).distinct().order_by('color')
         context['featured_products'] = Product.active_objects.filter(stock__gt=0).order_by('-created_at')[:8]
+        context['active_filter_count'] = sum(bool(x) for x in [
+            self.request.GET.get('q'),
+            self.request.GET.get('category'),
+            self.request.GET.get('min_price'),
+            self.request.GET.get('max_price'),
+            self.request.GET.get('color'),
+        ])
         return context
 
 
@@ -180,16 +187,57 @@ class CategoryDetailView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Product.active_objects.filter(
-            category__slug=self.kwargs['slug'],
-        ).prefetch_related('images').annotate(
+        self.category = get_object_or_404(ProductCategory, slug=self.kwargs['slug'])
+        queryset = Product.active_objects.filter(category=self.category).prefetch_related('images')
+
+        query = self.request.GET.get('q', '').strip()
+        if query:
+            queryset = queryset.filter(Q(name__icontains=query) | Q(description__icontains=query))
+
+        min_price = self.request.GET.get('min_price', '').strip()
+        max_price = self.request.GET.get('max_price', '').strip()
+        try:
+            if min_price:
+                queryset = queryset.filter(price__gte=int(min_price))
+            if max_price:
+                queryset = queryset.filter(price__lte=int(max_price))
+        except (ValueError, TypeError):
+            pass
+
+        color = self.request.GET.get('color', '').strip()
+        if color:
+            queryset = queryset.filter(color__iexact=color)
+
+        queryset = queryset.annotate(
             avg_rating=Avg('reviews__rating', filter=Q(reviews__is_active=True)),
             rev_count=Count('reviews', filter=Q(reviews__is_active=True)),
         )
 
+        sort = self.request.GET.get('sort', '').strip()
+        if sort == 'price_asc':
+            queryset = queryset.order_by('price')
+        elif sort == 'price_desc':
+            queryset = queryset.order_by('-price')
+        elif sort == 'oldest':
+            queryset = queryset.order_by('created_at')
+        elif sort in ('rating', '-average_rating'):
+            queryset = queryset.order_by('-avg_rating')
+        else:
+            queryset = queryset.order_by('-created_at')
+
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category'] = get_object_or_404(ProductCategory, slug=self.kwargs['slug'])
+        context['category'] = self.category
+        context['query'] = self.request.GET.get('q', '')
+        context['min_price'] = self.request.GET.get('min_price', '')
+        context['max_price'] = self.request.GET.get('max_price', '')
+        context['selected_sort'] = self.request.GET.get('sort', '')
+        context['selected_color'] = self.request.GET.get('color', '')
+        context['colors'] = Product.active_objects.filter(category=self.category)\
+            .exclude(color__isnull=True).exclude(color__exact='')\
+            .values_list('color', flat=True).distinct().order_by('color')
         return context
 
 

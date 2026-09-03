@@ -112,15 +112,28 @@
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {% for category in categories %}
-            <a href="{% url 'catalog:category_detail' category.slug %}" class="group card-hover p-6 text-center">
-                <div class="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-100 transition-colors">
-                    <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16M8 6v12M16 6v12"/>
-                    </svg>
-                </div>
-                <h3 class="font-semibold text-stone-900 mb-1">{{ category.name }}</h3>
-                <p class="text-sm text-stone-500">{{ category.products.count }} محصول</p>
-            </a>
+                <a href="{% url 'catalog:category_detail' category.slug %}"
+                   class="group relative block aspect-[4/3] rounded-2xl overflow-hidden shadow-sm">
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}" alt="{{ category.name }}"
+                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                    {% else %}
+                        {% with first_product=category.products.first %}
+                        {% if first_product and first_product.images.all %}
+                            <img src="{{ first_product.images.all.0.image.url }}" alt="{{ category.name }}"
+                                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy">
+                        {% else %}
+                            <div class="absolute inset-0 bg-stone-200"></div>
+                        {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                    <div class="absolute inset-0 bg-black/35 group-hover:bg-black/55 transition-colors duration-300"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-center p-3
+                                opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0
+                                transition-all duration-300">
+                        <span class="text-white font-semibold text-base md:text-lg">{{ category.name }}</span>
+                    </div>
+                </a>
             {% endfor %}
         </div>
     </div>
@@ -135,7 +148,7 @@
         </div>
         
         {% if featured_products %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" x-data="{ view: 'grid' }">
                 {% for product in featured_products %}
                     {% include 'catalog/includes/product_card.html' with product=product %}
                 {% endfor %}
@@ -148,7 +161,7 @@
 </section>
 
 <!-- Testimonials -->
-<section class="section-padding bg-white">
+{% comment %} <section class="section-padding bg-white">
     <div class="section-container">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">نظرات مشتریان</h2>
@@ -243,10 +256,10 @@
             </div>
         </div>
     </div>
-</section>
+</section> {% endcomment %}
 
 <!-- Features -->
-<section class="section-padding bg-stone-50">
+{% comment %} <section class="section-padding bg-stone-50">
     <div class="section-container">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4">چرا دکارو؟</h2>
@@ -285,7 +298,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> {% endcomment %}
 
 <!-- Newsletter -->
 <section class="section-padding bg-primary-600 text-white">
@@ -314,7 +327,7 @@
                 <div class="section-container">
                     <h2 class="text-3xl font-bold text-stone-900 mb-8">پیشنهادهای ما برای شما</h2>
                     <p class="text-stone-600 mb-6">بر اساس سبد خرید و علاقه‌مندی‌های شما</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" x-data="{ view: 'grid' }">
                         {% for product in recommended %}
                             {% include 'catalog/includes/product_card.html' with product=product %}
                         {% endfor %}
