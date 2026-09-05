@@ -35,9 +35,22 @@
                         {{ product_form.base_price.label_tag }}
                         {{ product_form.base_price }}
                     </div>
+                </div>
+
+                <!-- سایز پیش‌فرض -->
+                <h6 class="mt-4">سایز پیش‌فرض (سانتی‌متر)</h6>
+                <div class="row g-3">
                     <div class="col-md-2">
-                        {{ product_form.default_size.label_tag }}
-                        {{ product_form.default_size }}
+                        {{ product_form.length.label_tag }}
+                        {{ product_form.length }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ product_form.width.label_tag }}
+                        {{ product_form.width }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ product_form.height.label_tag }}
+                        {{ product_form.height }}
                     </div>
                 </div>
 
@@ -76,6 +89,8 @@
                                     <th>تعداد</th>
                                     <th>بخش رنگی</th>
                                     <th>قانون تغییر اندازه</th>
+                                    <th>قانون تغییر عرض</th>
+                                    <th>قانون تغییر ارتفاع</th>
                                     <th>حذف</th>
                                 </tr>
                         </thead>
@@ -114,6 +129,30 @@
                                         <option value="custom">✏️ سفارشی</option>
                                     </select>
                                     <input type="text" class="form-control form-control-sm size-rule-custom"
+                                           style="display:none;" placeholder="فرمول دلخواه">
+                                </td>
+                                <td class="width-rule-cell">
+                                    {{ form.width_adjustment_rule }}
+                                    <select class="form-select form-select-sm width-rule-preset">
+                                        <option value="">--- انتخاب قانون ---</option>
+                                        <option value="width + width_diff">عرض + تغییر عرض</option>
+                                        <option value="width + width_diff/3">(عرض + تغییر عرض) ÷ ۳</option>
+                                        <option value="width + width_diff/4">(عرض + تغییر عرض) ÷ ۴</option>
+                                        <option value="custom">✏️ سفارشی</option>
+                                    </select>
+                                    <input type="text" class="form-control form-control-sm width-rule-custom"
+                                           style="display:none;" placeholder="فرمول دلخواه">
+                                </td>
+                                <td class="height-rule-cell">
+                                    {{ form.height_adjustment_rule }}
+                                    <select class="form-select form-select-sm height-rule-preset">
+                                        <option value="">--- انتخاب قانون ---</option>
+                                        <option value="length + height_diff">طول + تغییر ارتفاع</option>
+                                        <option value="length + height_diff/2">طول + (تغییر ارتفاع ÷ ۲)</option>
+                                        <option value="width + height_diff">عرض + تغییر ارتفاع</option>
+                                        <option value="custom">✏️ سفارشی</option>
+                                    </select>
+                                    <input type="text" class="form-control form-control-sm height-rule-custom"
                                            style="display:none;" placeholder="فرمول دلخواه">
                                 </td>
                                 <td class="text-center">

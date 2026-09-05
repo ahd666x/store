@@ -115,11 +115,11 @@
 
         {# Product Info - Sticky #}
         <div class="lg:w-[45%] lg:sticky lg:top-24 lg:self-start">
-            <div class="mb-5">
+            {% comment %} <div class="mb-5">
                 <span class="text-sm font-medium text-primary-700 bg-primary-50 px-3 py-1.5 rounded-full">
                     {{ product.category.name }}
                 </span>
-            </div>
+            </div> {% endcomment %}
             
             <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-4 leading-tight">{{ product.name }}</h1>
             
@@ -147,12 +147,12 @@
                 <p class="text-stone-600 leading-relaxed">{{ product.description|truncatewords:30 }}</p>
             </div>
 
-            <div class="flex items-baseline gap-3 mb-6">
+            {% comment %} <div class="flex items-baseline gap-3 mb-6">
                 <span class="price">{{ product.price|price_fa }} تومان</span>
                 {% if product.base_price and product.base_price != product.price %}
                     <span class="price-original">{{ product.base_price|price_fa }}</span>
                 {% endif %}
-            </div>
+            </div> {% endcomment %}
 
             {% if product.stock == 0 %}
                 <div class="alert alert-danger mb-6">
@@ -171,7 +171,7 @@
 
             {# Dimensions #}
             {% if product.length or product.width or product.height %}
-                <div class="mb-6">
+                {% comment %} <div class="mb-6">
                     <h3 class="font-semibold text-stone-900 mb-3">ابعاد محصول</h3>
                     <div class="grid grid-cols-3 gap-3">
                         {% if product.length %}
@@ -196,7 +196,7 @@
                             </div>
                         {% endif %}
                     </div>
-                </div>
+                </div> {% endcomment %}
             {% endif %}
 
             {# Add to Cart #}
@@ -213,12 +213,12 @@
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
                 <div class="mb-5">
-                    <div class="flex items-center justify-between mb-3">
+                    {% comment %} <div class="flex items-center justify-between mb-3">
                         <h3 class="font-semibold text-stone-900">ابعاد سفارشی (سانتی‌متر)</h3>
                         <button type="button" @click="sizeGuideOpen = true" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
                             راهنمای اندازه
                         </button>
-                    </div>
+                    </div> {% endcomment %}
                     <div class="grid grid-cols-3 gap-3">
                         <div>
                             <label class="form-label">طول</label>

@@ -176,6 +176,7 @@ class Part(BaseModel):
     name = models.CharField(max_length=100, verbose_name="نام قطعه")
     length = models.DecimalField(max_digits=7, decimal_places=1, verbose_name="طول (X)")
     width = models.DecimalField(max_digits=7, decimal_places=1, verbose_name="عرض (Y)")
+    height = models.DecimalField(max_digits=7, decimal_places=1, default=0, verbose_name="ارتفاع (Z)")
     grain = models.CharField(max_length=100, blank=True, verbose_name="دسته")
     pname = models.CharField(max_length=100, verbose_name="نام محصول")
     turn = models.BooleanField(default=False, verbose_name="چرخش")
@@ -236,6 +237,22 @@ class ProductBOM(models.Model):
         blank=True,
         verbose_name="قانون تغییر اندازه",
         help_text="مثال: length+length_diff, width/3"
+    )
+
+    width_affected = models.BooleanField(default=False, verbose_name="تحت تأثیر عرض")
+    width_adjustment_rule = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="قانون تغییر عرض",
+        help_text="مثال: width+width_diff, width/3"
+    )
+
+    height_affected = models.BooleanField(default=False, verbose_name="تحت تأثیر ارتفاع")
+    height_adjustment_rule = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="قانون تغییر ارتفاع",
+        help_text="مثال: length+height_diff, width/2 (از height_diff در فرمول استفاده کنید)"
     )
 
     class Meta:

@@ -7,7 +7,8 @@ from apps.cart.models import Cart, CartItem
 from apps.catalog.models import Part, Product, Color, ColorMaterialMap
 from apps.orders.models import Order, OrderItem, Customer, ProductionTask
 from apps.orders.production_utils import (
-    compute_size_diff, apply_size_adjustment, update_barcode_size,
+    compute_size_diff, apply_size_adjustment, apply_width_adjustment,
+    apply_height_adjustment, update_barcode_size,
     get_painting_process_for_color, get_item_color_assignments,
 )
 
@@ -135,8 +136,12 @@ class OrderService:
                 length, width = part.length, part.width
                 if bom_entry.size_affected and bom_entry.size_adjustment_rule and size_diff:
                     length, width = apply_size_adjustment(part.length, part.width, size_diff, bom_entry.size_adjustment_rule)
+                if bom_entry.width_affected and bom_entry.width_adjustment_rule and size_diff:
+                    length, width = apply_width_adjustment(length, width, size_diff, bom_entry.width_adjustment_rule)
+                if bom_entry.height_affected and bom_entry.height_adjustment_rule and size_diff:
+                    length, width = apply_height_adjustment(length, width, size_diff, bom_entry.height_adjustment_rule)
 
-                new_f3 = update_barcode_size(part.f3, length, width, item.id)
+                new_f3 = update_barcode_size(part.f3, length, width, item.id, part.height)
 
                 dynamic_part, created = Part.objects.get_or_create(
                     base_part=part, material=material, length=length, width=width, f3=new_f3,
@@ -144,6 +149,7 @@ class OrderService:
                         'name': part.name, 'grain': part.grain, 'pname': part.pname, 'turn': part.turn,
                         'f26': part.f26, 'f18': part.f18, 'f4': part.f4, 'f5': part.f5,
                         'f3': new_f3, 'f2': part.f2, 'routing_code': part.routing_code,
+                        'height': part.height,
                     }
                 )
                 if not created and dynamic_part.f3 != new_f3:

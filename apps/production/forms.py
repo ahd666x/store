@@ -304,18 +304,22 @@ class EditOrderItemForm(forms.ModelForm):
 class ProductCreateForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['category', 'name', 'base_price', 'default_size']
+        fields = ['category', 'name', 'base_price', 'length', 'width', 'height']
         widgets = {
             'category': forms.Select(attrs={'class': 'form-select', 'id': 'id_category'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'id': 'id_name'}),
             'base_price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'default_size': forms.TextInput(attrs={'class': 'form-control'}),
+            'length': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'id': 'id_default_length'}),
+            'width': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'id': 'id_default_width'}),
+            'height': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'id': 'id_default_height'}),
         }
         labels = {
             'category': 'دسته‌بندی',
             'name': 'نام محصول',
             'base_price': 'قیمت پایه (ریال)',
-            'default_size': 'سایز پیش‌فرض',
+            'length': 'طول پیش‌فرض (سانتی‌متر)',
+            'width': 'عرض پیش‌فرض (سانتی‌متر)',
+            'height': 'ارتفاع پیش‌فرض (سانتی‌متر)',
         }
 
     def __init__(self, *args, **kwargs):

@@ -114,10 +114,11 @@ const BOM = {
             });
         });
 
-        const applyRuleDropdown = (row) => {
-            const ruleHidden = row.querySelector('.size-rule-hidden');
-            const presetSelect = row.querySelector('.size-rule-preset');
-            const customInput = row.querySelector('.size-rule-custom');
+        const applyRuleDropdown = (row, kind) => {
+            const cls = kind === 'width' ? 'width-rule' : 'size-rule';
+            const ruleHidden = row.querySelector('.' + cls + '-hidden');
+            const presetSelect = row.querySelector('.' + cls + '-preset');
+            const customInput = row.querySelector('.' + cls + '-custom');
             if (!ruleHidden || !presetSelect || !customInput) return;
 
             const syncRuleField = () => {
@@ -159,9 +160,54 @@ const BOM = {
             syncRuleField();
         };
 
+        const applyAllRuleDropdowns = (row) => {
+            applyRuleDropdown(row, 'size');
+            applyRuleDropdown(row, 'width');
+            applyRuleDropdown(row, 'height');
+        };
+
         document.querySelectorAll('#bom-rows tr.bom-row').forEach(row => {
-            applyRuleDropdown(row);
+            applyAllRuleDropdowns(row);
         });
+
+        const sizeRuleCellHtml = (index) => `
+            <td class="size-rule-cell">
+                <input type="hidden" name="bom-${index}-size_adjustment_rule" class="size-rule-hidden" id="id_bom-${index}-size_adjustment_rule">
+                <select class="form-select form-select-sm size-rule-preset">
+                    <option value="">--- انتخاب قانون ---</option>
+                    <option value="length + length_diff">طول + تغییر طول</option>
+                    <option value="length + length_diff/3">(طول + تغییر طول) ÷ ۳</option>
+                    <option value="length + length_diff/4">(طول + تغییر طول) ÷ ۴</option>
+                    <option value="custom">✏️ سفارشی</option>
+                </select>
+                <input type="text" class="form-control form-control-sm size-rule-custom" style="display:none;" placeholder="فرمول دلخواه">
+            </td>`;
+
+        const widthRuleCellHtml = (index) => `
+            <td class="width-rule-cell">
+                <input type="hidden" name="bom-${index}-width_adjustment_rule" class="width-rule-hidden" id="id_bom-${index}-width_adjustment_rule">
+                <select class="form-select form-select-sm width-rule-preset">
+                    <option value="">--- انتخاب قانون ---</option>
+                    <option value="width + width_diff">عرض + تغییر عرض</option>
+                    <option value="width + width_diff/3">(عرض + تغییر عرض) ÷ ۳</option>
+                    <option value="width + width_diff/4">(عرض + تغییر عرض) ÷ ۴</option>
+                    <option value="custom">✏️ سفارشی</option>
+                </select>
+                <input type="text" class="form-control form-control-sm width-rule-custom" style="display:none;" placeholder="فرمول دلخواه">
+            </td>`;
+
+        const heightRuleCellHtml = (index) => `
+            <td class="height-rule-cell">
+                <input type="hidden" name="bom-${index}-height_adjustment_rule" class="height-rule-hidden" id="id_bom-${index}-height_adjustment_rule">
+                <select class="form-select form-select-sm height-rule-preset">
+                    <option value="">--- انتخاب قانون ---</option>
+                    <option value="length + height_diff">طول + تغییر ارتفاع</option>
+                    <option value="length + height_diff/2">طول + (تغییر ارتفاع ÷ ۲)</option>
+                    <option value="width + height_diff">عرض + تغییر ارتفاع</option>
+                    <option value="custom">✏️ سفارشی</option>
+                </select>
+                <input type="text" class="form-control form-control-sm height-rule-custom" style="display:none;" placeholder="فرمول دلخواه">
+            </td>`;
 
         const buildEmptyRowHtml = (index) => {
             return `
@@ -183,17 +229,9 @@ const BOM = {
                     <option value="صفحه">صفحه</option>
                     <option value="رینگ">رینگ</option>
                 </select></td>
-                <td class="size-rule-cell">
-                    <input type="hidden" name="bom-${index}-size_adjustment_rule" class="size-rule-hidden" id="id_bom-${index}-size_adjustment_rule">
-                    <select class="form-select form-select-sm size-rule-preset">
-                        <option value="">--- انتخاب قانون ---</option>
-                        <option value="length + length_diff">طول + تغییر طول</option>
-                        <option value="length + length_diff/3">(طول + تغییر طول) ÷ ۳</option>
-                        <option value="length + length_diff/4">(طول + تغییر طول) ÷ ۴</option>
-                        <option value="custom">✏️ سفارشی</option>
-                    </select>
-                    <input type="text" class="form-control form-control-sm size-rule-custom" style="display:none;" placeholder="فرمول دلخواه">
-                </td>
+                ${sizeRuleCellHtml(index)}
+                ${widthRuleCellHtml(index)}
+                ${heightRuleCellHtml(index)}
                 <td class="text-center"></td>
                 <input type="hidden" name="bom-${index}-color_material_map" id="id_bom-${index}-color_material_map">
             </tr>`;
@@ -211,7 +249,7 @@ const BOM = {
                 newRow.innerHTML = buildEmptyRowHtml(currentCount);
                 tbody.appendChild(newRow);
                 totalForms.value = currentCount + 1;
-                applyRuleDropdown(newRow);
+                applyAllRuleDropdowns(newRow);
                 return;
             }
 
@@ -251,12 +289,20 @@ const BOM = {
             newRow.querySelector('.size-rule-custom').style.display = 'none';
             newRow.querySelector('.size-rule-custom').value = '';
             newRow.querySelector('.size-rule-hidden').value = '';
+            newRow.querySelector('.width-rule-preset').value = '';
+            newRow.querySelector('.width-rule-custom').style.display = 'none';
+            newRow.querySelector('.width-rule-custom').value = '';
+            newRow.querySelector('.width-rule-hidden').value = '';
+            newRow.querySelector('.height-rule-preset').value = '';
+            newRow.querySelector('.height-rule-custom').style.display = 'none';
+            newRow.querySelector('.height-rule-custom').value = '';
+            newRow.querySelector('.height-rule-hidden').value = '';
             newRow.querySelector('input[name$="-color_material_map"]').value = '';
 
             tbody.appendChild(newRow);
             totalForms.value = currentCount + 1;
 
-            applyRuleDropdown(newRow);
+            applyAllRuleDropdowns(newRow);
         });
     }
 };

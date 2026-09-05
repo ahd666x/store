@@ -10,23 +10,58 @@ from apps.production.models import PaintingProcess
 logger = logging.getLogger(__name__)
 
 
+def cm_to_mm(cm):
+    return cm * 10
+
+
+def mm_to_cm(mm):
+    return mm / 10
+
+
+def parse_size_string(size_str):
+    size_str = str(size_str or '').strip()
+    if not size_str or size_str.lower() in {'nan', 'استاندارد'}:
+        return {}
+    normalized = re.sub(r'[×xX*]', 'x', size_str)
+    numbers = re.findall(r'\d+', normalized)
+    result = {}
+    if len(numbers) >= 1:
+        result['length'] = int(numbers[0])
+    if len(numbers) >= 2:
+        result['width'] = int(numbers[1])
+    if len(numbers) >= 3:
+        result['height'] = int(numbers[2])
+    return result
+
+
 def compute_size_diff(product, order_item):
     length_diff_mm = 0
     width_diff_mm = 0
+    height_diff_mm = 0
 
     if product.length is not None and order_item.length is not None:
-        length_diff_mm = (order_item.length - product.length) * 10
+        length_diff_cm = order_item.length - product.length
+        length_diff_mm = cm_to_mm(length_diff_cm)
 
     if product.width is not None and order_item.width is not None:
-        width_diff_mm = (order_item.width - product.width) * 10
+        width_diff_cm = order_item.width - product.width
+        width_diff_mm = cm_to_mm(width_diff_cm)
 
-    if length_diff_mm == 0 and width_diff_mm == 0:
+    if product.height is not None and order_item.height is not None:
+        height_diff_cm = order_item.height - product.height
+        height_diff_mm = cm_to_mm(height_diff_cm)
+
+    if length_diff_mm == 0 and width_diff_mm == 0 and height_diff_mm == 0:
         return {}
 
-    return {'length_diff': length_diff_mm, 'width_diff': width_diff_mm}
+    return {
+        'length_diff': length_diff_mm,
+        'width_diff': width_diff_mm,
+        'height_diff': height_diff_mm,
+    }
 
 
-_ALLOWED_NAMES = {'length', 'width'}
+_ALLOWED_NAMES = {'length', 'width', 'height'}
 _ALLOWED_OPS = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
@@ -70,6 +105,7 @@ def apply_size_adjustment(original_length, original_width, diff_dict, rule):
         rule
         .replace('length_diff', str(diff_dict.get('length_diff', 0)))
         .replace('width_diff', str(diff_dict.get('width_diff', 0)))
+        .replace('height_diff', str(diff_dict.get('height_diff', 0)))
     )
 
     try:
@@ -82,12 +118,61 @@ def apply_size_adjustment(original_length, original_width, diff_dict, rule):
         return (float(original_length), float(original_width))
 
 
-def update_barcode_size(original_barcode, new_length, new_width, order_item_id=None):
+def apply_width_adjustment(original_length, original_width, diff_dict, rule):
+    if not rule or not diff_dict:
+        return (float(original_length), float(original_width))
+
+    expr = (
+        rule
+        .replace('length_diff', str(diff_dict.get('length_diff', 0)))
+        .replace('width_diff', str(diff_dict.get('width_diff', 0)))
+        .replace('height_diff', str(diff_dict.get('height_diff', 0)))
+    )
+
+    try:
+        tree = ast.parse(expr, mode='eval')
+        variables = {'length': float(original_length), 'width': float(original_width)}
+        new_width = _eval_node(tree, variables)
+        return (float(original_length), new_width)
+    except Exception:
+        logger.exception("Error evaluating width adjustment rule: %s", rule)
+        return (float(original_length), float(original_width))
+
+
+def apply_height_adjustment(original_length, original_width, diff_dict, rule):
+    if not rule or not diff_dict:
+        return (float(original_length), float(original_width))
+
+    expr = (
+        rule
+        .replace('length_diff', str(diff_dict.get('length_diff', 0)))
+        .replace('width_diff', str(diff_dict.get('width_diff', 0)))
+        .replace('height_diff', str(diff_dict.get('height_diff', 0)))
+    )
+
+    try:
+        tree = ast.parse(expr, mode='eval')
+        variables = {'length': float(original_length), 'width': float(original_width)}
+        result = _eval_node(tree, variables)
+        if isinstance(result, (int, float)):
+            if 'width' in rule.replace('width_diff', ''):
+                return (float(original_length), float(result))
+            return (float(result), float(original_width))
+        return (float(original_length), float(original_width))
+    except Exception:
+        logger.exception("Error evaluating height adjustment rule: %s", rule)
+        return (float(original_length), float(original_width))
+
+
+def update_barcode_size(original_barcode, new_length, new_width, order_item_id=None, new_height=None):
     if not original_barcode:
         return original_barcode
 
-    new_size = f"{int(new_length)}x{int(new_width)}"
-    result = re.sub(r'\d+x\d+', new_size, original_barcode)
+    if new_height is not None and float(new_height) > 0:
+        new_size = f"{int(new_length)}x{int(new_width)}x{int(new_height)}"
+    else:
+        new_size = f"{int(new_length)}x{int(new_width)}"
+    result = re.sub(r'\d+(?:x\d+){1,2}', new_size, original_barcode)
     if result == original_barcode:
         result = f"{original_barcode}.{new_size}"
 

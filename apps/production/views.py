@@ -69,6 +69,7 @@ from apps.production.utils import (
 from apps.orders.production_utils import (
     get_item_color_assignments,
     get_painting_process_for_color,
+    parse_size_string,
 )
 from apps.common.permissions import is_production_staff
 
@@ -486,9 +487,6 @@ def admin_tasks_management(request):
                 count = qs.count()
                 for task in qs:
                     task.status = new_status
-                    old = ProductionTask.objects.filter(pk=task.pk).values_list('status', flat=True).first()
-                    if new_status == 'done' and old != 'done':
-                        task.completed_at = jdatetime.date.today()
                     task.save(update_fields=['status', 'completed_at'])
                 messages.success(request, f'وضعیت {count} وظیفه تغییر یافت.')
         elif action == 'bulk_worker':
@@ -1097,9 +1095,9 @@ def export_multiple_autocut(request):
             part = task.part
             order = task.order
             order_item = order.items.filter(product__bom__part=part).first()
-            product_name = order_item.pname if order_item else ""
-            product_category = order_item.grain if order_item else ""
-            customer_name = order.user.username if order.user.username else ""
+            product_name = order_item.product.name if order_item and order_item.product else ""
+            product_category = order_item.product.category.name if order_item and order_item.product and order_item.product.category else ""
+            customer_name = order.user.username if order.user and order.user.username else ""
 
             shape = ET.SubElement(objective, f"{{{NS}}}Shape", {
                 "Name": f"P{shape_counter:03d}",
@@ -1181,6 +1179,7 @@ def upload_form(request):
                     size_val = str(row.get('اندازه', ''))
                     if size_val in ['nan', 'استاندارد']:
                         size_val = ''
+                    size_parts = parse_size_string(size_val)
                     product, _ = Product.objects.get_or_create(
                         category=category,
                         name=str(row.get('محصول', '')).strip(),
@@ -1191,18 +1190,24 @@ def upload_form(request):
                         product=product,
                         quantity=int(row.get('تعداد', 1)),
                         size=size_val,
+                        length=size_parts.get('length'),
+                        width=size_parts.get('width'),
+                        height=size_parts.get('height'),
                         notes=str(row.get('توضیحات', ''))
                     )
 
+                    valid_codes = {str(c[0]) for c in OrderColor.CODE_CHOICES}
                     color_parts = ['بدنه', 'درب', 'دستگیره', 'پایه', 'صفحه']
                     for part in color_parts:
                         code = str(row.get(part, 'nan'))
                         if code and code != 'nan':
-                            OrderColor.objects.create(
-                                part=part,
-                                code=code.split('.')[0],
-                                orderitem=order_item
-                            )
+                            clean_code = code.split('.')[0]
+                            if clean_code in valid_codes:
+                                OrderColor.objects.create(
+                                    part=part,
+                                    code=clean_code,
+                                    orderitem=order_item
+                                )
                     saved += 1
             except Exception as e:
                 logger.exception(f"خطا در ردیف {idx}: {e}")
@@ -1281,12 +1286,16 @@ def create_complete_order(request):
                     size=form.cleaned_data['size']
                 )
                 order = Order.objects.create(user=request.user, customer=customer)
+                size_parts = parse_size_string(form.cleaned_data['size'])
                 order_item = OrderItem.objects.create(
                     order=order,
                     product=product,
                     quantity=form.cleaned_data['quantity'],
                     notes=form.cleaned_data['notes'],
-                    size=form.cleaned_data['size']
+                    size=form.cleaned_data['size'],
+                    length=size_parts.get('length'),
+                    width=size_parts.get('width'),
+                    height=size_parts.get('height'),
                 )
                 colors_data = [
                     ('بدنه', form.cleaned_data['rang_bazne']),
@@ -2685,7 +2694,11 @@ def report_shipped(request):
             except User.DoesNotExist:
                 pass
         else:
-            representative_name = units.first().order_item.order.user.get_full_name() or units.first().order_item.order.user.username
+            first_unit = units.first()
+            if first_unit and first_unit.order_item and first_unit.order_item.order and first_unit.order_item.order.user:
+                representative_name = first_unit.order_item.order.user.get_full_name() or first_unit.order_item.order.user.username
+            else:
+                representative_name = ""
         total_price = sum(unit.order_item.unit_price for unit in units)
 
     if request.GET.get('print'):
@@ -2722,12 +2735,14 @@ def report_shipped(request):
 def product_create(request):
     BOMFormSet = inlineformset_factory(
         Product, ProductBOM,
-        fields=['part', 'quantity', 'size_adjustment_rule', 'color_part', 'color_material_map'],
+        fields=['part', 'quantity', 'size_adjustment_rule', 'width_adjustment_rule', 'height_adjustment_rule', 'color_part', 'color_material_map'],
         extra=1, can_delete=True,
         widgets={
             'part': forms.HiddenInput(),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'size_adjustment_rule': forms.HiddenInput(attrs={'class': 'size-rule-hidden'}),
+            'width_adjustment_rule': forms.HiddenInput(attrs={'class': 'width-rule-hidden'}),
+            'height_adjustment_rule': forms.HiddenInput(attrs={'class': 'height-rule-hidden'}),
             'color_part': forms.Select(attrs={'class': 'form-select color-part-select'}),
             'color_material_map': forms.HiddenInput(),
         }
@@ -2753,6 +2768,8 @@ def product_create(request):
                 for bom in instances:
                     bom.product = product
                     bom.size_affected = bool(bom.size_adjustment_rule)
+                    bom.width_affected = bool(bom.width_adjustment_rule)
+                    bom.height_affected = bool(bom.height_adjustment_rule)
                     bom.save()
                 for obj in formset.deleted_objects:
                     obj.delete()
@@ -2779,12 +2796,14 @@ def product_edit(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     BOMFormSet = inlineformset_factory(
         Product, ProductBOM,
-        fields=['part', 'quantity', 'size_adjustment_rule', 'color_part', 'color_material_map'],
+        fields=['part', 'quantity', 'size_adjustment_rule', 'width_adjustment_rule', 'height_adjustment_rule', 'color_part', 'color_material_map'],
         extra=0, can_delete=True,
         widgets={
             'part': forms.HiddenInput(),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'size_adjustment_rule': forms.HiddenInput(attrs={'class': 'size-rule-hidden'}),
+            'width_adjustment_rule': forms.HiddenInput(attrs={'class': 'width-rule-hidden'}),
+            'height_adjustment_rule': forms.HiddenInput(attrs={'class': 'height-rule-hidden'}),
             'color_part': forms.Select(attrs={'class': 'form-select color-part-select'}),
             'color_material_map': forms.HiddenInput(),
         }
@@ -2810,6 +2829,8 @@ def product_edit(request, product_id):
                 for bom in instances:
                     bom.product = product
                     bom.size_affected = bool(bom.size_adjustment_rule)
+                    bom.width_affected = bool(bom.width_adjustment_rule)
+                    bom.height_affected = bool(bom.height_adjustment_rule)
                     bom.save()
                 for obj in formset.deleted_objects:
                     obj.delete()
@@ -4156,6 +4177,20 @@ def delete_all_paint_tasks_for_order(request, order_id):
         if not remaining_tasks.exists():
             order.status = 'draft'
             order.save(update_fields=['status'])
+        else:
+            total = remaining_tasks.count()
+            done = remaining_tasks.filter(status='done').count()
+            if total == 0:
+                new_status = 'draft'
+            elif done == total:
+                new_status = 'completed'
+            elif done > 0:
+                new_status = 'producing'
+            else:
+                new_status = 'planned'
+            if order.status != new_status:
+                order.status = new_status
+                order.save(update_fields=['status'])
 
     messages.success(request, f"✅ {count} تسک نقاشی سفارش {order.id} حذف شدند.")
     return redirect('order_detail', order_id=order.id)
